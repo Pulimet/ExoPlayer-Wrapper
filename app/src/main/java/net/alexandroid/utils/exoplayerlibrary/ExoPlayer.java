@@ -36,7 +36,6 @@ public class ExoPlayer implements View.OnClickListener {
     // TODO 3. Compatible for integration at ynet main page
     // TODO 4. Compatible for integration at ynet slider activity
 
-
     public static final String APPLICATION_NAME = "ExoPlayerLibrary";
 
     private SimpleExoPlayerView mExoPlayerView;
