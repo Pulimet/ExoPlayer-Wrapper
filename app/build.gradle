@@ -34,4 +34,5 @@ dependencies {
     compile 'com.google.android.exoplayer:exoplayer-ui:r2.5.3'
     compile 'com.google.android.exoplayer:exoplayer-hls:r2.5.3'
     compile 'com.google.android.exoplayer:extension-ima:r2.5.3'
+    implementation 'com.android.support:recyclerview-v7:26.1.0'
 }
