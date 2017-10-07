@@ -3,6 +3,7 @@ package net.alexandroid.utils.exoplayerlibrary;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
@@ -46,11 +47,14 @@ public class ExoPlayer implements View.OnClickListener,
         ImaAdsLoader.VideoAdPlayerCallback,
         ImaAdsMediaSource.AdsListener {
 
-    // TODO 2. onScreen rotation
     // TODO 3. Compatible for integration at ynet main page
     // TODO 4. Compatible for integration at ynet slider activity
 
     public static final String APPLICATION_NAME = "ExoPlayerLibrary";
+    public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
+    public static final String PARAM_WINDOW = "PARAM_WINDOW";
+    public static final String PARAM_POSITION = "PARAM_POSITION";
+    public static final String PARAM_IS_AD_WAS_SHOWN = "PARAM_IS_AD_WAS_SHOWN";
 
     private SimpleExoPlayerView mExoPlayerView;
     private SimpleExoPlayer mPlayer;
@@ -71,20 +75,19 @@ public class ExoPlayer implements View.OnClickListener,
     private boolean isRepeatModeOn;
     private boolean isAutoPlayOn;
     private TrackSelector mTrackSelector;
-    private long mResumePosition;
-    private int mResumeWindow;
+    private long mResumePosition = C.TIME_UNSET;
+    private int mResumeWindow = C.INDEX_UNSET;
     private boolean isResumePlayWhenReady;
     private Uri[] mVideosUris;
     private String mTagUrl;
     private ExoAdListener mExoAdListener;
     private ImageView mMuteBtn;
     private ProgressBar mProgressBar;
+    private boolean isAdWasShown;
 
     private ExoPlayer(Context context) {
         mHandler = new Handler();
         mContext = context;
-
-        clearResumePosition();
 
         // Measures bandwidth during playback. Can be null if not required.
         mBandwidthMeter = new DefaultBandwidthMeter();
@@ -200,6 +203,16 @@ public class ExoPlayer implements View.OnClickListener,
         mTagUrl = tagUrl;
     }
 
+    private void addSavedInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            isAdWasShown = savedInstanceState.getBoolean(PARAM_IS_AD_WAS_SHOWN, false);
+            isResumePlayWhenReady = savedInstanceState.getBoolean(PARAM_AUTO_PLAY, true);
+            mResumeWindow = savedInstanceState.getInt(PARAM_WINDOW, C.INDEX_UNSET);
+            mResumePosition = savedInstanceState.getLong(PARAM_POSITION, C.TIME_UNSET);
+        }
+    }
+
+
     private void createExoPlayer() {
         if (mExoPlayerListener != null) {
             mExoPlayerListener.createExoPlayerCalled();
@@ -241,7 +254,6 @@ public class ExoPlayer implements View.OnClickListener,
 
     }
 
-
     private void createMediaSource() {
         // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
         // A MediaSource is injected via ExoPlayer.prepare at the start of playback.
@@ -260,7 +272,7 @@ public class ExoPlayer implements View.OnClickListener,
         if (mMediaSource == null) {
             throw new IllegalStateException("setVideoUrls must be invoked before setTagUrl (mMediaSource is null)");
         }
-        if (mTagUrl == null) {
+        if (mTagUrl == null || isAdWasShown) {
             return;
         }
 
@@ -323,6 +335,7 @@ public class ExoPlayer implements View.OnClickListener,
         setProgressVisible(false);
     }
 
+
     private void setProgressVisible(boolean visible) {
         if (mProgressBar != null) {
             mProgressBar.setVisibility(visible ? View.VISIBLE : View.GONE);
@@ -331,6 +344,7 @@ public class ExoPlayer implements View.OnClickListener,
 
     private void onAdEnded() {
         updateMutedStatus();
+        isAdWasShown = true;
     }
 
     private void onAdUserClicked() {
@@ -366,6 +380,7 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
+
         public Builder setTagUrl(String tagUrl) {
             mExoPlayer.setTagUrl(tagUrl);
             return this;
@@ -375,7 +390,6 @@ public class ExoPlayer implements View.OnClickListener,
             mExoPlayer.setRepeatModeOn(isOn);
             return this;
         }
-
 
         public Builder setAutoPlayOn(boolean isAutoPlayOn) {
             mExoPlayer.setAutoPlayOn(isAutoPlayOn);
@@ -389,6 +403,11 @@ public class ExoPlayer implements View.OnClickListener,
 
         public Builder setExoAdEventsListener(ExoAdListener pExoAdEventsListener) {
             mExoPlayer.setExoAdListener(pExoAdEventsListener);
+            return this;
+        }
+
+        public Builder addSavedInstanceState(Bundle pSavedInstanceState) {
+            mExoPlayer.addSavedInstanceState(pSavedInstanceState);
             return this;
         }
 
@@ -544,6 +563,14 @@ public class ExoPlayer implements View.OnClickListener,
     @Override
     public void onPlayPlayer() {
         mPlayer.setPlayWhenReady(true);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(PARAM_IS_AD_WAS_SHOWN, !mPlayer.isPlayingAd());
+        outState.putBoolean(PARAM_AUTO_PLAY, mPlayer.getPlayWhenReady());
+        outState.putInt(PARAM_WINDOW, mPlayer.getCurrentWindowIndex());
+        outState.putLong(PARAM_POSITION, mPlayer.getContentPosition());
     }
 
     @Override

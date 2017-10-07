@@ -1,6 +1,8 @@
 package net.alexandroid.utils.exoplayerlibrary;
 
 
+import android.os.Bundle;
+
 public interface ExoPlayerControl {
 
     void onInitPlayer();
@@ -20,4 +22,6 @@ public interface ExoPlayerControl {
     void onActivityStop();
 
     void onActivityDestroy();
+
+    void onSaveInstanceState(Bundle outState);
 }

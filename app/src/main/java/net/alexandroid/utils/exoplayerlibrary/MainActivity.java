@@ -35,7 +35,16 @@ public class MainActivity extends AppCompatActivity
                 .setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)
+                .addSavedInstanceState(savedInstanceState)
                 .build();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        MyLog.i("onSaveInstanceState");
+        mExoPlayer.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
