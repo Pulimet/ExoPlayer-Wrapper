@@ -49,6 +49,7 @@ public class ExoPlayer implements View.OnClickListener,
         ImaAdsLoader.VideoAdPlayerCallback,
         ImaAdsMediaSource.AdsListener {
 
+    // TODO 2. Thumbnail support
     // TODO 3. Compatible for integration at ynet main page
     // TODO 4. Compatible for integration at ynet slider activity
 
@@ -496,7 +497,9 @@ public class ExoPlayer implements View.OnClickListener,
 
     @Override
     public void onPlay() {
-        mExoAdListener.onAdPlay();
+        if (mExoAdListener != null) {
+            mExoAdListener.onAdPlay();
+        }
     }
 
     @Override
@@ -506,23 +509,31 @@ public class ExoPlayer implements View.OnClickListener,
 
     @Override
     public void onPause() {
-        mExoAdListener.onAdPause();
+        if (mExoAdListener != null) {
+            mExoAdListener.onAdPause();
+        }
     }
 
     @Override
     public void onResume() {
-        mExoAdListener.onAdResume();
+        if (mExoAdListener != null) {
+            mExoAdListener.onAdResume();
+        }
     }
 
     @Override
     public void onEnded() {
         onAdEnded();
-        mExoAdListener.onAdEnded();
+        if (mExoAdListener != null) {
+            mExoAdListener.onAdEnded();
+        }
     }
 
     @Override
     public void onError() {
-        mExoAdListener.onAdError();
+        if (mExoAdListener != null) {
+            mExoAdListener.onAdError();
+        }
     }
 
     /**
@@ -530,18 +541,24 @@ public class ExoPlayer implements View.OnClickListener,
      */
     @Override
     public void onAdLoadError(IOException error) {
-        mExoAdListener.onAdLoadError();
+        if (mExoAdListener != null) {
+            mExoAdListener.onAdLoadError();
+        }
     }
 
     @Override
     public void onAdClicked() {
         onAdUserClicked();
-        mExoAdListener.onAdClicked();
+        if (mExoAdListener != null) {
+            mExoAdListener.onAdClicked();
+        }
     }
 
     @Override
     public void onAdTapped() {
-        mExoAdListener.onAdTapped();
+        if (mExoAdListener != null) {
+            mExoAdListener.onAdTapped();
+        }
     }
 
     /**
