@@ -45,8 +45,6 @@ public class ExoPlayer implements View.OnClickListener,
         ImaAdsLoader.VideoAdPlayerCallback,
         ImaAdsMediaSource.AdsListener {
 
-    // TODO 1. Listeners
-    // TODO 2. Release SimpleExoPlayer and ImaAdsLoader (Demo app and: https://goo.gl/e4pgHR )
     // TODO 3. Compatible for integration at ynet main page
     // TODO 4. Compatible for integration at ynet slider activity
     // TODO 5. updateMutedStatus(); onAdPlay and onVideoPlay
@@ -227,9 +225,11 @@ public class ExoPlayer implements View.OnClickListener,
         if (mTagUrl == null) {
             return;
         }
-        mImaAdsLoader = new ImaAdsLoader(mContext, Uri.parse(mTagUrl));
 
-        mImaAdsLoader.addCallback(this);
+        if (mImaAdsLoader == null) {
+            mImaAdsLoader = new ImaAdsLoader(mContext, Uri.parse(mTagUrl));
+            mImaAdsLoader.addCallback(this);
+        }
 
         mMediaSource = new ImaAdsMediaSource(mMediaSource,
                 mDataSourceFactory,
