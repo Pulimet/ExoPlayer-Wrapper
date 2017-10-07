@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MyLog.e("onActivityCreate");
 
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 
@@ -40,30 +41,35 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        MyLog.i("onActivityStart");
         mExoPlayer.onActivityStart();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        MyLog.i("onActivityResume");
         mExoPlayer.onActivityResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        MyLog.i("onActivityPause");
         mExoPlayer.onActivityPause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        MyLog.i("onActivityStop");
         mExoPlayer.onActivityStop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        MyLog.e("onActivityDestroy");
         mExoPlayer.onActivityDestroy();
     }
 
@@ -106,6 +112,20 @@ public class MainActivity extends AppCompatActivity
         MyLog.e("onPlayerError");
     }
 
+    @Override
+    public void createExoPlayerCalled() {
+        MyLog.d("createExoPlayerCalled");
+    }
+
+    @Override
+    public void releaseExoPlayerCalled() {
+        MyLog.d("releaseExoPlayerCalled");
+    }
+
+    @Override
+    public void onVideoResumeDataLoaded(int window, long position, boolean isResumeWhenReady) {
+        MyLog.d("window: " + window + "  position: " + position + " autoPlay: " + isResumeWhenReady);
+    }
 
     /**
      * ExoAdListener

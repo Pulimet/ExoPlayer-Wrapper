@@ -74,6 +74,7 @@ public class ExoPlayer implements View.OnClickListener,
     private TrackSelector mTrackSelector;
     private long mResumePosition;
     private int mResumeWindow;
+    private boolean isResumePlayWhenReady;
     private Uri[] mVideosUris;
     private String mTagUrl;
     private ExoAdListener mExoAdListener;
@@ -201,6 +202,9 @@ public class ExoPlayer implements View.OnClickListener,
     }
 
     private void createExoPlayer() {
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.createExoPlayerCalled();
+        }
         if (mPlayer != null) {
             return;
         }
@@ -226,7 +230,12 @@ public class ExoPlayer implements View.OnClickListener,
 
         boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
         if (haveResumePosition) {
+            mPlayer.setPlayWhenReady(isResumePlayWhenReady);
             mPlayer.seekTo(mResumeWindow, mResumePosition);
+
+            if(mExoPlayerListener != null) {
+                mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
+            }
         }
         mPlayer.prepare(mMediaSource, !haveResumePosition, false);
     }
@@ -268,6 +277,9 @@ public class ExoPlayer implements View.OnClickListener,
     }
 
     private void releasePlayer() {
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.releaseExoPlayerCalled();
+        }
         if (mPlayer != null) {
             updateResumePosition();
             mPlayer.release();
@@ -285,6 +297,7 @@ public class ExoPlayer implements View.OnClickListener,
     }
 
     private void updateResumePosition() {
+        isResumePlayWhenReady = mPlayer.getPlayWhenReady();
         mResumeWindow = mPlayer.getCurrentWindowIndex();
         mResumePosition = Math.max(0, mPlayer.getContentPosition());
     }
@@ -303,6 +316,10 @@ public class ExoPlayer implements View.OnClickListener,
     private void onPlayerPlaying() {
         setProgressVisible(false);
         updateMutedStatus();
+    }
+
+    private void onPlayerPaused() {
+        setProgressVisible(false);
     }
 
     private void setProgressVisible(boolean visible) {
@@ -359,11 +376,11 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
+
         public Builder setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
             mExoPlayer.setExoPlayerEventsListener(pExoPlayerListenerListener);
             return this;
         }
-
 
         public Builder setExoAdEventsListener(ExoAdListener pExoAdEventsListener) {
             mExoPlayer.setExoAdListener(pExoAdEventsListener);
@@ -408,6 +425,7 @@ public class ExoPlayer implements View.OnClickListener,
                     onPlayerPlaying();
                     mExoPlayerListener.onPlayerPlaying();
                 } else {
+                    onPlayerPaused();
                     mExoPlayerListener.onPlayerPaused();
                 }
                 break;

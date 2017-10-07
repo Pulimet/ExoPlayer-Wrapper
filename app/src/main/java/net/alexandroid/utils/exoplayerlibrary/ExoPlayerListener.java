@@ -15,4 +15,10 @@ public interface ExoPlayerListener {
     void onPlayerStateIdle();
 
     void onPlayerError();
+
+    void createExoPlayerCalled();
+
+    void releaseExoPlayerCalled();
+
+    void onVideoResumeDataLoaded(int window, long position, boolean isResumeWhenReady);
 }
