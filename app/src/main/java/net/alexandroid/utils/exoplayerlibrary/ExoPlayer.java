@@ -35,6 +35,8 @@ public class ExoPlayer implements View.OnClickListener {
     // TODO 2. Release SimpleExoPlayer and ImaAdsLoader (Demo app and: https://goo.gl/e4pgHR )
     // TODO 3. Compatible for integration at ynet main page
     // TODO 4. Compatible for integration at ynet slider activity
+    // TODO 5. updateMutedStatus(); onAdPlay and onVideoPlay
+    // TODO 6. Loading progress animation
 
     public static final String APPLICATION_NAME = "ExoPlayerLibrary";
 
@@ -48,7 +50,8 @@ public class ExoPlayer implements View.OnClickListener {
     private Context mContext;
 
     private float mTempCurrentVolume;
-    private boolean isMuted;
+    private boolean isVideoMuted;
+    private boolean isAdMuted;
     private boolean isRepeatModeOn;
     private final TrackSelector mTrackSelector;
 
@@ -83,9 +86,14 @@ public class ExoPlayer implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.muteBtn:
-                isMuted = !isMuted;
-                ((ImageView) v).setImageResource(isMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
-                setMute(isMuted);
+                if (mPlayer.isPlayingAd()) {
+                    isAdMuted = !isAdMuted;
+                    ((ImageView) v).setImageResource(isAdMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+                } else {
+                    isVideoMuted = !isVideoMuted;
+                    ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+                }
+                updateMutedStatus();
                 break;
         }
     }
@@ -129,14 +137,15 @@ public class ExoPlayer implements View.OnClickListener {
                 null);
     }
 
-    private void addMuteButton(boolean isMuted) {
-        this.isMuted = isMuted;
+    private void addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
+        this.isVideoMuted = isVideoMuted;
+        this.isAdMuted = isAdMuted;
 
         FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
 
         ImageView muteBtn = new ImageView(mContext);
         muteBtn.setId(R.id.muteBtn);
-        muteBtn.setImageResource(isMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+        muteBtn.setImageResource(this.isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
@@ -156,7 +165,7 @@ public class ExoPlayer implements View.OnClickListener {
         mExoPlayerView.setControllerShowTimeoutMs(1500);
 
         mTempCurrentVolume = mPlayer.getVolume();
-        setMute(isMuted);
+        updateMutedStatus();
 
         mPlayer.setRepeatMode(isRepeatModeOn ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
         mPlayer.setPlayWhenReady(true);
@@ -164,9 +173,8 @@ public class ExoPlayer implements View.OnClickListener {
         mPlayer.prepare(mMediaSource);
     }
 
-    private void setMute(boolean isMute) {
-        isMuted = isMute;
-        if (isMute) {
+    private void updateMutedStatus() {
+        if ((mPlayer.isPlayingAd() && isAdMuted) || (!mPlayer.isPlayingAd() && isVideoMuted)) {
             mPlayer.setVolume(0f);
         } else {
             mPlayer.setVolume(mTempCurrentVolume);
@@ -187,8 +195,8 @@ public class ExoPlayer implements View.OnClickListener {
             return this;
         }
 
-        public Builder addMuteButton(boolean isMuted) {
-            mExoPlayer.addMuteButton(isMuted);
+        public Builder addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
+            mExoPlayer.addMuteButton(isAdMuted, isVideoMuted);
             return this;
         }
 
