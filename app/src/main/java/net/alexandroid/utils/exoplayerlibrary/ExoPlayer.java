@@ -3,23 +3,29 @@ package net.alexandroid.utils.exoplayerlibrary;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -28,8 +34,12 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
+import java.io.IOException;
+
+
 @SuppressWarnings("WeakerAccess")
-public class ExoPlayer implements View.OnClickListener {
+public class ExoPlayer implements View.OnClickListener,
+        ExoPlayerControl, Player.EventListener, ImaAdsMediaSource.AdsListener {
 
     // TODO 1. Listeners
     // TODO 2. Release SimpleExoPlayer and ImaAdsLoader (Demo app and: https://goo.gl/e4pgHR )
@@ -45,18 +55,23 @@ public class ExoPlayer implements View.OnClickListener {
     private ImaAdsLoader mImaAdsLoader;
     private DataSource.Factory mDataSourceFactory;
     private final DefaultLoadControl mLoadControl;
-
+    private final TrackSelector mTrackSelector;
     private MediaSource mMediaSource;
+
+    private ExoPlayerEvents mExoPlayerEvents;
+
     private Context mContext;
+    private Handler mHandler;
 
     private float mTempCurrentVolume;
     private boolean isVideoMuted;
     private boolean isAdMuted;
     private boolean isRepeatModeOn;
     private boolean isAutoPlayOn;
-    private final TrackSelector mTrackSelector;
+
 
     private ExoPlayer(Context context) {
+        mHandler = new Handler();
         mContext = context;
 
         // Measures bandwidth during playback. Can be null if not required.
@@ -138,8 +153,8 @@ public class ExoPlayer implements View.OnClickListener {
                 mDataSourceFactory,
                 mImaAdsLoader,
                 mExoPlayerView.getOverlayFrameLayout(),
-                null,
-                null);
+                mHandler,
+                this);
     }
 
     private void addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
@@ -175,6 +190,8 @@ public class ExoPlayer implements View.OnClickListener {
         mPlayer.setRepeatMode(isRepeatModeOn ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
         mPlayer.setPlayWhenReady(isAutoPlayOn);
 
+        mPlayer.addListener(this);
+
         mPlayer.prepare(mMediaSource);
     }
 
@@ -184,6 +201,10 @@ public class ExoPlayer implements View.OnClickListener {
         } else {
             mPlayer.setVolume(mTempCurrentVolume);
         }
+    }
+
+    private void setExoPlayerEventsListener(ExoPlayerEvents exoPlayerEventsListener) {
+        mExoPlayerEvents = exoPlayerEventsListener;
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -229,6 +250,12 @@ public class ExoPlayer implements View.OnClickListener {
             mExoPlayer.setAutoPlayOn(isAutoPlayOn);
             return this;
         }
+
+        public Builder setExoPlayerEventsListener(ExoPlayerEvents exoPlayerEventsListener) {
+            mExoPlayer.setExoPlayerEventsListener(exoPlayerEventsListener);
+            return this;
+        }
+
         public ExoPlayer build() {
             mExoPlayer.createExoPlayer();
             return mExoPlayer;
@@ -236,4 +263,113 @@ public class ExoPlayer implements View.OnClickListener {
 
     }
 
+
+    /**
+     * ExoPlayer Player.EventListener
+     */
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+
+    }
+
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+
+    }
+
+    @Override
+    public void onPositionDiscontinuity() {
+
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+    }
+
+    /**
+     * ImaAdsMediaSource.AdsListener
+     */
+    @Override
+    public void onAdLoadError(IOException error) {
+
+    }
+
+    @Override
+    public void onAdClicked() {
+
+    }
+
+    @Override
+    public void onAdTapped() {
+
+    }
+
+    /**
+     * ExoPlayerControl interface methods
+     */
+    @Override
+    public void initPlayer() {
+
+    }
+
+    @Override
+    public void releasePlayer() {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void play() {
+
+    }
+
+    @Override
+    public void onActivityStart() {
+
+    }
+
+    @Override
+    public void onActivityResume() {
+
+    }
+
+    @Override
+    public void onActivityPause() {
+
+    }
+
+    @Override
+    public void onActivityStop() {
+
+    }
+
+    @Override
+    public void onActivityDestroy() {
+
+    }
 }
