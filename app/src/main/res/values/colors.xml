@@ -10,4 +10,5 @@
     <color name="bufferedColor">#FFFFFFFF</color>
 
     <color name="progressBarColor">#303F9F</color>
+    <color name="bgColor">#CCCCCC</color>
 </resources>

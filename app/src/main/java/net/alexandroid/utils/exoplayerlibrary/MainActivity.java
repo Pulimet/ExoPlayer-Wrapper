@@ -1,7 +1,9 @@
 package net.alexandroid.utils.exoplayerlibrary;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
@@ -9,6 +11,7 @@ import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoAdListener;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayer;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerListener;
+import net.alexandroid.utils.exoplayerlibrary.list.ListActivity;
 
 public class MainActivity extends AppCompatActivity
         implements ExoPlayerListener, ExoAdListener {
@@ -25,6 +28,13 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         MyLog.e("onActivityCreate");
+
+        findViewById(R.id.btnOpenList).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View pView) {
+                startActivity(new Intent(MainActivity.this, ListActivity.class));
+            }
+        });
 
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 

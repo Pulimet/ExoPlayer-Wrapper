@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ExoPlayerLibrary</string>
+    <string name="open_list">Open list</string>
 </resources>
