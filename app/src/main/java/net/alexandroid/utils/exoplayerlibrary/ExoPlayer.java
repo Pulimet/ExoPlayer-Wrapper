@@ -61,7 +61,7 @@ public class ExoPlayer implements View.OnClickListener,
 
     private MediaSource mMediaSource;
 
-    private ExoPlayerEvents mExoPlayerEvents;
+    private ExoPlayerListener mExoPlayerListener;
     private Context mContext;
 
     private Handler mHandler;
@@ -75,6 +75,7 @@ public class ExoPlayer implements View.OnClickListener,
     private int mResumeWindow;
     private Uri[] mVideosUris;
     private String mTagUrl;
+    private ExoAdListener mExoAdListener;
 
     private ExoPlayer(Context context) {
         mHandler = new Handler();
@@ -158,8 +159,12 @@ public class ExoPlayer implements View.OnClickListener,
         }
     }
 
-    private void setExoPlayerEventsListener(ExoPlayerEvents exoPlayerEventsListener) {
-        mExoPlayerEvents = exoPlayerEventsListener;
+    private void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
+        mExoPlayerListener = pExoPlayerListenerListener;
+    }
+
+    private void setExoAdListener(ExoAdListener exoAdListener) {
+        mExoAdListener = exoAdListener;
     }
 
 
@@ -175,6 +180,9 @@ public class ExoPlayer implements View.OnClickListener,
     }
 
     private void createExoPlayer() {
+        if (mPlayer != null) {
+            return;
+        }
         // TrackSelector that selects tracks provided by the MediaSource to be consumed by each of the available Renderers.
         // A TrackSelector is injected when the exoPlayer is created.
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(mBandwidthMeter);
@@ -203,6 +211,7 @@ public class ExoPlayer implements View.OnClickListener,
         mPlayer.prepare(mMediaSource, !haveResumePosition, false);
     }
 
+
     private void createMediaSource() {
         // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
         // A MediaSource is injected via ExoPlayer.prepare at the start of playback.
@@ -216,7 +225,6 @@ public class ExoPlayer implements View.OnClickListener,
 
         addAdsToMediaSource();
     }
-
 
     private void addAdsToMediaSource() {
         if (mMediaSource == null) {
@@ -310,17 +318,21 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
-        public Builder setExoPlayerEventsListener(ExoPlayerEvents exoPlayerEventsListener) {
-            mExoPlayer.setExoPlayerEventsListener(exoPlayerEventsListener);
+        public Builder setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
+            mExoPlayer.setExoPlayerEventsListener(pExoPlayerListenerListener);
             return this;
         }
+
+        public Builder setExoAdEventsListener(ExoAdListener pExoAdEventsListener) {
+            mExoPlayer.setExoAdListener(pExoAdEventsListener);
+            return this;
+        }
+
 
         public ExoPlayer build() {
             mExoPlayer.createExoPlayer();
             return mExoPlayer;
         }
-
-
     }
 
     /**
@@ -338,12 +350,34 @@ public class ExoPlayer implements View.OnClickListener,
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
-
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.onLoadingStatusChanged(isLoading);
+        }
     }
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
+        if (mExoPlayerListener == null) {
+            return;
+        }
+        switch (playbackState) {
+            case Player.STATE_READY:
+                if (playWhenReady) {
+                    mExoPlayerListener.onPlayerPlaying();
+                } else {
+                    mExoPlayerListener.onPlayerPaused();
+                }
+                break;
+            case Player.STATE_BUFFERING:
+                mExoPlayerListener.onPlayerBuffering();
+                break;
+            case Player.STATE_ENDED:
+                mExoPlayerListener.onPlayerStateEnded();
+                break;
+            case Player.STATE_IDLE:
+                mExoPlayerListener.onPlayerStateIdle();
+                break;
+        }
     }
 
     @Override
@@ -353,7 +387,9 @@ public class ExoPlayer implements View.OnClickListener,
 
     @Override
     public void onPlayerError(ExoPlaybackException error) {
-
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.onPlayerError();
+        }
     }
 
     @Override
@@ -372,7 +408,7 @@ public class ExoPlayer implements View.OnClickListener,
 
     @Override
     public void onPlay() {
-
+        mExoAdListener.onAdPlay();
     }
 
     @Override
@@ -382,22 +418,22 @@ public class ExoPlayer implements View.OnClickListener,
 
     @Override
     public void onPause() {
-
+        mExoAdListener.onAdPause();
     }
 
     @Override
     public void onResume() {
-
+        mExoAdListener.onAdResume();
     }
 
     @Override
     public void onEnded() {
-
+        mExoAdListener.onAdEnded();
     }
 
     @Override
     public void onError() {
-
+        mExoAdListener.onAdError();
     }
 
     /**
@@ -405,17 +441,17 @@ public class ExoPlayer implements View.OnClickListener,
      */
     @Override
     public void onAdLoadError(IOException error) {
-
+        mExoAdListener.onAdLoadError();
     }
 
     @Override
     public void onAdClicked() {
-
+        mExoAdListener.onAdClicked();
     }
 
     @Override
     public void onAdTapped() {
-
+        mExoAdListener.onAdTapped();
     }
 
     /**
@@ -423,22 +459,22 @@ public class ExoPlayer implements View.OnClickListener,
      */
     @Override
     public void onInitPlayer() {
-
+        createExoPlayer();
     }
 
     @Override
     public void onReleasePlayer() {
-
+        releasePlayer();
     }
 
     @Override
     public void onPausePlayer() {
-
+        mPlayer.setPlayWhenReady(false);
     }
 
     @Override
     public void onPlayPlayer() {
-
+        mPlayer.setPlayWhenReady(true);
     }
 
     @Override
