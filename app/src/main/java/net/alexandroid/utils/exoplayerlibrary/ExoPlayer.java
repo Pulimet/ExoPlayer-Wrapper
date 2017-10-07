@@ -39,7 +39,10 @@ import java.io.IOException;
 
 @SuppressWarnings("WeakerAccess")
 public class ExoPlayer implements View.OnClickListener,
-        ExoPlayerControl, Player.EventListener, ImaAdsMediaSource.AdsListener {
+        ExoPlayerControl,
+        Player.EventListener,
+        ImaAdsLoader.VideoAdPlayerCallback,
+        ImaAdsMediaSource.AdsListener {
 
     // TODO 1. Listeners
     // TODO 2. Release SimpleExoPlayer and ImaAdsLoader (Demo app and: https://goo.gl/e4pgHR )
@@ -148,6 +151,8 @@ public class ExoPlayer implements View.OnClickListener,
             throw new IllegalStateException("setVideoUrls must be invoked before setTagUrl (mMediaSource is null)");
         }
         mImaAdsLoader = new ImaAdsLoader(mContext, Uri.parse(tagUrl));
+
+        mImaAdsLoader.addCallback(this);
 
         mMediaSource = new ImaAdsMediaSource(mMediaSource,
                 mDataSourceFactory,
@@ -304,6 +309,40 @@ public class ExoPlayer implements View.OnClickListener,
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+    }
+
+    /**
+     * ImaAdsLoader.VideoAdPlayerCallback
+     */
+
+    @Override
+    public void onPlay() {
+
+    }
+
+    @Override
+    public void onVolumeChanged(int pI) {
+
+    }
+
+    @Override
+    public void onPause() {
+
+    }
+
+    @Override
+    public void onResume() {
+
+    }
+
+    @Override
+    public void onEnded() {
+
+    }
+
+    @Override
+    public void onError() {
 
     }
 
