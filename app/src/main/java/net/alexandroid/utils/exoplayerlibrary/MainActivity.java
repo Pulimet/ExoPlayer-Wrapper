@@ -26,9 +26,12 @@ public class MainActivity extends AppCompatActivity {
                 .addMuteButton(false, true)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
+                .setAutoPlayOn(true)
                 .setVideoUrls(VIDEO_URL)
                 .setTagUrl(TEST_TAG_URL)
                 .build();
     }
+
+
 
 }

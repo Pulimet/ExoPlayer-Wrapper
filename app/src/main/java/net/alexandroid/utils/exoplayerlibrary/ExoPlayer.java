@@ -53,6 +53,7 @@ public class ExoPlayer implements View.OnClickListener {
     private boolean isVideoMuted;
     private boolean isAdMuted;
     private boolean isRepeatModeOn;
+    private boolean isAutoPlayOn;
     private final TrackSelector mTrackSelector;
 
     private ExoPlayer(Context context) {
@@ -102,8 +103,12 @@ public class ExoPlayer implements View.OnClickListener {
         mExoPlayerView.setUseController(visibility);
     }
 
-    private void setRepeatModeOn(boolean isOn) {
-        isRepeatModeOn = isOn;
+    private void setRepeatModeOn(boolean isRepeatModeOn) {
+        this.isRepeatModeOn = isRepeatModeOn;
+    }
+
+    private void setAutoPlayOn(boolean isAutoPlayOn) {
+        this.isAutoPlayOn = isAutoPlayOn;
     }
 
     private void setVideoUrls(String[] urls) {
@@ -168,7 +173,7 @@ public class ExoPlayer implements View.OnClickListener {
         updateMutedStatus();
 
         mPlayer.setRepeatMode(isRepeatModeOn ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
-        mPlayer.setPlayWhenReady(true);
+        mPlayer.setPlayWhenReady(isAutoPlayOn);
 
         mPlayer.prepare(mMediaSource);
     }
@@ -220,6 +225,10 @@ public class ExoPlayer implements View.OnClickListener {
             return this;
         }
 
+        public Builder setAutoPlayOn(boolean isAutoPlayOn) {
+            mExoPlayer.setAutoPlayOn(isAutoPlayOn);
+            return this;
+        }
         public ExoPlayer build() {
             mExoPlayer.createExoPlayer();
             return mExoPlayer;
