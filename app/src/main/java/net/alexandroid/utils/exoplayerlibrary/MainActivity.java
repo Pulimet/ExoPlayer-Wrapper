@@ -6,6 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import net.alexandroid.shpref.MyLog;
+import net.alexandroid.utils.exoplayerlibrary.exo.ExoAdListener;
+import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayer;
+import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerListener;
 
 public class MainActivity extends AppCompatActivity
         implements ExoPlayerListener, ExoAdListener {

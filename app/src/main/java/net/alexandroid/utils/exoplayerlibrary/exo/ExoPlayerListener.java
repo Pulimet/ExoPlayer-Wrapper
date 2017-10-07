@@ -1,4 +1,4 @@
-package net.alexandroid.utils.exoplayerlibrary;
+package net.alexandroid.utils.exoplayerlibrary.exo;
 
 public interface ExoPlayerListener {
 
