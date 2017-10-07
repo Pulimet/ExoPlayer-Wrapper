@@ -3,13 +3,13 @@ package net.alexandroid.utils.exoplayerlibrary;
 
 public interface ExoPlayerControl {
 
-    void initPlayer();
+    void onInitPlayer();
 
-    void releasePlayer();
+    void onReleasePlayer();
 
-    void pause();
+    void onPausePlayer();
 
-    void play();
+    void onPlayPlayer();
 
     void onActivityStart();
 

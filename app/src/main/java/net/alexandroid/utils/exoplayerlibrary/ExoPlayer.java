@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -58,36 +59,38 @@ public class ExoPlayer implements View.OnClickListener,
     private ImaAdsLoader mImaAdsLoader;
     private DataSource.Factory mDataSourceFactory;
     private final DefaultLoadControl mLoadControl;
-    private final TrackSelector mTrackSelector;
+    private final DefaultBandwidthMeter mBandwidthMeter;
+
     private MediaSource mMediaSource;
 
     private ExoPlayerEvents mExoPlayerEvents;
-
     private Context mContext;
-    private Handler mHandler;
 
+    private Handler mHandler;
     private float mTempCurrentVolume;
     private boolean isVideoMuted;
     private boolean isAdMuted;
     private boolean isRepeatModeOn;
     private boolean isAutoPlayOn;
-
+    private TrackSelector mTrackSelector;
+    private long mResumePosition;
+    private int mResumeWindow;
+    private Uri[] mVideosUris;
+    private String mTagUrl;
 
     private ExoPlayer(Context context) {
         mHandler = new Handler();
         mContext = context;
 
+        clearResumePosition();
+
         // Measures bandwidth during playback. Can be null if not required.
-        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+        mBandwidthMeter = new DefaultBandwidthMeter();
 
         // Produces DataSource instances through which media data is loaded.
         mDataSourceFactory = new DefaultDataSourceFactory(mContext,
-                Util.getUserAgent(mContext, APPLICATION_NAME), bandwidthMeter);
+                Util.getUserAgent(mContext, APPLICATION_NAME), mBandwidthMeter);
 
-        // TrackSelector that selects tracks provided by the MediaSource to be consumed by each of the available Renderers.
-        // A TrackSelector is injected when the exoPlayer is created.
-        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
-        mTrackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
 
         // LoadControl that controls when the MediaSource buffers more media, and how much media is buffered.
         // LoadControl is injected when the player is created.
@@ -95,10 +98,6 @@ public class ExoPlayer implements View.OnClickListener,
                 new DefaultAllocator(false, 2 * 1024 * 1024),
                 1000, 3000, 3000, 3000));
 
-    }
-
-    private void setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
-        mExoPlayerView = exoPlayerView;
     }
 
     @Override
@@ -117,6 +116,10 @@ public class ExoPlayer implements View.OnClickListener,
         }
     }
 
+    private void setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
+        mExoPlayerView = exoPlayerView;
+    }
+
     private void setUiControllersVisibility(boolean visibility) {
         mExoPlayerView.setUseController(visibility);
     }
@@ -127,39 +130,6 @@ public class ExoPlayer implements View.OnClickListener,
 
     private void setAutoPlayOn(boolean isAutoPlayOn) {
         this.isAutoPlayOn = isAutoPlayOn;
-    }
-
-    private void setVideoUrls(String[] urls) {
-        Uri[] uris = new Uri[urls.length];
-        for (int i = 0; i < urls.length; i++) {
-            uris[i] = Uri.parse(urls[i]);
-        }
-
-        // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
-        // A MediaSource is injected via ExoPlayer.prepare at the start of playback.
-
-        MediaSource[] mediaSources = new MediaSource[uris.length];
-        for (int i = 0; i < uris.length; i++) {
-            mediaSources[i] = new HlsMediaSource(uris[i], mDataSourceFactory, null, null);
-        }
-
-        mMediaSource = mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
-    }
-
-    private void setTagUrl(String tagUrl) {
-        if (mMediaSource == null) {
-            throw new IllegalStateException("setVideoUrls must be invoked before setTagUrl (mMediaSource is null)");
-        }
-        mImaAdsLoader = new ImaAdsLoader(mContext, Uri.parse(tagUrl));
-
-        mImaAdsLoader.addCallback(this);
-
-        mMediaSource = new ImaAdsMediaSource(mMediaSource,
-                mDataSourceFactory,
-                mImaAdsLoader,
-                mExoPlayerView.getOverlayFrameLayout(),
-                mHandler,
-                this);
     }
 
     private void addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
@@ -182,7 +152,36 @@ public class ExoPlayer implements View.OnClickListener,
         frameLayout.addView(muteBtn);
     }
 
+    private void updateMutedStatus() {
+        if ((mPlayer.isPlayingAd() && isAdMuted) || (!mPlayer.isPlayingAd() && isVideoMuted)) {
+            mPlayer.setVolume(0f);
+        } else {
+            mPlayer.setVolume(mTempCurrentVolume);
+        }
+    }
+
+    private void setExoPlayerEventsListener(ExoPlayerEvents exoPlayerEventsListener) {
+        mExoPlayerEvents = exoPlayerEventsListener;
+    }
+
+
+    private void setVideoUrls(String[] urls) {
+        mVideosUris = new Uri[urls.length];
+        for (int i = 0; i < urls.length; i++) {
+            mVideosUris[i] = Uri.parse(urls[i]);
+        }
+    }
+
+    private void setTagUrl(String tagUrl) {
+        mTagUrl = tagUrl;
+    }
+
     private void createExoPlayer() {
+        // TrackSelector that selects tracks provided by the MediaSource to be consumed by each of the available Renderers.
+        // A TrackSelector is injected when the exoPlayer is created.
+        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(mBandwidthMeter);
+        mTrackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+
         //mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector);
         mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, mTrackSelector, mLoadControl);
 
@@ -197,19 +196,74 @@ public class ExoPlayer implements View.OnClickListener,
 
         mPlayer.addListener(this);
 
-        mPlayer.prepare(mMediaSource);
+        createMediaSource();
+
+        boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
+        if (haveResumePosition) {
+            mPlayer.seekTo(mResumeWindow, mResumePosition);
+        }
+        mPlayer.prepare(mMediaSource, !haveResumePosition, false);
     }
 
-    private void updateMutedStatus() {
-        if ((mPlayer.isPlayingAd() && isAdMuted) || (!mPlayer.isPlayingAd() && isVideoMuted)) {
-            mPlayer.setVolume(0f);
-        } else {
-            mPlayer.setVolume(mTempCurrentVolume);
+    private void createMediaSource() {
+        // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
+        // A MediaSource is injected via ExoPlayer.prepare at the start of playback.
+
+        MediaSource[] mediaSources = new MediaSource[mVideosUris.length];
+        for (int i = 0; i < mVideosUris.length; i++) {
+            mediaSources[i] = new HlsMediaSource(mVideosUris[i], mDataSourceFactory, null, null);
+        }
+
+        mMediaSource = mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
+
+        addAdsToMediaSource();
+    }
+
+
+    private void addAdsToMediaSource() {
+        if (mMediaSource == null) {
+            throw new IllegalStateException("setVideoUrls must be invoked before setTagUrl (mMediaSource is null)");
+        }
+        if (mTagUrl == null) {
+            return;
+        }
+        mImaAdsLoader = new ImaAdsLoader(mContext, Uri.parse(mTagUrl));
+
+        mImaAdsLoader.addCallback(this);
+
+        mMediaSource = new ImaAdsMediaSource(mMediaSource,
+                mDataSourceFactory,
+                mImaAdsLoader,
+                mExoPlayerView.getOverlayFrameLayout(),
+                mHandler,
+                this);
+    }
+
+    private void releasePlayer() {
+        if (mPlayer != null) {
+            updateResumePosition();
+            mPlayer.release();
+            mPlayer = null;
+            mTrackSelector = null;
         }
     }
 
-    private void setExoPlayerEventsListener(ExoPlayerEvents exoPlayerEventsListener) {
-        mExoPlayerEvents = exoPlayerEventsListener;
+    private void releaseAdsLoader() {
+        if (mImaAdsLoader != null) {
+            mImaAdsLoader.release();
+            mImaAdsLoader = null;
+            mExoPlayerView.getOverlayFrameLayout().removeAllViews();
+        }
+    }
+
+    private void updateResumePosition() {
+        mResumeWindow = mPlayer.getCurrentWindowIndex();
+        mResumePosition = Math.max(0, mPlayer.getContentPosition());
+    }
+
+    private void clearResumePosition() {
+        mResumeWindow = C.INDEX_UNSET;
+        mResumePosition = C.TIME_UNSET;
     }
 
     @SuppressWarnings("SameParameterValue")
@@ -266,8 +320,8 @@ public class ExoPlayer implements View.OnClickListener,
             return mExoPlayer;
         }
 
-    }
 
+    }
 
     /**
      * ExoPlayer Player.EventListener
@@ -368,47 +422,55 @@ public class ExoPlayer implements View.OnClickListener,
      * ExoPlayerControl interface methods
      */
     @Override
-    public void initPlayer() {
+    public void onInitPlayer() {
 
     }
 
     @Override
-    public void releasePlayer() {
+    public void onReleasePlayer() {
 
     }
 
     @Override
-    public void pause() {
+    public void onPausePlayer() {
 
     }
 
     @Override
-    public void play() {
+    public void onPlayPlayer() {
 
     }
 
     @Override
     public void onActivityStart() {
-
+        if (Util.SDK_INT > 23) {
+            createExoPlayer();
+        }
     }
 
     @Override
     public void onActivityResume() {
-
+        if ((Util.SDK_INT <= 23 || mPlayer == null)) {
+            createExoPlayer();
+        }
     }
 
     @Override
     public void onActivityPause() {
-
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
     }
 
     @Override
     public void onActivityStop() {
-
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
     }
 
     @Override
     public void onActivityDestroy() {
-
+        releaseAdsLoader();
     }
 }
