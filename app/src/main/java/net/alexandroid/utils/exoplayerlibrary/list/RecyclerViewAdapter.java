@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
+import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerlibrary.R;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayer;
 
@@ -38,10 +39,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 int firstVisible = ((LinearLayoutManager) recyclerView.getLayoutManager())
                         .findFirstCompletelyVisibleItemPosition();
                 if (firstVisible != currentFirstVisible) {
-                    if (getViewHolder(firstVisible).mExoPlayer != null) {
+                    MyLog.d("New first visible is: " + firstVisible);
+/*                    if (getViewHolder(firstVisible).mExoPlayer != null) {
                         getViewHolder(firstVisible).mExoPlayer.onPausePlayer();
                     }
-                    getViewHolder(currentFirstVisible).mExoPlayer.onPlayPlayer();
+                    getViewHolder(currentFirstVisible).mExoPlayer.onPlayPlayer();*/
                     currentFirstVisible = firstVisible;
                 }
             }

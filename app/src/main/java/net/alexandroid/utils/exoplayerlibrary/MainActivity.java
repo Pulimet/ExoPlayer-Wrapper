@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
                 .addMuteButton(false, false)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
-                .setAutoPlayOn(true)
+                .setAutoPlayOn(false) //TODO check why it doesn't work
                 .setVideoUrls(VIDEO_URL)
                 .setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
