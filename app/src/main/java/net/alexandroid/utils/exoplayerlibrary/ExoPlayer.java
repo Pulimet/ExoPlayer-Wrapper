@@ -46,7 +46,6 @@ public class ExoPlayer implements View.OnClickListener,
         ImaAdsLoader.VideoAdPlayerCallback,
         ImaAdsMediaSource.AdsListener {
 
-    // TODO 1. onPause/onResume & onStop/onStart while ad/content playing
     // TODO 2. onScreen rotation
     // TODO 3. Compatible for integration at ynet main page
     // TODO 4. Compatible for integration at ynet slider activity
@@ -228,16 +227,18 @@ public class ExoPlayer implements View.OnClickListener,
 
         createMediaSource();
 
+
         boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
         if (haveResumePosition) {
             mPlayer.setPlayWhenReady(isResumePlayWhenReady);
             mPlayer.seekTo(mResumeWindow, mResumePosition);
 
-            if(mExoPlayerListener != null) {
+            if (mExoPlayerListener != null) {
                 mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
             }
         }
         mPlayer.prepare(mMediaSource, !haveResumePosition, false);
+
     }
 
 
@@ -332,6 +333,10 @@ public class ExoPlayer implements View.OnClickListener,
         updateMutedStatus();
     }
 
+    private void onAdUserClicked() {
+        mImaAdsLoader.stopAd();
+    }
+
     @SuppressWarnings("SameParameterValue")
     public static class Builder {
 
@@ -371,11 +376,11 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
+
         public Builder setAutoPlayOn(boolean isAutoPlayOn) {
             mExoPlayer.setAutoPlayOn(isAutoPlayOn);
             return this;
         }
-
 
         public Builder setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
             mExoPlayer.setExoPlayerEventsListener(pExoPlayerListenerListener);
@@ -509,6 +514,7 @@ public class ExoPlayer implements View.OnClickListener,
 
     @Override
     public void onAdClicked() {
+        onAdUserClicked();
         mExoAdListener.onAdClicked();
     }
 
