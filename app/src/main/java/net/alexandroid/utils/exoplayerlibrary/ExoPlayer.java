@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -45,10 +46,10 @@ public class ExoPlayer implements View.OnClickListener,
         ImaAdsLoader.VideoAdPlayerCallback,
         ImaAdsMediaSource.AdsListener {
 
+    // TODO 1. onPause/onResume & onStop/onStart while ad/content playing
+    // TODO 2. onScreen rotation
     // TODO 3. Compatible for integration at ynet main page
     // TODO 4. Compatible for integration at ynet slider activity
-    // TODO 5. updateMutedStatus(); onAdPlay and onVideoPlay
-    // TODO 6. Loading progress animation
 
     public static final String APPLICATION_NAME = "ExoPlayerLibrary";
 
@@ -76,6 +77,8 @@ public class ExoPlayer implements View.OnClickListener,
     private Uri[] mVideosUris;
     private String mTagUrl;
     private ExoAdListener mExoAdListener;
+    private ImageView mMuteBtn;
+    private ProgressBar mProgressBar;
 
     private ExoPlayer(Context context) {
         mHandler = new Handler();
@@ -104,12 +107,11 @@ public class ExoPlayer implements View.OnClickListener,
         switch (v.getId()) {
             case R.id.muteBtn:
                 if (mPlayer.isPlayingAd()) {
-                    isAdMuted = !isAdMuted;
-                    ((ImageView) v).setImageResource(isAdMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+                    isVideoMuted = isAdMuted = !isAdMuted;
                 } else {
-                    isVideoMuted = !isVideoMuted;
-                    ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+                    isAdMuted = isVideoMuted = !isVideoMuted;
                 }
+                ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
                 updateMutedStatus();
                 break;
         }
@@ -117,6 +119,21 @@ public class ExoPlayer implements View.OnClickListener,
 
     private void setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
         mExoPlayerView = exoPlayerView;
+        addProgressBar();
+    }
+
+    private void addProgressBar() {
+        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+
+        mProgressBar = new ProgressBar(mContext, null, android.R.attr.progressBarStyleLarge);
+        mProgressBar.setId(R.id.progressBar);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
+        mProgressBar.setLayoutParams(params);
+        mProgressBar.setIndeterminate(true);
+        frameLayout.addView(mProgressBar);
     }
 
     private void setUiControllersVisibility(boolean visibility) {
@@ -137,25 +154,29 @@ public class ExoPlayer implements View.OnClickListener,
 
         FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
 
-        ImageView muteBtn = new ImageView(mContext);
-        muteBtn.setId(R.id.muteBtn);
-        muteBtn.setImageResource(this.isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+        mMuteBtn = new ImageView(mContext);
+        mMuteBtn.setId(R.id.muteBtn);
+        mMuteBtn.setImageResource(this.isAdMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.RIGHT | Gravity.BOTTOM;
-        muteBtn.setLayoutParams(params);
+        mMuteBtn.setLayoutParams(params);
 
-        muteBtn.setOnClickListener(this);
+        mMuteBtn.setOnClickListener(this);
 
-        frameLayout.addView(muteBtn);
+        frameLayout.addView(mMuteBtn);
     }
 
     private void updateMutedStatus() {
-        if ((mPlayer.isPlayingAd() && isAdMuted) || (!mPlayer.isPlayingAd() && isVideoMuted)) {
+        boolean isMuted = (mPlayer.isPlayingAd() && isAdMuted) || (!mPlayer.isPlayingAd() && isVideoMuted);
+        if (isMuted) {
             mPlayer.setVolume(0f);
         } else {
             mPlayer.setVolume(mTempCurrentVolume);
+        }
+        if (mMuteBtn != null) {
+            mMuteBtn.setImageResource(isMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
         }
     }
 
@@ -195,7 +216,6 @@ public class ExoPlayer implements View.OnClickListener,
         mExoPlayerView.setControllerShowTimeoutMs(1500);
 
         mTempCurrentVolume = mPlayer.getVolume();
-        updateMutedStatus();
 
         mPlayer.setRepeatMode(isRepeatModeOn ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
         mPlayer.setPlayWhenReady(isAutoPlayOn);
@@ -274,6 +294,27 @@ public class ExoPlayer implements View.OnClickListener,
         mResumePosition = C.TIME_UNSET;
     }
 
+    // Player events, internal handle
+
+    private void onPlayerBuffering() {
+        setProgressVisible(true);
+    }
+
+    private void onPlayerPlaying() {
+        setProgressVisible(false);
+        updateMutedStatus();
+    }
+
+    private void setProgressVisible(boolean visible) {
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void onAdEnded() {
+        updateMutedStatus();
+    }
+
     @SuppressWarnings("SameParameterValue")
     public static class Builder {
 
@@ -323,16 +364,17 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
+
         public Builder setExoAdEventsListener(ExoAdListener pExoAdEventsListener) {
             mExoPlayer.setExoAdListener(pExoAdEventsListener);
             return this;
         }
 
-
         public ExoPlayer build() {
             mExoPlayer.createExoPlayer();
             return mExoPlayer;
         }
+
     }
 
     /**
@@ -363,12 +405,14 @@ public class ExoPlayer implements View.OnClickListener,
         switch (playbackState) {
             case Player.STATE_READY:
                 if (playWhenReady) {
+                    onPlayerPlaying();
                     mExoPlayerListener.onPlayerPlaying();
                 } else {
                     mExoPlayerListener.onPlayerPaused();
                 }
                 break;
             case Player.STATE_BUFFERING:
+                onPlayerBuffering();
                 mExoPlayerListener.onPlayerBuffering();
                 break;
             case Player.STATE_ENDED:
@@ -428,6 +472,7 @@ public class ExoPlayer implements View.OnClickListener,
 
     @Override
     public void onEnded() {
+        onAdEnded();
         mExoAdListener.onAdEnded();
     }
 

@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity
 
         mExoPlayer = new ExoPlayer.Builder(this)
                 .setExoPlayerView(mExoPlayerView)
-                .addMuteButton(false, true)
+                .addMuteButton(false, false)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(true)
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoadingStatusChanged(boolean isLoading) {
-        MyLog.d("Loading: " + isLoading);
+        //MyLog.d("Loading: " + isLoading);
     }
 
     @Override
