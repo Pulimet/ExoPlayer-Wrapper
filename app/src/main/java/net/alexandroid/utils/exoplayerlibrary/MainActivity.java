@@ -48,8 +48,6 @@ public class MainActivity extends AppCompatActivity
                 .addSavedInstanceState(savedInstanceState)
                 .addThumbImageView()
                 .createAndPrepare();
-
-
     }
 
     private void setButtons() {

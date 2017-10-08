@@ -170,7 +170,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             mExoPlayer = new ExoPlayer.Builder(mExoPlayerView.getContext())
                     .setExoPlayerView(mExoPlayerView)
                     .setUiControllersVisibility(true)
-                    .setAutoPlayOn(false)
+                    .setAutoPlayOn(true)
                     .setToPrepareOnResume(false)
                     .setVideoUrls(mVideoUrl)
                     .setTagUrl(TEST_TAG_URL)
@@ -288,8 +288,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
 
-
-
     // Activity LifeCycle
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -305,6 +303,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         MyLog.i("onActivityResume");
         for (ExoPlayer exoPlayer : getAllExoPlayers()) {
             exoPlayer.onActivityResume();
+        }
+
+        ExoPlayer newPlayer = getExoPlayerByPosition(currentFirstVisible);
+        if (newPlayer != null) {
+            newPlayer.onPreparePlayer();
+            newPlayer.onPlayPlayer();
         }
     }
 

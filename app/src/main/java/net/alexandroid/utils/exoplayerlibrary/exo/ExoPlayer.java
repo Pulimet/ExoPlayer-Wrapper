@@ -93,6 +93,7 @@ public class ExoPlayer implements View.OnClickListener,
     private boolean isAdWasShown;
     private boolean isPlayerPrepared;
     private boolean isToPrepareOnResume = true;
+    private boolean isAdThumbImageView;
 
     private ExoPlayer(Context context) {
         mHandler = new Handler();
@@ -131,7 +132,6 @@ public class ExoPlayer implements View.OnClickListener,
 
     private void setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
         mExoPlayerView = exoPlayerView;
-        mExoPlayerView.setUseArtwork(true);
         addProgressBar();
     }
 
@@ -149,7 +149,14 @@ public class ExoPlayer implements View.OnClickListener,
         frameLayout.addView(mProgressBar);
     }
 
+    private void setThumbImageViewTrue() {
+        isAdThumbImageView = true;
+    }
+
     private void addThumbImageView() {
+        if (mThumbImage != null) {
+            return;
+        }
         AspectRatioFrameLayout frameLayout = mExoPlayerView.findViewById(R.id.exo_content_frame);
         mThumbImage = new ImageView(mContext);
         mThumbImage.setId(R.id.thumbImg);
@@ -169,6 +176,7 @@ public class ExoPlayer implements View.OnClickListener,
         if (mThumbImage != null) {
             AspectRatioFrameLayout frameLayout = mExoPlayerView.findViewById(R.id.exo_content_frame);
             frameLayout.removeView(mThumbImage);
+            mThumbImage = null;
         }
     }
 
@@ -261,6 +269,11 @@ public class ExoPlayer implements View.OnClickListener,
         if (mPlayer != null) {
             return;
         }
+
+        if (isAdThumbImageView) {
+            addThumbImageView();
+        }
+
         // TrackSelector that selects tracks provided by the MediaSource to be consumed by each of the available Renderer's.
         // A TrackSelector is injected when the exoPlayer is created.
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(mBandwidthMeter);
@@ -304,7 +317,7 @@ public class ExoPlayer implements View.OnClickListener,
             }
         }
 
-        mPlayer.prepare(mMediaSource, !haveResumePosition, true);
+        mPlayer.prepare(mMediaSource, !haveResumePosition, false);
     }
 
     private void createMediaSource() {
@@ -470,7 +483,7 @@ public class ExoPlayer implements View.OnClickListener,
         }
 
         public Builder addThumbImageView() {
-            mExoPlayer.addThumbImageView();
+            mExoPlayer.setThumbImageViewTrue();
             return this;
         }
 
