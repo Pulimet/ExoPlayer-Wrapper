@@ -1,6 +1,7 @@
 package net.alexandroid.utils.exoplayerlibrary.exo;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -139,6 +140,7 @@ public class ExoPlayer implements View.OnClickListener,
         params.gravity = Gravity.CENTER;
         mProgressBar.setLayoutParams(params);
         mProgressBar.setIndeterminate(true);
+        mProgressBar.setVisibility(View.GONE);
         frameLayout.addView(mProgressBar);
     }
 
@@ -154,6 +156,7 @@ public class ExoPlayer implements View.OnClickListener,
         this.isAutoPlayOn = isAutoPlayOn;
     }
 
+    @SuppressLint("RtlHardcoded")
     private void addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
         this.isVideoMuted = isVideoMuted;
         this.isAdMuted = isAdMuted;
@@ -216,19 +219,21 @@ public class ExoPlayer implements View.OnClickListener,
     }
 
 
-    private void createExoPlayer() {
+    private void createExoPlayer(boolean isToPrepare) {
         if (mExoPlayerListener != null) {
             mExoPlayerListener.createExoPlayerCalled();
         }
         if (mPlayer != null) {
             return;
         }
-        // TrackSelector that selects tracks provided by the MediaSource to be consumed by each of the available Renderers.
+        // TrackSelector that selects tracks provided by the MediaSource to be consumed by each of the available Renderer's.
         // A TrackSelector is injected when the exoPlayer is created.
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(mBandwidthMeter);
         mTrackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
 
         //mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector);
+
+        //noinspection deprecation
         mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, mTrackSelector, mLoadControl);
 
         mExoPlayerView.setPlayer(mPlayer);
@@ -238,12 +243,16 @@ public class ExoPlayer implements View.OnClickListener,
 
         mPlayer.setRepeatMode(isRepeatModeOn ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
         mPlayer.setPlayWhenReady(isAutoPlayOn);
-
         mPlayer.addListener(this);
 
         createMediaSource();
 
+        if(isToPrepare) {
+            prepareExoPlayer();
+        }
+    }
 
+    private void prepareExoPlayer() {
         boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
         if (haveResumePosition) {
             mPlayer.setPlayWhenReady(isResumePlayWhenReady);
@@ -253,8 +262,8 @@ public class ExoPlayer implements View.OnClickListener,
                 mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
             }
         }
-        mPlayer.prepare(mMediaSource, !haveResumePosition, false);
 
+        mPlayer.prepare(mMediaSource, !haveResumePosition, false);
     }
 
     private void createMediaSource() {
@@ -318,6 +327,7 @@ public class ExoPlayer implements View.OnClickListener,
         mResumePosition = Math.max(0, mPlayer.getContentPosition());
     }
 
+    @SuppressWarnings("unused")
     private void clearResumePosition() {
         mResumeWindow = C.INDEX_UNSET;
         mResumePosition = C.TIME_UNSET;
@@ -414,8 +424,14 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
-        public ExoPlayer build() {
-            mExoPlayer.createExoPlayer();
+
+        public ExoPlayer create() {
+            mExoPlayer.createExoPlayer(false);
+            return mExoPlayer;
+        }
+
+        public ExoPlayer createAndPrepare() {
+            mExoPlayer.createExoPlayer(true);
             return mExoPlayer;
         }
 
@@ -566,7 +582,7 @@ public class ExoPlayer implements View.OnClickListener,
      */
     @Override
     public void onInitPlayer() {
-        createExoPlayer();
+        createExoPlayer(true);
     }
 
     @Override
@@ -595,14 +611,14 @@ public class ExoPlayer implements View.OnClickListener,
     @Override
     public void onActivityStart() {
         if (Util.SDK_INT > 23) {
-            createExoPlayer();
+            createExoPlayer(true);
         }
     }
 
     @Override
     public void onActivityResume() {
         if ((Util.SDK_INT <= 23 || mPlayer == null)) {
-            createExoPlayer();
+            createExoPlayer(true);
         }
     }
 

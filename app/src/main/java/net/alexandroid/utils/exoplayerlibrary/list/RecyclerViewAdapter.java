@@ -40,14 +40,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                         .findFirstCompletelyVisibleItemPosition();
                 if (firstVisible != currentFirstVisible) {
                     MyLog.d("New first visible is: " + firstVisible);
-/*                    if (getViewHolder(firstVisible).mExoPlayer != null) {
-                        getViewHolder(firstVisible).mExoPlayer.onPausePlayer();
+/*                    if (getExoPlayerByPosition(firstVisible) != null) {
+                        getExoPlayerByPosition(firstVisible).onPausePlayer();
                     }
-                    getViewHolder(currentFirstVisible).mExoPlayer.onPlayPlayer();*/
+                    getExoPlayerByPosition(currentFirstVisible).onPlayPlayer();*/
                     currentFirstVisible = firstVisible;
                 }
             }
         });
+    }
+
+    private ExoPlayer getExoPlayerByPosition(int firstVisible) {
+        return getViewHolder(firstVisible).mExoPlayer;
     }
 
     private RecyclerViewAdapter.ViewHolder getViewHolder(int position) {
@@ -65,23 +69,21 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(RecyclerViewAdapter.ViewHolder holder, int position) {
         holder.mTextView.setText(mList.get(position));
+        holder.mVideoUrl = mList.get(position);
+
         holder.mExoPlayer = new ExoPlayer.Builder(holder.mExoPlayerView.getContext())
                 .setExoPlayerView(holder.mExoPlayerView)
                 .setUiControllersVisibility(true)
-                .setRepeatModeOn(false)
                 .setAutoPlayOn(false)
-                .setVideoUrls(mList.get(position))
+                .setVideoUrls(holder.mVideoUrl)
                 .setTagUrl(TEST_TAG_URL)
-                //.setExoPlayerEventsListener(this)
-                //.setExoAdEventsListener(this)
-                //.addSavedInstanceState(savedInstanceState)
-                .build();
+                .create();
     }
 
     @Override
     public void onViewAttachedToWindow(ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
-        holder.mExoPlayer.onInitPlayer();
+        //holder.mExoPlayer.onInitPlayer();
     }
 
     @Override
@@ -108,6 +110,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public final TextView mTextView;
         public final SimpleExoPlayerView mExoPlayerView;
         public ExoPlayer mExoPlayer;
+        public String mVideoUrl;
 
         public ViewHolder(View itemView) {
             super(itemView);

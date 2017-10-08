@@ -14,7 +14,7 @@ import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerListener;
 import net.alexandroid.utils.exoplayerlibrary.list.ListActivity;
 
 public class MainActivity extends AppCompatActivity
-        implements ExoPlayerListener, ExoAdListener {
+        implements ExoPlayerListener, ExoAdListener, View.OnClickListener {
     public static final String VIDEO_URL = "http://ynethd-i.akamaihd.net/i/cdnwiz/0917/190917_maya_dagan_laisha_Qnw9LprZ_800.mp4/master.m3u8";
     public static final String PPLUS_TAG_URL = "https://pubads.g.doubleclick.net/gampad/live/ads?sz=640x480&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&url=&correlator=&iu=/6870/ynet_mobile/pplus.preroll.apps&description_url=http://pplus.ynet.co.il/articles/0,7340,L-5020780,00.html&cust_params=dcPath%3D11211.PnaiPlus%26yncd%3D5020780%26videoPosition%3DPreroll%26autoplay%3Dtrue%26videoPosition_autoplay%3DPreroll_false%26AppVersion%3D1.0%26View%3D1";
     public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
@@ -29,12 +29,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         MyLog.e("onActivityCreate");
 
-        findViewById(R.id.btnOpenList).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View pView) {
-                startActivity(new Intent(MainActivity.this, ListActivity.class));
-            }
-        });
+        setButtons();
 
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 
@@ -49,8 +44,30 @@ public class MainActivity extends AppCompatActivity
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
-                .build();
+                .createAndPrepare();
 
+    }
+
+    private void setButtons() {
+        findViewById(R.id.btnOpenList).setOnClickListener(this);
+        findViewById(R.id.btnPlay).setOnClickListener(this);
+        findViewById(R.id.btnPause).setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btnOpenList:
+                startActivity(new Intent(MainActivity.this, ListActivity.class));
+                break;
+            case R.id.btnPlay:
+                mExoPlayer.onPlayPlayer();
+                break;
+            case R.id.btnPause:
+                mExoPlayer.onPausePlayer();
+                break;
+
+        }
     }
 
     @Override
