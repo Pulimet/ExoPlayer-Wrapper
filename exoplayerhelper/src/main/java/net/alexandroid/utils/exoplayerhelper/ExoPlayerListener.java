@@ -1,4 +1,4 @@
-package net.alexandroid.utils.exoplayerlibrary.exo;
+package net.alexandroid.utils.exoplayerhelper;
 
 import android.widget.ImageView;
 

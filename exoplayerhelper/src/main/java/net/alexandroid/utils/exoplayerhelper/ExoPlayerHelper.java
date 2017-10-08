@@ -1,4 +1,4 @@
-package net.alexandroid.utils.exoplayerlibrary.exo;
+package net.alexandroid.utils.exoplayerhelper;
 
 
 import android.annotation.SuppressLint;
@@ -39,8 +39,6 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
-import net.alexandroid.utils.exoplayerlibrary.R;
-
 import java.io.IOException;
 
 
@@ -51,9 +49,8 @@ public class ExoPlayerHelper implements View.OnClickListener,
         ImaAdsLoader.VideoAdPlayerCallback,
         ImaAdsMediaSource.AdsListener {
 
-    // TODO 2. Thumbnail support
-    // TODO 3. Compatible for integration at ynet main page
-    // TODO 4. Compatible for integration at ynet slider activity
+    // TODO 1. Compatible for integration at ynet main page
+    // TODO 2. Compatible for integration at ynet slider activity
 
     public static final String APPLICATION_NAME = "ExoPlayerLibrary";
     public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
@@ -117,16 +114,14 @@ public class ExoPlayerHelper implements View.OnClickListener,
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.muteBtn:
-                if (mPlayer.isPlayingAd()) {
-                    isVideoMuted = isAdMuted = !isAdMuted;
-                } else {
-                    isAdMuted = isVideoMuted = !isVideoMuted;
-                }
-                ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
-                updateMutedStatus();
-                break;
+        if (v.getId() == R.id.muteBtn) {
+            if (mPlayer.isPlayingAd()) {
+                isVideoMuted = isAdMuted = !isAdMuted;
+            } else {
+                isAdMuted = isVideoMuted = !isVideoMuted;
+            }
+            ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+            updateMutedStatus();
         }
     }
 

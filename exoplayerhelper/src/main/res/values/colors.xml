@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="scrubberColor">#FFFF0000</color>
+    <color name="playedColor">#FFFF0000</color>
+    <color name="unplayedColor">#77FFFFFF</color>
+    <color name="bufferedColor">#FFFFFFFF</color>
+    <color name="progressBarColor">#303F9F</color>
+</resources>

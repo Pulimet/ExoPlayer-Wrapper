@@ -15,10 +15,10 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.squareup.picasso.Picasso;
 
 import net.alexandroid.shpref.MyLog;
+import net.alexandroid.utils.exoplayerhelper.ExoAdListener;
+import net.alexandroid.utils.exoplayerhelper.ExoPlayerHelper;
+import net.alexandroid.utils.exoplayerhelper.ExoPlayerListener;
 import net.alexandroid.utils.exoplayerlibrary.R;
-import net.alexandroid.utils.exoplayerlibrary.exo.ExoAdListener;
-import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerHelper;
-import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerListener;
 
 import java.util.ArrayList;
 
