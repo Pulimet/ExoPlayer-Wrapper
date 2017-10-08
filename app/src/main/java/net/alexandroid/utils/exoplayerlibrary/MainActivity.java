@@ -40,15 +40,14 @@ public class MainActivity extends AppCompatActivity
                 .addMuteButton(false, false)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
-                .setAutoPlayOn(false) //TODO It doesn't affect on ad
+                .setAutoPlayOn(true)
                 .setVideoUrls(VIDEO_URL)
                 .setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
                 .addThumbImageView()
-                .create();
-        //.createAndPrepare();
+                .createAndPrepare();
 
 
     }

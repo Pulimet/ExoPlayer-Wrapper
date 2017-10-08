@@ -5,13 +5,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.squareup.picasso.Picasso;
 
 import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerlibrary.R;
+import net.alexandroid.utils.exoplayerlibrary.exo.ExoAdListener;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayer;
+import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerListener;
 
 import java.util.ArrayList;
 
@@ -23,6 +27,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private final ArrayList<VideoItem> mList;
     private RecyclerView mRecyclerView;
     private int currentFirstVisible;
+
+    private boolean isFirsrItemPlayed;
 
     public RecyclerViewAdapter(ArrayList<VideoItem> pList) {
         mList = pList;
@@ -39,15 +45,26 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 int firstVisible = ((LinearLayoutManager) recyclerView.getLayoutManager())
                         .findFirstCompletelyVisibleItemPosition();
                 if (firstVisible != currentFirstVisible) {
-                    MyLog.d("New first visible is: " + firstVisible);
-/*                    if (getExoPlayerByPosition(firstVisible) != null) {
-                        getExoPlayerByPosition(firstVisible).onPausePlayer();
-                    }
-                    getExoPlayerByPosition(currentFirstVisible).onPlayPlayer();*/
-                    currentFirstVisible = firstVisible;
+                    onFirstCompleteVisibleItemChange(firstVisible);
                 }
             }
         });
+    }
+
+    private void onFirstCompleteVisibleItemChange(int firstVisible) {
+        MyLog.d("New first visible is: " + firstVisible);
+        ExoPlayer oldPlayer = getExoPlayerByPosition(currentFirstVisible);
+        if (oldPlayer != null) {
+            oldPlayer.onPausePlayer();
+        }
+
+        ExoPlayer newPlayer = getExoPlayerByPosition(firstVisible);
+        if (newPlayer != null) {
+            newPlayer.onPreparePlayer();
+            newPlayer.onPlayPlayer();
+        }
+
+        currentFirstVisible = firstVisible;
     }
 
     private ExoPlayer getExoPlayerByPosition(int firstVisible) {
@@ -70,32 +87,33 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(RecyclerViewAdapter.ViewHolder holder, int position) {
         holder.mTextView.setText(mList.get(position).getVideoUrl());
         holder.mVideoUrl = mList.get(position).getVideoUrl();
-
-        holder.mExoPlayer = new ExoPlayer.Builder(holder.mExoPlayerView.getContext())
-                .setExoPlayerView(holder.mExoPlayerView)
-                .setUiControllersVisibility(true)
-                .setAutoPlayOn(false)
-                .setVideoUrls(holder.mVideoUrl)
-                .setTagUrl(TEST_TAG_URL)
-                .create();
+        holder.mThumbUrl = mList.get(position).getThumbUrl();
+        holder.mPosition = position;
     }
 
     @Override
     public void onViewAttachedToWindow(ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
-        //holder.mExoPlayer.onInitPlayer();
+        MyLog.i("Position: " + holder.mPosition + " - onViewAttachedToWindow");
+        holder.createPlayer();
+
+        if (!isFirsrItemPlayed && holder.mPosition == 0) {
+            isFirsrItemPlayed = true;
+            holder.mExoPlayer.onPreparePlayer();
+        }
     }
 
     @Override
     public void onViewDetachedFromWindow(ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
+        MyLog.i("Position: " + holder.mPosition + " - onViewDetachedFromWindow");
         holder.mExoPlayer.onReleasePlayer();
+        holder.mExoPlayer.onActivityDestroy();
     }
 
     @Override
     public void onViewRecycled(ViewHolder holder) {
         super.onViewRecycled(holder);
-        holder.mExoPlayer.onActivityDestroy();
     }
 
     @Override
@@ -105,18 +123,140 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     @SuppressWarnings("WeakerAccess")
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements ExoPlayerListener, ExoAdListener {
+
         public final View mView;
         public final TextView mTextView;
         public final SimpleExoPlayerView mExoPlayerView;
         public ExoPlayer mExoPlayer;
+        public String mThumbUrl;
         public String mVideoUrl;
+        private int mPosition;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
             mTextView = mView.findViewById(R.id.textView);
             mExoPlayerView = mView.findViewById(R.id.exoPlayerView);
+        }
+
+        public void createPlayer() {
+            mExoPlayer = new ExoPlayer.Builder(mExoPlayerView.getContext())
+                    .setExoPlayerView(mExoPlayerView)
+                    .setUiControllersVisibility(true)
+                    .setAutoPlayOn(false)
+                    .setVideoUrls(mVideoUrl)
+                    .setTagUrl(TEST_TAG_URL)
+                    .setExoPlayerEventsListener(this)
+                    .setExoAdEventsListener(this)
+                    .addThumbImageView()
+                    .create();
+        }
+
+        /**
+         * ExoPlayerListener
+         */
+
+        @Override
+        public void onThumbImageViewReady(ImageView imageView) {
+            Picasso.with(mView.getContext())
+                    .load(mThumbUrl)
+                    .placeholder(R.drawable.no_image_wide)
+                    .error(R.drawable.red_y_logo)
+                    .into(imageView);
+        }
+
+        @Override
+        public void onLoadingStatusChanged(boolean isLoading) {
+            //MyLog.d("Loading: " + isLoading);
+        }
+
+        @Override
+        public void onPlayerPlaying() {
+            MyLog.d("Position: " + mPosition + " - onPlayerPlaying");
+        }
+
+        @Override
+        public void onPlayerPaused() {
+            MyLog.d("Position: " + mPosition + " - onPlayerPaused");
+        }
+
+        @Override
+        public void onPlayerBuffering() {
+            MyLog.d("Position: " + mPosition + " - onPlayerBuffering");
+        }
+
+        @Override
+        public void onPlayerStateEnded() {
+            MyLog.d("Position: " + mPosition + " - onPlayerStateEnded");
+        }
+
+        @Override
+        public void onPlayerStateIdle() {
+            MyLog.d("Position: " + mPosition + " - onPlayerStateIdle");
+        }
+
+        @Override
+        public void onPlayerError() {
+            MyLog.e("Position: " + mPosition + " - onPlayerError");
+        }
+
+        @Override
+        public void createExoPlayerCalled() {
+            MyLog.d("Position: " + mPosition + " - createExoPlayerCalled");
+        }
+
+        @Override
+        public void releaseExoPlayerCalled() {
+            MyLog.d("Position: " + mPosition + " - releaseExoPlayerCalled");
+        }
+
+        @Override
+        public void onVideoResumeDataLoaded(int window, long position, boolean isResumeWhenReady) {
+            MyLog.d("Position: " + mPosition + " - window: " + window + "  position: " + position + " autoPlay: " + isResumeWhenReady);
+        }
+
+        /**
+         * ExoAdListener
+         */
+        @Override
+        public void onAdPlay() {
+            MyLog.d("Position: " + mPosition + " - onAdPlay");
+        }
+
+        @Override
+        public void onAdPause() {
+            MyLog.d("Position: " + mPosition + " - onAdPause");
+        }
+
+        @Override
+        public void onAdResume() {
+            MyLog.d("Position: " + mPosition + " - onAdResume");
+        }
+
+        @Override
+        public void onAdEnded() {
+            MyLog.d("Position: " + mPosition + " - onAdEnded");
+        }
+
+        @Override
+        public void onAdError() {
+            MyLog.d("Position: " + mPosition + " - onAdError");
+        }
+
+        @Override
+        public void onAdLoadError() {
+            MyLog.d("Position: " + mPosition + " - onAdLoadError");
+        }
+
+        @Override
+        public void onAdClicked() {
+            MyLog.d("Position: " + mPosition + " - onAdClicked");
+        }
+
+        @Override
+        public void onAdTapped() {
+            MyLog.d("Position: " + mPosition + " - onAdTapped");
         }
     }
 

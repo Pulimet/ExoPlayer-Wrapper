@@ -24,4 +24,6 @@ public interface ExoPlayerControl {
     void onActivityDestroy();
 
     void onSaveInstanceState(Bundle outState);
+
+    void onPreparePlayer();
 }

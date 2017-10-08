@@ -90,6 +90,7 @@ public class ExoPlayer implements View.OnClickListener,
     private ProgressBar mProgressBar;
     private boolean isAdWasShown;
     private ImageView mThumbImage;
+    private boolean isPlayerPrepared;
 
     private ExoPlayer(Context context) {
         mHandler = new Handler();
@@ -159,6 +160,13 @@ public class ExoPlayer implements View.OnClickListener,
 
         if (mExoPlayerListener != null) {
             mExoPlayerListener.onThumbImageViewReady(mThumbImage);
+        }
+    }
+
+    private void removeThumbImageView() {
+        if (mThumbImage != null) {
+            AspectRatioFrameLayout frameLayout = mExoPlayerView.findViewById(R.id.exo_content_frame);
+            frameLayout.removeView(mThumbImage);
         }
     }
 
@@ -237,6 +245,8 @@ public class ExoPlayer implements View.OnClickListener,
         }
     }
 
+
+
     private void createExoPlayer(boolean isToPrepare) {
         if (mExoPlayerListener != null) {
             mExoPlayerListener.createExoPlayerCalled();
@@ -256,6 +266,7 @@ public class ExoPlayer implements View.OnClickListener,
 
         mExoPlayerView.setPlayer(mPlayer);
         mExoPlayerView.setControllerShowTimeoutMs(1500);
+        mExoPlayerView.setControllerHideOnTouch(false);
 
         mTempCurrentVolume = mPlayer.getVolume();
 
@@ -271,6 +282,10 @@ public class ExoPlayer implements View.OnClickListener,
     }
 
     private void prepareExoPlayer() {
+        if (isPlayerPrepared) {
+            return;
+        }
+        isPlayerPrepared = true;
         boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
         if (haveResumePosition) {
             mPlayer.setPlayWhenReady(isResumePlayWhenReady);
@@ -281,8 +296,9 @@ public class ExoPlayer implements View.OnClickListener,
             }
         }
 
-        mPlayer.prepare(mMediaSource, !haveResumePosition, false);
+        mPlayer.prepare(mMediaSource, !haveResumePosition, true);
     }
+
 
     private void createMediaSource() {
         // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
@@ -320,11 +336,14 @@ public class ExoPlayer implements View.OnClickListener,
     }
 
     private void releasePlayer() {
+        isPlayerPrepared = false;
+
         if (mExoPlayerListener != null) {
             mExoPlayerListener.releaseExoPlayerCalled();
         }
         if (mPlayer != null) {
             updateResumePosition();
+            removeThumbImageView();
             mPlayer.release();
             mPlayer = null;
             mTrackSelector = null;
@@ -359,12 +378,13 @@ public class ExoPlayer implements View.OnClickListener,
 
     private void onPlayerPlaying() {
         setProgressVisible(false);
+        removeThumbImageView();
         updateMutedStatus();
     }
 
-
     private void onPlayerPaused() {
         setProgressVisible(false);
+        removeThumbImageView();
     }
 
     private void setProgressVisible(boolean visible) {
@@ -606,6 +626,11 @@ public class ExoPlayer implements View.OnClickListener,
     @Override
     public void onInitPlayer() {
         createExoPlayer(true);
+    }
+
+    @Override
+    public void onPreparePlayer() {
+        prepareExoPlayer();
     }
 
     @Override
