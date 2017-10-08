@@ -17,7 +17,7 @@ import com.squareup.picasso.Picasso;
 import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerlibrary.R;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoAdListener;
-import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayer;
+import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerHelper;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerListener;
 
 import java.util.ArrayList;
@@ -63,12 +63,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private void onFirstCompleteVisibleItemChange(int firstVisible) {
         MyLog.d("New first visible is: " + firstVisible);
-        ExoPlayer oldPlayer = getExoPlayerByPosition(currentFirstVisible);
+        ExoPlayerHelper oldPlayer = getExoPlayerByPosition(currentFirstVisible);
         if (oldPlayer != null) {
             oldPlayer.onPausePlayer();
         }
 
-        ExoPlayer newPlayer = getExoPlayerByPosition(firstVisible);
+        ExoPlayerHelper newPlayer = getExoPlayerByPosition(firstVisible);
         if (newPlayer != null) {
             newPlayer.onPreparePlayer();
             newPlayer.onPlayPlayer();
@@ -77,10 +77,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         currentFirstVisible = firstVisible;
     }
 
-    private ExoPlayer getExoPlayerByPosition(int firstVisible) {
+    private ExoPlayerHelper getExoPlayerByPosition(int firstVisible) {
         ViewHolder holder = getViewHolder(firstVisible);
         if (holder != null) {
-            return getViewHolder(firstVisible).mExoPlayer;
+            return getViewHolder(firstVisible).mExoPlayerHelper;
         } else {
             return null;
         }
@@ -90,12 +90,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return (RecyclerViewAdapter.ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(position);
     }
 
-    private ArrayList<ExoPlayer> getAllExoPlayers() {
-        ArrayList<ExoPlayer> list = new ArrayList<>();
+    private ArrayList<ExoPlayerHelper> getAllExoPlayers() {
+        ArrayList<ExoPlayerHelper> list = new ArrayList<>();
         for (int i = 0; i < mList.size(); i++) {
-            ExoPlayer exoPlayer = getExoPlayerByPosition(i);
-            if (exoPlayer != null) {
-                list.add(exoPlayer);
+            ExoPlayerHelper exoPlayerHelper = getExoPlayerByPosition(i);
+            if (exoPlayerHelper != null) {
+                list.add(exoPlayerHelper);
             }
         }
         return list;
@@ -125,7 +125,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         if (!isFirstItemPlayed && holder.mPosition == 0) {
             isFirstItemPlayed = true;
-            holder.mExoPlayer.onPreparePlayer();
+            holder.mExoPlayerHelper.onPreparePlayer();
         }
     }
 
@@ -133,8 +133,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onViewDetachedFromWindow(ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         MyLog.i("Position: " + holder.mPosition + " - onViewDetachedFromWindow");
-        holder.mExoPlayer.onReleasePlayer();
-        holder.mExoPlayer.onActivityDestroy();
+        holder.mExoPlayerHelper.onReleasePlayer();
+        holder.mExoPlayerHelper.onActivityDestroy();
     }
 
     @Override
@@ -154,7 +154,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public final View mView;
         public final TextView mTextView;
         public final SimpleExoPlayerView mExoPlayerView;
-        public ExoPlayer mExoPlayer;
+        public ExoPlayerHelper mExoPlayerHelper;
         public String mThumbUrl;
         public String mVideoUrl;
         private int mPosition;
@@ -167,7 +167,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         public void createPlayer() {
-            mExoPlayer = new ExoPlayer.Builder(mExoPlayerView.getContext())
+            mExoPlayerHelper = new ExoPlayerHelper.Builder(mExoPlayerView.getContext())
                     .setExoPlayerView(mExoPlayerView)
                     .setUiControllersVisibility(true)
                     .setAutoPlayOn(true)
@@ -293,19 +293,19 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     protected void onStart() {
         MyLog.i("onActivityStart");
-        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
-            exoPlayer.onActivityStart();
+        for (ExoPlayerHelper exoPlayerHelper : getAllExoPlayers()) {
+            exoPlayerHelper.onActivityStart();
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     protected void onResume() {
         MyLog.i("onActivityResume");
-        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
-            exoPlayer.onActivityResume();
+        for (ExoPlayerHelper exoPlayerHelper : getAllExoPlayers()) {
+            exoPlayerHelper.onActivityResume();
         }
 
-        ExoPlayer newPlayer = getExoPlayerByPosition(currentFirstVisible);
+        ExoPlayerHelper newPlayer = getExoPlayerByPosition(currentFirstVisible);
         if (newPlayer != null) {
             newPlayer.onPreparePlayer();
             newPlayer.onPlayPlayer();
@@ -315,24 +315,24 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     protected void onPause() {
         MyLog.i("onActivityPause");
-        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
-            exoPlayer.onActivityPause();
+        for (ExoPlayerHelper exoPlayerHelper : getAllExoPlayers()) {
+            exoPlayerHelper.onActivityPause();
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     protected void onStop() {
         MyLog.i("onActivityStop");
-        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
-            exoPlayer.onActivityStop();
+        for (ExoPlayerHelper exoPlayerHelper : getAllExoPlayers()) {
+            exoPlayerHelper.onActivityStop();
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     protected void onDestroy() {
         MyLog.e("onActivityDestroy");
-        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
-            exoPlayer.onActivityDestroy();
+        for (ExoPlayerHelper exoPlayerHelper : getAllExoPlayers()) {
+            exoPlayerHelper.onActivityDestroy();
         }
     }
 }

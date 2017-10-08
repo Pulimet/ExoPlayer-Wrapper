@@ -11,7 +11,7 @@ import com.squareup.picasso.Picasso;
 
 import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoAdListener;
-import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayer;
+import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerHelper;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerListener;
 import net.alexandroid.utils.exoplayerlibrary.list.ListActivity;
 
@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private SimpleExoPlayerView mExoPlayerView;
-    private ExoPlayer mExoPlayer;
+    private ExoPlayerHelper mExoPlayerHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity
 
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 
-        mExoPlayer = new ExoPlayer.Builder(this)
+        mExoPlayerHelper = new ExoPlayerHelper.Builder(this)
                 .setExoPlayerView(mExoPlayerView)
                 .addMuteButton(false, false)
                 .setUiControllersVisibility(true)
@@ -63,10 +63,10 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(MainActivity.this, ListActivity.class));
                 break;
             case R.id.btnPlay:
-                mExoPlayer.onPlayPlayer();
+                mExoPlayerHelper.onPlayPlayer();
                 break;
             case R.id.btnPause:
-                mExoPlayer.onPausePlayer();
+                mExoPlayerHelper.onPausePlayer();
                 break;
 
         }
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         MyLog.i("onSaveInstanceState");
-        mExoPlayer.onSaveInstanceState(outState);
+        mExoPlayerHelper.onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
@@ -84,35 +84,35 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         MyLog.i("onActivityStart");
-        mExoPlayer.onActivityStart();
+        mExoPlayerHelper.onActivityStart();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         MyLog.i("onActivityResume");
-        mExoPlayer.onActivityResume();
+        mExoPlayerHelper.onActivityResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         MyLog.i("onActivityPause");
-        mExoPlayer.onActivityPause();
+        mExoPlayerHelper.onActivityPause();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         MyLog.i("onActivityStop");
-        mExoPlayer.onActivityStop();
+        mExoPlayerHelper.onActivityStop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         MyLog.e("onActivityDestroy");
-        mExoPlayer.onActivityDestroy();
+        mExoPlayerHelper.onActivityDestroy();
     }
 
     /**

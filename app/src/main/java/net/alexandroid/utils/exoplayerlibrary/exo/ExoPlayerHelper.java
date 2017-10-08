@@ -45,7 +45,7 @@ import java.io.IOException;
 
 
 @SuppressWarnings("WeakerAccess")
-public class ExoPlayer implements View.OnClickListener,
+public class ExoPlayerHelper implements View.OnClickListener,
         ExoPlayerControl,
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
@@ -95,7 +95,7 @@ public class ExoPlayer implements View.OnClickListener,
     private boolean isToPrepareOnResume = true;
     private boolean isAdThumbImageView;
 
-    private ExoPlayer(Context context) {
+    private ExoPlayerHelper(Context context) {
         mHandler = new Handler();
         mContext = context;
 
@@ -425,81 +425,81 @@ public class ExoPlayer implements View.OnClickListener,
     @SuppressWarnings("SameParameterValue")
     public static class Builder {
 
-        private ExoPlayer mExoPlayer;
+        private ExoPlayerHelper mExoPlayerHelper;
 
         public Builder(Context context) {
-            mExoPlayer = new ExoPlayer(context);
+            mExoPlayerHelper = new ExoPlayerHelper(context);
         }
 
         public Builder setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
-            mExoPlayer.setExoPlayerView(exoPlayerView);
+            mExoPlayerHelper.setExoPlayerView(exoPlayerView);
             return this;
         }
 
         public Builder addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
-            mExoPlayer.addMuteButton(isAdMuted, isVideoMuted);
+            mExoPlayerHelper.addMuteButton(isAdMuted, isVideoMuted);
             return this;
         }
 
 
         public Builder setUiControllersVisibility(boolean visibility) {
-            mExoPlayer.setUiControllersVisibility(visibility);
+            mExoPlayerHelper.setUiControllersVisibility(visibility);
             return this;
         }
 
         public Builder setVideoUrls(String... urls) {
-            mExoPlayer.setVideoUrls(urls);
+            mExoPlayerHelper.setVideoUrls(urls);
             return this;
         }
 
         public Builder setTagUrl(String tagUrl) {
-            mExoPlayer.setTagUrl(tagUrl);
+            mExoPlayerHelper.setTagUrl(tagUrl);
             return this;
         }
 
         public Builder setRepeatModeOn(boolean isOn) {
-            mExoPlayer.setRepeatModeOn(isOn);
+            mExoPlayerHelper.setRepeatModeOn(isOn);
             return this;
         }
 
         public Builder setAutoPlayOn(boolean isAutoPlayOn) {
-            mExoPlayer.setAutoPlayOn(isAutoPlayOn);
+            mExoPlayerHelper.setAutoPlayOn(isAutoPlayOn);
             return this;
         }
 
         public Builder setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
-            mExoPlayer.setExoPlayerEventsListener(pExoPlayerListenerListener);
+            mExoPlayerHelper.setExoPlayerEventsListener(pExoPlayerListenerListener);
             return this;
         }
 
         public Builder setExoAdEventsListener(ExoAdListener pExoAdEventsListener) {
-            mExoPlayer.setExoAdListener(pExoAdEventsListener);
+            mExoPlayerHelper.setExoAdListener(pExoAdEventsListener);
             return this;
         }
 
         public Builder addSavedInstanceState(Bundle pSavedInstanceState) {
-            mExoPlayer.addSavedInstanceState(pSavedInstanceState);
+            mExoPlayerHelper.addSavedInstanceState(pSavedInstanceState);
             return this;
         }
 
         public Builder setThumbImageViewTrue() {
-            mExoPlayer.setThumbImageViewTrue();
+            mExoPlayerHelper.setThumbImageViewTrue();
             return this;
         }
 
         public Builder setToPrepareOnResume(boolean toPrepareOnResume) {
-            mExoPlayer.setToPrepareOnResume(toPrepareOnResume);
+            mExoPlayerHelper.setToPrepareOnResume(toPrepareOnResume);
             return this;
         }
 
-        public ExoPlayer create() {
-            mExoPlayer.createExoPlayer(false);
-            return mExoPlayer;
+        public ExoPlayerHelper create() {
+            mExoPlayerHelper.createExoPlayer(false);
+            return mExoPlayerHelper;
         }
 
-        public ExoPlayer createAndPrepare() {
-            mExoPlayer.createExoPlayer(true);
-            return mExoPlayer;
+        public ExoPlayerHelper createAndPrepare() {
+            mExoPlayerHelper.createExoPlayer(true);
+            return mExoPlayerHelper;
         }
 
     }
