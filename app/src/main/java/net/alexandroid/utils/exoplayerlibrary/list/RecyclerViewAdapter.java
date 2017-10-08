@@ -1,5 +1,8 @@
 package net.alexandroid.utils.exoplayerlibrary.list;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.OnLifecycleEvent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -20,7 +23,7 @@ import net.alexandroid.utils.exoplayerlibrary.exo.ExoPlayerListener;
 import java.util.ArrayList;
 
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> implements LifecycleObserver {
 
     public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
 
@@ -28,7 +31,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private RecyclerView mRecyclerView;
     private int currentFirstVisible;
 
-    private boolean isFirsrItemPlayed;
+    private boolean isFirstItemPlayed;
 
     public RecyclerViewAdapter(ArrayList<VideoItem> pList) {
         mList = pList;
@@ -37,6 +40,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+        MyLog.e("onAttachedToRecyclerView");
         mRecyclerView = recyclerView;
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -49,6 +53,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 }
             }
         });
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        MyLog.e("onDetachedFromRecyclerView");
     }
 
     private void onFirstCompleteVisibleItemChange(int firstVisible) {
@@ -68,11 +78,27 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     private ExoPlayer getExoPlayerByPosition(int firstVisible) {
-        return getViewHolder(firstVisible).mExoPlayer;
+        ViewHolder holder = getViewHolder(firstVisible);
+        if (holder != null) {
+            return getViewHolder(firstVisible).mExoPlayer;
+        } else {
+            return null;
+        }
     }
 
     private RecyclerViewAdapter.ViewHolder getViewHolder(int position) {
         return (RecyclerViewAdapter.ViewHolder) mRecyclerView.findViewHolderForAdapterPosition(position);
+    }
+
+    private ArrayList<ExoPlayer> getAllExoPlayers() {
+        ArrayList<ExoPlayer> list = new ArrayList<>();
+        for (int i = 0; i < mList.size(); i++) {
+            ExoPlayer exoPlayer = getExoPlayerByPosition(i);
+            if (exoPlayer != null) {
+                list.add(exoPlayer);
+            }
+        }
+        return list;
     }
 
 
@@ -97,8 +123,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         MyLog.i("Position: " + holder.mPosition + " - onViewAttachedToWindow");
         holder.createPlayer();
 
-        if (!isFirsrItemPlayed && holder.mPosition == 0) {
-            isFirsrItemPlayed = true;
+        if (!isFirstItemPlayed && holder.mPosition == 0) {
+            isFirstItemPlayed = true;
             holder.mExoPlayer.onPreparePlayer();
         }
     }
@@ -145,6 +171,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     .setExoPlayerView(mExoPlayerView)
                     .setUiControllersVisibility(true)
                     .setAutoPlayOn(false)
+                    .setToPrepareOnResume(false)
                     .setVideoUrls(mVideoUrl)
                     .setTagUrl(TEST_TAG_URL)
                     .setExoPlayerEventsListener(this)
@@ -261,4 +288,47 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
 
+
+
+    // Activity LifeCycle
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    protected void onStart() {
+        MyLog.i("onActivityStart");
+        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
+            exoPlayer.onActivityStart();
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    protected void onResume() {
+        MyLog.i("onActivityResume");
+        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
+            exoPlayer.onActivityResume();
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    protected void onPause() {
+        MyLog.i("onActivityPause");
+        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
+            exoPlayer.onActivityPause();
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    protected void onStop() {
+        MyLog.i("onActivityStop");
+        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
+            exoPlayer.onActivityStop();
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    protected void onDestroy() {
+        MyLog.e("onActivityDestroy");
+        for (ExoPlayer exoPlayer : getAllExoPlayers()) {
+            exoPlayer.onActivityDestroy();
+        }
+    }
 }

@@ -22,13 +22,14 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void serRecyclerView() {
+
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         ArrayList<VideoItem> list = getVideoItemsList();
 
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(list);
-
+        getLifecycle().addObserver(adapter);
         recyclerView.setAdapter(adapter);
     }
 

@@ -61,36 +61,38 @@ public class ExoPlayer implements View.OnClickListener,
     public static final String PARAM_POSITION = "PARAM_POSITION";
     public static final String PARAM_IS_AD_WAS_SHOWN = "PARAM_IS_AD_WAS_SHOWN";
 
+    private Context mContext;
+    private Handler mHandler;
+
     private SimpleExoPlayerView mExoPlayerView;
     private SimpleExoPlayer mPlayer;
     private ImaAdsLoader mImaAdsLoader;
     private DataSource.Factory mDataSourceFactory;
     private final DefaultLoadControl mLoadControl;
     private final DefaultBandwidthMeter mBandwidthMeter;
-
     private MediaSource mMediaSource;
+    private TrackSelector mTrackSelector;
 
+    private ExoAdListener mExoAdListener;
     private ExoPlayerListener mExoPlayerListener;
-    private Context mContext;
 
-    private Handler mHandler;
+    private ProgressBar mProgressBar;
+    private ImageView mMuteBtn;
+    private ImageView mThumbImage;
+
+    private Uri[] mVideosUris;
+    private String mTagUrl;
+    private long mResumePosition = C.TIME_UNSET;
+    private int mResumeWindow = C.INDEX_UNSET;
     private float mTempCurrentVolume;
     private boolean isVideoMuted;
     private boolean isAdMuted;
     private boolean isRepeatModeOn;
     private boolean isAutoPlayOn;
-    private TrackSelector mTrackSelector;
-    private long mResumePosition = C.TIME_UNSET;
-    private int mResumeWindow = C.INDEX_UNSET;
     private boolean isResumePlayWhenReady;
-    private Uri[] mVideosUris;
-    private String mTagUrl;
-    private ExoAdListener mExoAdListener;
-    private ImageView mMuteBtn;
-    private ProgressBar mProgressBar;
     private boolean isAdWasShown;
-    private ImageView mThumbImage;
     private boolean isPlayerPrepared;
+    private boolean isToPrepareOnResume = true;
 
     private ExoPlayer(Context context) {
         mHandler = new Handler();
@@ -170,6 +172,12 @@ public class ExoPlayer implements View.OnClickListener,
         }
     }
 
+    // If you have a list of videos set isToPrepareOnResume to be false
+    // to prevent auto prepare on activity onResume/onCreate
+    private void setToPrepareOnResume(boolean toPrepareOnResume) {
+        isToPrepareOnResume = toPrepareOnResume;
+    }
+
     private void setUiControllersVisibility(boolean visibility) {
         mExoPlayerView.setUseController(visibility);
     }
@@ -215,10 +223,10 @@ public class ExoPlayer implements View.OnClickListener,
         }
     }
 
+
     public void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
         mExoPlayerListener = pExoPlayerListenerListener;
     }
-
 
     public void setExoAdListener(ExoAdListener exoAdListener) {
         mExoAdListener = exoAdListener;
@@ -230,6 +238,7 @@ public class ExoPlayer implements View.OnClickListener,
             mVideosUris[i] = Uri.parse(urls[i]);
         }
     }
+
 
     private void setTagUrl(String tagUrl) {
         mTagUrl = tagUrl;
@@ -244,8 +253,6 @@ public class ExoPlayer implements View.OnClickListener,
             mResumePosition = savedInstanceState.getLong(PARAM_POSITION, C.TIME_UNSET);
         }
     }
-
-
 
     private void createExoPlayer(boolean isToPrepare) {
         if (mExoPlayerListener != null) {
@@ -281,6 +288,7 @@ public class ExoPlayer implements View.OnClickListener,
         }
     }
 
+
     private void prepareExoPlayer() {
         if (isPlayerPrepared) {
             return;
@@ -298,7 +306,6 @@ public class ExoPlayer implements View.OnClickListener,
 
         mPlayer.prepare(mMediaSource, !haveResumePosition, true);
     }
-
 
     private void createMediaSource() {
         // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
@@ -421,11 +428,11 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
+
         public Builder setUiControllersVisibility(boolean visibility) {
             mExoPlayer.setUiControllersVisibility(visibility);
             return this;
         }
-
 
         public Builder setVideoUrls(String... urls) {
             mExoPlayer.setVideoUrls(urls);
@@ -457,7 +464,6 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
-
         public Builder addSavedInstanceState(Bundle pSavedInstanceState) {
             mExoPlayer.addSavedInstanceState(pSavedInstanceState);
             return this;
@@ -465,6 +471,11 @@ public class ExoPlayer implements View.OnClickListener,
 
         public Builder addThumbImageView() {
             mExoPlayer.addThumbImageView();
+            return this;
+        }
+
+        public Builder setToPrepareOnResume(boolean toPrepareOnResume) {
+            mExoPlayer.setToPrepareOnResume(toPrepareOnResume);
             return this;
         }
 
@@ -659,14 +670,14 @@ public class ExoPlayer implements View.OnClickListener,
     @Override
     public void onActivityStart() {
         if (Util.SDK_INT > 23) {
-            createExoPlayer(true);
+            createExoPlayer(isToPrepareOnResume);
         }
     }
 
     @Override
     public void onActivityResume() {
         if ((Util.SDK_INT <= 23 || mPlayer == null)) {
-            createExoPlayer(true);
+            createExoPlayer(isToPrepareOnResume);
         }
     }
 
