@@ -482,7 +482,7 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
-        public Builder addThumbImageView() {
+        public Builder setThumbImageViewTrue() {
             mExoPlayer.setThumbImageViewTrue();
             return this;
         }

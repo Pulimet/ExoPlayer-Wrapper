@@ -176,7 +176,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     .setTagUrl(TEST_TAG_URL)
                     .setExoPlayerEventsListener(this)
                     .setExoAdEventsListener(this)
-                    .addThumbImageView()
+                    .setThumbImageViewTrue()
                     .create();
         }
 
