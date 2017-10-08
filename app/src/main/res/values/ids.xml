@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <item name="thumbImg" type="id"/>
     <item name="muteBtn" type="id"/>
     <item name="progressBar" type="id"/>
 </resources>

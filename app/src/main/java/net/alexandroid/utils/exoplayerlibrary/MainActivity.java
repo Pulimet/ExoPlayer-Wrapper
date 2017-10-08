@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.squareup.picasso.Picasso;
 
 import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerlibrary.exo.ExoAdListener;
@@ -38,13 +40,16 @@ public class MainActivity extends AppCompatActivity
                 .addMuteButton(false, false)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
-                .setAutoPlayOn(true) //TODO It doesn't affect on ad
+                .setAutoPlayOn(false) //TODO It doesn't affect on ad
                 .setVideoUrls(VIDEO_URL)
                 .setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
-                .createAndPrepare();
+                .addThumbImageView()
+                .create();
+        //.createAndPrepare();
+
 
     }
 
@@ -69,6 +74,7 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -115,6 +121,15 @@ public class MainActivity extends AppCompatActivity
     /**
      * ExoPlayerListener
      */
+
+    @Override
+    public void onThumbImageViewReady(ImageView imageView) {
+        Picasso.with(this)
+                .load(getString(R.string.fakeImageUrl))
+                .placeholder(R.drawable.no_image_wide)
+                .error(R.drawable.red_y_logo)
+                .into(imageView);
+    }
 
     @Override
     public void onLoadingStatusChanged(boolean isLoading) {

@@ -1,6 +1,7 @@
 package net.alexandroid.utils.exoplayerlibrary.list;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,15 +25,25 @@ public class ListActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        ArrayList<String> list = new ArrayList<>(Arrays.asList(
-                "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/071017_airbos_pjAO8E9r_800.mp4/master.m3u8",
-                "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/arnav_fpo8g7XF_800.mp4/master.m3u8",
-                "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/031017_yadiout_sodani_subs_fix_WATXm9aJ_800.mp4/master.m3u8",
-                "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/061017_2225_Harrier_performs_Reverse_Landing_TWyVXwlk_800.mp4/master.m3u8",
-                "http://ynethd-i.akamaihd.net/i/cdnwiz/0317/120317_fix_must_berlin_fix_yarden_ysIlzhaw_800.mp4/master.m3u8"));
+        ArrayList<VideoItem> list = getVideoItemsList();
 
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(list);
 
         recyclerView.setAdapter(adapter);
+    }
+
+    @NonNull
+    private ArrayList<VideoItem> getVideoItemsList() {
+        return new ArrayList<>(Arrays.asList(
+                new VideoItem("http://ynethd-i.akamaihd.net/i/cdnwiz/1017/gadotsnl_oeuQUMxw_800.mp4/master.m3u8",
+                        "https://images1.ynet.co.il/PicServer5/2017/10/08/8076774/80767641882064640360no.jpg"),
+                new VideoItem("http://ynethd-i.akamaihd.net/i/cdnwiz/1017/0710171807_SWISS_GIANTS_7jHXuKJW_800.mp4/master.m3u8",
+                        "https://images1.ynet.co.il/PicServer5/2017/10/08/8076970/80760114998850640360no.jpg"),
+                new VideoItem("http://ynethd-i.akamaihd.net/i/cdnwiz/1017/031017_yediot_batito_amazonas_3_Coqt1YHG_800.mp4/master.m3u8",
+                        "https://images1.ynet.co.il/PicServer5/2017/10/08/8077083/shofar.jpg"),
+                new VideoItem("http://ynethd-i.akamaihd.net/i/cdnwiz/1017/081017_meteor_rXwj2aTq_800.mp4/master.m3u8",
+                        "https://images1.ynet.co.il/PicServer5/2017/10/08/8077142/807703311823487640360no.jpg"),
+                new VideoItem("http://ynethd-i.akamaihd.net/i/cdnwiz/1017/arnav_fpo8g7XF_800.mp4/master.m3u8",
+                        "https://images1.ynet.co.il/PicServer5/2017/10/07/8075646/80756450991498640360no.jpg")));
     }
 }

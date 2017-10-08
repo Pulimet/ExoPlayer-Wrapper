@@ -20,11 +20,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
 
-    private final ArrayList<String> mList;
+    private final ArrayList<VideoItem> mList;
     private RecyclerView mRecyclerView;
     private int currentFirstVisible;
 
-    public RecyclerViewAdapter(ArrayList<String> pList) {
+    public RecyclerViewAdapter(ArrayList<VideoItem> pList) {
         mList = pList;
     }
 
@@ -68,8 +68,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(RecyclerViewAdapter.ViewHolder holder, int position) {
-        holder.mTextView.setText(mList.get(position));
-        holder.mVideoUrl = mList.get(position);
+        holder.mTextView.setText(mList.get(position).getVideoUrl());
+        holder.mVideoUrl = mList.get(position).getVideoUrl();
 
         holder.mExoPlayer = new ExoPlayer.Builder(holder.mExoPlayerView.getContext())
                 .setExoPlayerView(holder.mExoPlayerView)

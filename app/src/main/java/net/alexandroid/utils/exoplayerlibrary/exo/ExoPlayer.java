@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
@@ -88,6 +89,7 @@ public class ExoPlayer implements View.OnClickListener,
     private ImageView mMuteBtn;
     private ProgressBar mProgressBar;
     private boolean isAdWasShown;
+    private ImageView mThumbImage;
 
     private ExoPlayer(Context context) {
         mHandler = new Handler();
@@ -126,12 +128,12 @@ public class ExoPlayer implements View.OnClickListener,
 
     private void setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
         mExoPlayerView = exoPlayerView;
+        mExoPlayerView.setUseArtwork(true);
         addProgressBar();
     }
 
     private void addProgressBar() {
         FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
-
         mProgressBar = new ProgressBar(mContext, null, android.R.attr.progressBarStyleLarge);
         mProgressBar.setId(R.id.progressBar);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -142,6 +144,22 @@ public class ExoPlayer implements View.OnClickListener,
         mProgressBar.setIndeterminate(true);
         mProgressBar.setVisibility(View.GONE);
         frameLayout.addView(mProgressBar);
+    }
+
+    private void addThumbImageView() {
+        AspectRatioFrameLayout frameLayout = mExoPlayerView.findViewById(R.id.exo_content_frame);
+        mThumbImage = new ImageView(mContext);
+        mThumbImage.setId(R.id.thumbImg);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER;
+        mThumbImage.setLayoutParams(params);
+        frameLayout.addView(mThumbImage);
+
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.onThumbImageViewReady(mThumbImage);
+        }
     }
 
     private void setUiControllersVisibility(boolean visibility) {
@@ -189,14 +207,14 @@ public class ExoPlayer implements View.OnClickListener,
         }
     }
 
-    private void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
+    public void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
         mExoPlayerListener = pExoPlayerListenerListener;
     }
 
-    private void setExoAdListener(ExoAdListener exoAdListener) {
+
+    public void setExoAdListener(ExoAdListener exoAdListener) {
         mExoAdListener = exoAdListener;
     }
-
 
     private void setVideoUrls(String[] urls) {
         mVideosUris = new Uri[urls.length];
@@ -209,6 +227,7 @@ public class ExoPlayer implements View.OnClickListener,
         mTagUrl = tagUrl;
     }
 
+
     private void addSavedInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             isAdWasShown = savedInstanceState.getBoolean(PARAM_IS_AD_WAS_SHOWN, false);
@@ -217,7 +236,6 @@ public class ExoPlayer implements View.OnClickListener,
             mResumePosition = savedInstanceState.getLong(PARAM_POSITION, C.TIME_UNSET);
         }
     }
-
 
     private void createExoPlayer(boolean isToPrepare) {
         if (mExoPlayerListener != null) {
@@ -247,7 +265,7 @@ public class ExoPlayer implements View.OnClickListener,
 
         createMediaSource();
 
-        if(isToPrepare) {
+        if (isToPrepare) {
             prepareExoPlayer();
         }
     }
@@ -344,10 +362,10 @@ public class ExoPlayer implements View.OnClickListener,
         updateMutedStatus();
     }
 
+
     private void onPlayerPaused() {
         setProgressVisible(false);
     }
-
 
     private void setProgressVisible(boolean visible) {
         if (mProgressBar != null) {
@@ -388,11 +406,11 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
+
         public Builder setVideoUrls(String... urls) {
             mExoPlayer.setVideoUrls(urls);
             return this;
         }
-
 
         public Builder setTagUrl(String tagUrl) {
             mExoPlayer.setTagUrl(tagUrl);
@@ -419,11 +437,16 @@ public class ExoPlayer implements View.OnClickListener,
             return this;
         }
 
+
         public Builder addSavedInstanceState(Bundle pSavedInstanceState) {
             mExoPlayer.addSavedInstanceState(pSavedInstanceState);
             return this;
         }
 
+        public Builder addThumbImageView() {
+            mExoPlayer.addThumbImageView();
+            return this;
+        }
 
         public ExoPlayer create() {
             mExoPlayer.createExoPlayer(false);
