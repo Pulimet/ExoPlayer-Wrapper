@@ -51,3 +51,6 @@ dependencies {
     api 'com.google.android.exoplayer:exoplayer-hls:r2.5.3'
     api 'com.google.android.exoplayer:extension-ima:r2.5.3'
 }
+
+apply from: 'installv1.gradle'
+apply from: 'bintrayv1.gradle'
