@@ -1,5 +1,29 @@
 apply plugin: 'com.android.library'
 
+ext {
+    bintrayRepo = 'utils'
+    bintrayName = 'exowrapper'
+
+    publishedGroupId = 'net.alexandroid.utils'
+    libraryName = 'ExoWrapper'
+    artifact = 'exowrapper'
+
+    libraryDescription = 'ExoPlayer wrapper (ExoPlayer is an application level media player for Android)'
+
+    siteUrl = 'https://github.com/Pulimet/ExoPlayerLibraryWrapper'
+    gitUrl = 'https://github.com/Pulimet/ExoPlayerLibraryWrapper.git'
+
+    libraryVersion = '1.0'
+
+    developerId = 'pulimet'
+    developerName = 'Alexey Korolev'
+    developerEmail = 'korolev2009@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.2"
