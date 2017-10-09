@@ -96,6 +96,7 @@ public class ExoPlayerHelper implements View.OnClickListener,
         mExoPlayerView = exoPlayerView;
 
         addProgressBar();
+        setOverlayClickable();
 
         init();
     }
@@ -171,6 +172,10 @@ public class ExoPlayerHelper implements View.OnClickListener,
         mProgressBar.setIndeterminate(true);
         mProgressBar.setVisibility(View.GONE);
         frameLayout.addView(mProgressBar);
+    }
+
+    private void setOverlayClickable() {
+        mExoPlayerView.getOverlayFrameLayout().setOnClickListener(this);
     }
 
     private void setProgressVisible(boolean visible) {
@@ -253,6 +258,10 @@ public class ExoPlayerHelper implements View.OnClickListener,
             }
             ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
             updateMutedStatus();
+        }
+
+        if (mExoPlayerListener != null && v.getId() == R.id.exo_overlay) {
+            mExoPlayerListener.onVideoTapped();
         }
     }
 

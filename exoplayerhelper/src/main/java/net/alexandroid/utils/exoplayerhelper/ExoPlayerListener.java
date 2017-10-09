@@ -25,4 +25,6 @@ public interface ExoPlayerListener {
     void releaseExoPlayerCalled();
 
     void onVideoResumeDataLoaded(int window, long position, boolean isResumeWhenReady);
+
+    void onVideoTapped();
 }

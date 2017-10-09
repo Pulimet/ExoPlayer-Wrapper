@@ -181,6 +181,11 @@ public class MainActivity extends AppCompatActivity
         MyLog.d("window: " + window + "  position: " + position + " autoPlay: " + isResumeWhenReady);
     }
 
+    @Override
+    public void onVideoTapped() {
+        MyLog.d("onVideoTapped");
+    }
+
     /**
      * ExoAdListener
      */

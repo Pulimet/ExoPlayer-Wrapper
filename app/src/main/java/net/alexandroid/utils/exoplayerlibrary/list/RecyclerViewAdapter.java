@@ -247,6 +247,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             MyLog.d("Position: " + mPosition + " - window: " + window + "  position: " + position + " autoPlay: " + isResumeWhenReady);
         }
 
+        @Override
+        public void onVideoTapped() {
+            MyLog.d("Position: " + mPosition + " - onVideoTapped");
+        }
+
         /**
          * ExoAdListener
          */
