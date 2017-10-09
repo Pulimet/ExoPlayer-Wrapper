@@ -37,14 +37,14 @@ public class MainActivity extends AppCompatActivity
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this)
                 .setExoPlayerView(mExoPlayerView)
-                .addMuteButton(false, false)
-                .setUiControllersVisibility(true)
+                .addMuteButton(false, true)
+                .setUiControllersVisibility(false)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(true)
                 .setVideoUrls(VIDEO_URL)
-                .setTagUrl(TEST_TAG_URL)
+                //.setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
-                .setExoAdEventsListener(this)
+                //.setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
                 .setThumbImageViewEnabled()
                 .createAndPrepare();

@@ -114,115 +114,11 @@ public class ExoPlayerHelper implements View.OnClickListener,
                 1000, 3000, 3000, 3000));
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.muteBtn) {
-            if (mPlayer.isPlayingAd()) {
-                isVideoMuted = isAdMuted = !isAdMuted;
-            } else {
-                isAdMuted = isVideoMuted = !isVideoMuted;
-            }
-            ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
-            updateMutedStatus();
-        }
-    }
-
-    private void setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
-        mExoPlayerView = exoPlayerView;
-        addProgressBar();
-    }
-
-    private void addProgressBar() {
-        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
-        mProgressBar = new ProgressBar(mContext, null, android.R.attr.progressBarStyleLarge);
-        mProgressBar.setId(R.id.progressBar);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.CENTER;
-        mProgressBar.setLayoutParams(params);
-        mProgressBar.setIndeterminate(true);
-        mProgressBar.setVisibility(View.GONE);
-        frameLayout.addView(mProgressBar);
-    }
-
-    private void addThumbImageView() {
-        if (mThumbImage != null) {
-            return;
-        }
-        AspectRatioFrameLayout frameLayout = mExoPlayerView.findViewById(R.id.exo_content_frame);
-        mThumbImage = new ImageView(mContext);
-        mThumbImage.setId(R.id.thumbImg);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT);
-        params.gravity = Gravity.CENTER;
-        mThumbImage.setLayoutParams(params);
-        frameLayout.addView(mThumbImage);
-
-        if (mExoPlayerListener != null) {
-            mExoPlayerListener.onThumbImageViewReady(mThumbImage);
-        }
-    }
-
-    private void removeThumbImageView() {
-        if (mThumbImage != null) {
-            AspectRatioFrameLayout frameLayout = mExoPlayerView.findViewById(R.id.exo_content_frame);
-            frameLayout.removeView(mThumbImage);
-            mThumbImage = null;
-        }
-    }
-
-    private void setUiControllersVisibility(boolean visibility) {
-        mExoPlayerView.setUseController(visibility);
-    }
-
-    @SuppressLint("RtlHardcoded")
-    private void addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
-        this.isVideoMuted = isVideoMuted;
-        this.isAdMuted = isAdMuted;
-
-        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
-
-        mMuteBtn = new ImageView(mContext);
-        mMuteBtn.setId(R.id.muteBtn);
-        mMuteBtn.setImageResource(this.isAdMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.RIGHT | Gravity.BOTTOM;
-        mMuteBtn.setLayoutParams(params);
-
-        mMuteBtn.setOnClickListener(this);
-
-        frameLayout.addView(mMuteBtn);
-    }
-
-    private void updateMutedStatus() {
-        boolean isMuted = (mPlayer.isPlayingAd() && isAdMuted) || (!mPlayer.isPlayingAd() && isVideoMuted);
-        if (isMuted) {
-            mPlayer.setVolume(0f);
-        } else {
-            mPlayer.setVolume(mTempCurrentVolume);
-        }
-        if (mMuteBtn != null) {
-            mMuteBtn.setImageResource(isMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
-        }
-    }
-
+    // Player creation and release
     private void setVideoUrls(String[] urls) {
         mVideosUris = new Uri[urls.length];
         for (int i = 0; i < urls.length; i++) {
             mVideosUris[i] = Uri.parse(urls[i]);
-        }
-    }
-
-    private void addSavedInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            isAdWasShown = savedInstanceState.getBoolean(PARAM_IS_AD_WAS_SHOWN, false);
-            isResumePlayWhenReady = savedInstanceState.getBoolean(PARAM_AUTO_PLAY, true);
-            mResumeWindow = savedInstanceState.getInt(PARAM_WINDOW, C.INDEX_UNSET);
-            mResumePosition = savedInstanceState.getLong(PARAM_POSITION, C.TIME_UNSET);
         }
     }
 
@@ -264,7 +160,6 @@ public class ExoPlayerHelper implements View.OnClickListener,
             prepareExoPlayer();
         }
     }
-
 
     private void prepareExoPlayer() {
         if (isPlayerPrepared) {
@@ -342,6 +237,121 @@ public class ExoPlayerHelper implements View.OnClickListener,
         }
     }
 
+
+    // UI control
+    private void setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
+        mExoPlayerView = exoPlayerView;
+        addProgressBar();
+    }
+
+    private void addProgressBar() {
+        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+        mProgressBar = new ProgressBar(mContext, null, android.R.attr.progressBarStyleLarge);
+        mProgressBar.setId(R.id.progressBar);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
+        mProgressBar.setLayoutParams(params);
+        mProgressBar.setIndeterminate(true);
+        mProgressBar.setVisibility(View.GONE);
+        frameLayout.addView(mProgressBar);
+    }
+
+    private void setProgressVisible(boolean visible) {
+        if (mProgressBar != null) {
+            mProgressBar.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private void addThumbImageView() {
+        if (mThumbImage != null) {
+            return;
+        }
+        AspectRatioFrameLayout frameLayout = mExoPlayerView.findViewById(R.id.exo_content_frame);
+        mThumbImage = new ImageView(mContext);
+        mThumbImage.setId(R.id.thumbImg);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.CENTER;
+        mThumbImage.setLayoutParams(params);
+        frameLayout.addView(mThumbImage);
+
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.onThumbImageViewReady(mThumbImage);
+        }
+    }
+
+    private void removeThumbImageView() {
+        if (mThumbImage != null) {
+            AspectRatioFrameLayout frameLayout = mExoPlayerView.findViewById(R.id.exo_content_frame);
+            frameLayout.removeView(mThumbImage);
+            mThumbImage = null;
+        }
+    }
+
+    private void setUiControllersVisibility(boolean visibility) {
+        mExoPlayerView.setUseController(visibility);
+    }
+
+    @SuppressLint("RtlHardcoded")
+    private void addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
+        this.isVideoMuted = isVideoMuted;
+        this.isAdMuted = isAdMuted;
+
+        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+
+        mMuteBtn = new ImageView(mContext);
+        mMuteBtn.setId(R.id.muteBtn);
+        mMuteBtn.setImageResource(this.isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.RIGHT | Gravity.BOTTOM;
+        mMuteBtn.setLayoutParams(params);
+
+        mMuteBtn.setOnClickListener(this);
+
+        frameLayout.addView(mMuteBtn);
+    }
+
+    private void updateMutedStatus() {
+        boolean isMuted = (mPlayer.isPlayingAd() && isAdMuted) || (!mPlayer.isPlayingAd() && isVideoMuted);
+        if (isMuted) {
+            mPlayer.setVolume(0f);
+        } else {
+            mPlayer.setVolume(mTempCurrentVolume);
+        }
+        if (mMuteBtn != null) {
+            mMuteBtn.setImageResource(isMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.muteBtn) {
+            if (mPlayer.isPlayingAd()) {
+                isVideoMuted = isAdMuted = !isAdMuted;
+            } else {
+                isAdMuted = isVideoMuted = !isVideoMuted;
+            }
+            ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+            updateMutedStatus();
+        }
+    }
+
+
+    // Resume position saving
+    private void addSavedInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            isAdWasShown = savedInstanceState.getBoolean(PARAM_IS_AD_WAS_SHOWN, false);
+            isResumePlayWhenReady = savedInstanceState.getBoolean(PARAM_AUTO_PLAY, true);
+            mResumeWindow = savedInstanceState.getInt(PARAM_WINDOW, C.INDEX_UNSET);
+            mResumePosition = savedInstanceState.getLong(PARAM_POSITION, C.TIME_UNSET);
+        }
+    }
+
     private void updateResumePosition() {
         isResumePlayWhenReady = mPlayer.getPlayWhenReady();
         mResumeWindow = mPlayer.getCurrentWindowIndex();
@@ -354,8 +364,8 @@ public class ExoPlayerHelper implements View.OnClickListener,
         mResumePosition = C.TIME_UNSET;
     }
 
-    // Player events, internal handle
 
+    // Player events, internal handle
     private void onPlayerBuffering() {
         setProgressVisible(true);
     }
@@ -371,12 +381,6 @@ public class ExoPlayerHelper implements View.OnClickListener,
         removeThumbImageView();
     }
 
-    private void setProgressVisible(boolean visible) {
-        if (mProgressBar != null) {
-            mProgressBar.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
-    }
-
     private void onAdEnded() {
         updateMutedStatus();
         isAdWasShown = true;
@@ -384,6 +388,7 @@ public class ExoPlayerHelper implements View.OnClickListener,
 
     private void onAdUserClicked() {
         mImaAdsLoader.stopAd();
+        isAdWasShown = true;
     }
 
     @SuppressWarnings("SameParameterValue")
