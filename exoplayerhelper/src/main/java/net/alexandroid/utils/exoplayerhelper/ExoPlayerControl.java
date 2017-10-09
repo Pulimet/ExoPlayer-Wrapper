@@ -26,4 +26,8 @@ public interface ExoPlayerControl {
     void onSaveInstanceState(Bundle outState);
 
     void onPreparePlayer();
+
+    void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener);
+
+    void setExoAdListener(ExoAdListener exoAdListener);
 }

@@ -65,8 +65,8 @@ public class ExoPlayerHelper implements View.OnClickListener,
     private SimpleExoPlayer mPlayer;
     private ImaAdsLoader mImaAdsLoader;
     private DataSource.Factory mDataSourceFactory;
-    private final DefaultLoadControl mLoadControl;
-    private final DefaultBandwidthMeter mBandwidthMeter;
+    private DefaultLoadControl mLoadControl;
+    private DefaultBandwidthMeter mBandwidthMeter;
     private MediaSource mMediaSource;
     private TrackSelector mTrackSelector;
 
@@ -90,12 +90,15 @@ public class ExoPlayerHelper implements View.OnClickListener,
     private boolean isAdWasShown;
     private boolean isPlayerPrepared;
     private boolean isToPrepareOnResume = true;
-    private boolean isAdThumbImageView;
+    private boolean isThumbImageViewEnabled;
 
     private ExoPlayerHelper(Context context) {
         mHandler = new Handler();
         mContext = context;
+        init();
+    }
 
+    private void init() {
         // Measures bandwidth during playback. Can be null if not required.
         mBandwidthMeter = new DefaultBandwidthMeter();
 
@@ -109,7 +112,6 @@ public class ExoPlayerHelper implements View.OnClickListener,
         mLoadControl = (new DefaultLoadControl(
                 new DefaultAllocator(false, 2 * 1024 * 1024),
                 1000, 3000, 3000, 3000));
-
     }
 
     @Override
@@ -144,10 +146,6 @@ public class ExoPlayerHelper implements View.OnClickListener,
         frameLayout.addView(mProgressBar);
     }
 
-    private void setThumbImageViewTrue() {
-        isAdThumbImageView = true;
-    }
-
     private void addThumbImageView() {
         if (mThumbImage != null) {
             return;
@@ -175,22 +173,8 @@ public class ExoPlayerHelper implements View.OnClickListener,
         }
     }
 
-    // If you have a list of videos set isToPrepareOnResume to be false
-    // to prevent auto prepare on activity onResume/onCreate
-    private void setToPrepareOnResume(boolean toPrepareOnResume) {
-        isToPrepareOnResume = toPrepareOnResume;
-    }
-
     private void setUiControllersVisibility(boolean visibility) {
         mExoPlayerView.setUseController(visibility);
-    }
-
-    private void setRepeatModeOn(boolean isRepeatModeOn) {
-        this.isRepeatModeOn = isRepeatModeOn;
-    }
-
-    private void setAutoPlayOn(boolean isAutoPlayOn) {
-        this.isAutoPlayOn = isAutoPlayOn;
     }
 
     @SuppressLint("RtlHardcoded")
@@ -226,27 +210,12 @@ public class ExoPlayerHelper implements View.OnClickListener,
         }
     }
 
-
-    public void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
-        mExoPlayerListener = pExoPlayerListenerListener;
-    }
-
-    public void setExoAdListener(ExoAdListener exoAdListener) {
-        mExoAdListener = exoAdListener;
-    }
-
     private void setVideoUrls(String[] urls) {
         mVideosUris = new Uri[urls.length];
         for (int i = 0; i < urls.length; i++) {
             mVideosUris[i] = Uri.parse(urls[i]);
         }
     }
-
-
-    private void setTagUrl(String tagUrl) {
-        mTagUrl = tagUrl;
-    }
-
 
     private void addSavedInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
@@ -265,7 +234,7 @@ public class ExoPlayerHelper implements View.OnClickListener,
             return;
         }
 
-        if (isAdThumbImageView) {
+        if (isThumbImageViewEnabled) {
             addThumbImageView();
         }
 
@@ -436,7 +405,6 @@ public class ExoPlayerHelper implements View.OnClickListener,
             return this;
         }
 
-
         public Builder setUiControllersVisibility(boolean visibility) {
             mExoPlayerHelper.setUiControllersVisibility(visibility);
             return this;
@@ -448,17 +416,17 @@ public class ExoPlayerHelper implements View.OnClickListener,
         }
 
         public Builder setTagUrl(String tagUrl) {
-            mExoPlayerHelper.setTagUrl(tagUrl);
+            mExoPlayerHelper.mTagUrl = tagUrl;
             return this;
         }
 
         public Builder setRepeatModeOn(boolean isOn) {
-            mExoPlayerHelper.setRepeatModeOn(isOn);
+            mExoPlayerHelper.isRepeatModeOn = isOn;
             return this;
         }
 
         public Builder setAutoPlayOn(boolean isAutoPlayOn) {
-            mExoPlayerHelper.setAutoPlayOn(isAutoPlayOn);
+            mExoPlayerHelper.isAutoPlayOn = isAutoPlayOn;
             return this;
         }
 
@@ -477,13 +445,15 @@ public class ExoPlayerHelper implements View.OnClickListener,
             return this;
         }
 
-        public Builder setThumbImageViewTrue() {
-            mExoPlayerHelper.setThumbImageViewTrue();
+        public Builder setThumbImageViewEnabled() {
+            mExoPlayerHelper.isThumbImageViewEnabled = true;
             return this;
         }
 
+        // If you have a list of videos set isToPrepareOnResume to be false
+        // to prevent auto prepare on activity onResume/onCreate
         public Builder setToPrepareOnResume(boolean toPrepareOnResume) {
-            mExoPlayerHelper.setToPrepareOnResume(toPrepareOnResume);
+            mExoPlayerHelper.isToPrepareOnResume = toPrepareOnResume;
             return this;
         }
 
@@ -642,6 +612,17 @@ public class ExoPlayerHelper implements View.OnClickListener,
     /**
      * ExoPlayerControl interface methods
      */
+
+    @Override
+    public void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
+        mExoPlayerListener = pExoPlayerListenerListener;
+    }
+
+    @Override
+    public void setExoAdListener(ExoAdListener exoAdListener) {
+        mExoAdListener = exoAdListener;
+    }
+
     @Override
     public void onInitPlayer() {
         createExoPlayer(true);

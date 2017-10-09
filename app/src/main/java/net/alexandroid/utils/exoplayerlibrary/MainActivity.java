@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
-                .setThumbImageViewTrue()
+                .setThumbImageViewEnabled()
                 .createAndPrepare();
     }
 
