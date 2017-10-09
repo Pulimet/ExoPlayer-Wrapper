@@ -203,28 +203,28 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         @Override
-        public void onPlayerPlaying() {
-            MyLog.d("Position: " + mPosition + " - onPlayerPlaying");
+        public void onPlayerPlaying(int currentWindowIndex) {
+            MyLog.d("Position: " + mPosition + " - onPlayerPlaying, currentWindowIndex: " + currentWindowIndex);
         }
 
         @Override
-        public void onPlayerPaused() {
-            MyLog.d("Position: " + mPosition + " - onPlayerPaused");
+        public void onPlayerPaused(int currentWindowIndex) {
+            MyLog.d("Position: " + mPosition + " - onPlayerPaused, currentWindowIndex: " + currentWindowIndex);
         }
 
         @Override
-        public void onPlayerBuffering() {
-            MyLog.d("Position: " + mPosition + " - onPlayerBuffering");
+        public void onPlayerBuffering(int currentWindowIndex) {
+            MyLog.d("Position: " + mPosition + " - onPlayerBuffering, currentWindowIndex: " + currentWindowIndex);
         }
 
         @Override
-        public void onPlayerStateEnded() {
-            MyLog.d("Position: " + mPosition + " - onPlayerStateEnded");
+        public void onPlayerStateEnded(int currentWindowIndex) {
+            MyLog.d("Position: " + mPosition + " - onPlayerStateEnded, currentWindowIndex: " + currentWindowIndex);
         }
 
         @Override
-        public void onPlayerStateIdle() {
-            MyLog.d("Position: " + mPosition + " - onPlayerStateIdle");
+        public void onPlayerStateIdle(int currentWindowIndex) {
+            MyLog.d("Position: " + mPosition + " - onPlayerStateIdle, currentWindowIndex: " + currentWindowIndex);
         }
 
         @Override
@@ -252,6 +252,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             MyLog.d("Position: " + mPosition + " - onVideoTapped");
         }
 
+        @Override
+        public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {
+            MyLog.d("currentWindowIndex: " + currentWindowIndex + "  nextWindowIndex: " + nextWindowIndex + " isPlayBackStateReady: " + isPlayBackStateReady);
+        }
         /**
          * ExoAdListener
          */

@@ -18,6 +18,7 @@ import net.alexandroid.utils.exoplayerlibrary.list.ListActivity;
 public class MainActivity extends AppCompatActivity
         implements ExoPlayerListener, ExoAdListener, View.OnClickListener {
     public static final String VIDEO_URL = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/gadotsnl_oeuQUMxw_800.mp4/master.m3u8";
+    public static final String VIDEO_URL2 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/0710171807_SWISS_GIANTS_7jHXuKJW_800.mp4/master.m3u8";
     public static final String PPLUS_TAG_URL = "https://pubads.g.doubleclick.net/gampad/live/ads?sz=640x480&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&url=&correlator=&iu=/6870/ynet_mobile/pplus.preroll.apps&description_url=http://pplus.ynet.co.il/articles/0,7340,L-5020780,00.html&cust_params=dcPath%3D11211.PnaiPlus%26yncd%3D5020780%26videoPosition%3DPreroll%26autoplay%3Dtrue%26videoPosition_autoplay%3DPreroll_false%26AppVersion%3D1.0%26View%3D1";
     public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
 
@@ -37,10 +38,10 @@ public class MainActivity extends AppCompatActivity
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, mExoPlayerView)
                 .addMuteButton(false, true)
-                .setUiControllersVisibility(false)
+                .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(true)
-                .setVideoUrls(VIDEO_URL)
+                .setVideoUrls(VIDEO_URL, VIDEO_URL2)
                 //.setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 //.setExoAdEventsListener(this)
@@ -137,28 +138,28 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPlayerPlaying() {
-        MyLog.d("onPlayerPlaying");
+    public void onPlayerPlaying(int currentWindowIndex) {
+        MyLog.d("onPlayerPlaying, currentWindowIndex: " + currentWindowIndex);
     }
 
     @Override
-    public void onPlayerPaused() {
-        MyLog.d("onPlayerPaused");
+    public void onPlayerPaused(int currentWindowIndex) {
+        MyLog.d("onPlayerPaused, currentWindowIndex: " + currentWindowIndex);
     }
 
     @Override
-    public void onPlayerBuffering() {
-        MyLog.d("onPlayerBuffering");
+    public void onPlayerBuffering(int currentWindowIndex) {
+        MyLog.d("onPlayerBuffering, currentWindowIndex: " + currentWindowIndex);
     }
 
     @Override
-    public void onPlayerStateEnded() {
-        MyLog.d("onPlayerStateEnded");
+    public void onPlayerStateEnded(int currentWindowIndex) {
+        MyLog.d("onPlayerStateEnded, currentWindowIndex: " + currentWindowIndex);
     }
 
     @Override
-    public void onPlayerStateIdle() {
-        MyLog.d("onPlayerStateIdle");
+    public void onPlayerStateIdle(int currentWindowIndex) {
+        MyLog.d("onPlayerStateIdle, currentWindowIndex: " + currentWindowIndex);
     }
 
     @Override
@@ -184,6 +185,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onVideoTapped() {
         MyLog.d("onVideoTapped");
+    }
+
+    @Override
+    public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {
+        MyLog.d("currentWindowIndex: " + currentWindowIndex + "  nextWindowIndex: " + nextWindowIndex + " isPlayBackStateReady: " + isPlayBackStateReady);
     }
 
     /**

@@ -96,7 +96,7 @@ public class ExoPlayerHelper implements View.OnClickListener,
         mExoPlayerView = exoPlayerView;
 
         addProgressBar();
-        setOverlayClickable();
+        //setOverlayClickable();
 
         init();
     }
@@ -288,6 +288,9 @@ public class ExoPlayerHelper implements View.OnClickListener,
         mResumePosition = C.TIME_UNSET;
     }
 
+    private int getNextWindowIndex() {
+        return mPlayer.getCurrentTimeline().getNextWindowIndex(mPlayer.getCurrentWindowIndex(), mPlayer.getRepeatMode());
+    }
 
     // Player events, internal handle
     private void onPlayerBuffering() {
@@ -413,12 +416,16 @@ public class ExoPlayerHelper implements View.OnClickListener,
      */
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
-
     }
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.onTracksChanged(
+                    mPlayer.getCurrentWindowIndex(),
+                    getNextWindowIndex(),
+                    mPlayer.getPlaybackState() == Player.STATE_READY);
+        }
     }
 
     @Override
@@ -437,21 +444,21 @@ public class ExoPlayerHelper implements View.OnClickListener,
             case Player.STATE_READY:
                 if (playWhenReady) {
                     onPlayerPlaying();
-                    mExoPlayerListener.onPlayerPlaying();
+                    mExoPlayerListener.onPlayerPlaying(mPlayer.getCurrentWindowIndex());
                 } else {
                     onPlayerPaused();
-                    mExoPlayerListener.onPlayerPaused();
+                    mExoPlayerListener.onPlayerPaused(mPlayer.getCurrentWindowIndex());
                 }
                 break;
             case Player.STATE_BUFFERING:
                 onPlayerBuffering();
-                mExoPlayerListener.onPlayerBuffering();
+                mExoPlayerListener.onPlayerBuffering(mPlayer.getCurrentWindowIndex());
                 break;
             case Player.STATE_ENDED:
-                mExoPlayerListener.onPlayerStateEnded();
+                mExoPlayerListener.onPlayerStateEnded(mPlayer.getCurrentWindowIndex());
                 break;
             case Player.STATE_IDLE:
-                mExoPlayerListener.onPlayerStateIdle();
+                mExoPlayerListener.onPlayerStateIdle(mPlayer.getCurrentWindowIndex());
                 break;
         }
     }
@@ -670,6 +677,20 @@ public class ExoPlayerHelper implements View.OnClickListener,
     @Override
     public void playerPlay() {
         mPlayer.setPlayWhenReady(true);
+    }
+
+    @Override
+    public boolean isPlayerVideoMuted() {
+        return isVideoMuted;
+    }
+
+    @Override
+    public int getCurrentWindowIndex() {
+        if (mPlayer != null) {
+            return mPlayer.getCurrentWindowIndex();
+        } else {
+            return 0;
+        }
     }
 
     @Override

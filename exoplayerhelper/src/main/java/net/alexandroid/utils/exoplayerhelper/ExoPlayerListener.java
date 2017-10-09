@@ -8,15 +8,15 @@ public interface ExoPlayerListener {
 
     void onLoadingStatusChanged(boolean isLoading, long bufferedPosition, int bufferedPercentage);
 
-    void onPlayerPlaying();
+    void onPlayerPlaying(int currentWindowIndex);
 
-    void onPlayerPaused();
+    void onPlayerPaused(int currentWindowIndex);
 
-    void onPlayerBuffering();
+    void onPlayerBuffering(int currentWindowIndex);
 
-    void onPlayerStateEnded();
+    void onPlayerStateEnded(int currentWindowIndex);
 
-    void onPlayerStateIdle();
+    void onPlayerStateIdle(int currentWindowIndex);
 
     void onPlayerError();
 
@@ -27,4 +27,6 @@ public interface ExoPlayerListener {
     void onVideoResumeDataLoaded(int window, long position, boolean isResumeWhenReady);
 
     void onVideoTapped();
+
+    void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady);
 }

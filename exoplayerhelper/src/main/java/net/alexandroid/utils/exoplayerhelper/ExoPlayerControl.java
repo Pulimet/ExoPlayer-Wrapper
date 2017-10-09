@@ -32,4 +32,8 @@ public interface ExoPlayerControl {
     void onActivityDestroy();
 
     void onSaveInstanceState(Bundle outState);
+
+    boolean isPlayerVideoMuted();
+
+    int getCurrentWindowIndex();
 }
