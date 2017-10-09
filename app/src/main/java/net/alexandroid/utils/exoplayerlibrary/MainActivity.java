@@ -35,8 +35,7 @@ public class MainActivity extends AppCompatActivity
 
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 
-        mExoPlayerHelper = new ExoPlayerHelper.Builder(this)
-                .setExoPlayerView(mExoPlayerView)
+        mExoPlayerHelper = new ExoPlayerHelper.Builder(this, mExoPlayerView)
                 .addMuteButton(false, true)
                 .setUiControllersVisibility(false)
                 .setRepeatModeOn(true)
@@ -63,10 +62,10 @@ public class MainActivity extends AppCompatActivity
                 startActivity(new Intent(MainActivity.this, ListActivity.class));
                 break;
             case R.id.btnPlay:
-                mExoPlayerHelper.onPlayPlayer();
+                mExoPlayerHelper.playerPlay();
                 break;
             case R.id.btnPause:
-                mExoPlayerHelper.onPausePlayer();
+                mExoPlayerHelper.playerPause();
                 break;
 
         }
@@ -129,8 +128,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onLoadingStatusChanged(boolean isLoading) {
-        //MyLog.d("Loading: " + isLoading);
+    public void onLoadingStatusChanged(boolean isLoading, long bufferedPosition, int bufferedPercentage) {
+/*
+        MyLog.d("onLoadingStatusChanged, isLoading: " + isLoading +
+                "   Buffered Position: " + bufferedPosition +
+                "   Buffered Percentage: " + bufferedPercentage);
+*/
     }
 
     @Override

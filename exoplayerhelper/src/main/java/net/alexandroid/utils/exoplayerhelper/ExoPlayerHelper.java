@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -49,9 +50,6 @@ public class ExoPlayerHelper implements View.OnClickListener,
         ImaAdsLoader.VideoAdPlayerCallback,
         ImaAdsMediaSource.AdsListener {
 
-    // TODO 1. Compatible for integration at ynet main page
-    // TODO 2. Compatible for integration at ynet slider activity
-
     public static final String APPLICATION_NAME = "ExoPlayerLibrary";
     public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
     public static final String PARAM_WINDOW = "PARAM_WINDOW";
@@ -92,9 +90,13 @@ public class ExoPlayerHelper implements View.OnClickListener,
     private boolean isToPrepareOnResume = true;
     private boolean isThumbImageViewEnabled;
 
-    private ExoPlayerHelper(Context context) {
+    private ExoPlayerHelper(Context context, SimpleExoPlayerView exoPlayerView) {
         mHandler = new Handler();
         mContext = context;
+        mExoPlayerView = exoPlayerView;
+
+        addProgressBar();
+
         init();
     }
 
@@ -120,63 +122,6 @@ public class ExoPlayerHelper implements View.OnClickListener,
         for (int i = 0; i < urls.length; i++) {
             mVideosUris[i] = Uri.parse(urls[i]);
         }
-    }
-
-    private void createExoPlayer(boolean isToPrepare) {
-        if (mExoPlayerListener != null) {
-            mExoPlayerListener.createExoPlayerCalled();
-        }
-        if (mPlayer != null) {
-            return;
-        }
-
-        if (isThumbImageViewEnabled) {
-            addThumbImageView();
-        }
-
-        // TrackSelector that selects tracks provided by the MediaSource to be consumed by each of the available Renderer's.
-        // A TrackSelector is injected when the exoPlayer is created.
-        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(mBandwidthMeter);
-        mTrackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-
-        //mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector);
-
-        //noinspection deprecation
-        mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, mTrackSelector, mLoadControl);
-
-        mExoPlayerView.setPlayer(mPlayer);
-        mExoPlayerView.setControllerShowTimeoutMs(1500);
-        mExoPlayerView.setControllerHideOnTouch(false);
-
-        mTempCurrentVolume = mPlayer.getVolume();
-
-        mPlayer.setRepeatMode(isRepeatModeOn ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
-        mPlayer.setPlayWhenReady(isAutoPlayOn);
-        mPlayer.addListener(this);
-
-        createMediaSource();
-
-        if (isToPrepare) {
-            prepareExoPlayer();
-        }
-    }
-
-    private void prepareExoPlayer() {
-        if (isPlayerPrepared) {
-            return;
-        }
-        isPlayerPrepared = true;
-        boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
-        if (haveResumePosition) {
-            mPlayer.setPlayWhenReady(isResumePlayWhenReady);
-            mPlayer.seekTo(mResumeWindow, mResumePosition);
-
-            if (mExoPlayerListener != null) {
-                mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
-            }
-        }
-
-        mPlayer.prepare(mMediaSource, !haveResumePosition, false);
     }
 
     private void createMediaSource() {
@@ -212,36 +157,6 @@ public class ExoPlayerHelper implements View.OnClickListener,
                 mExoPlayerView.getOverlayFrameLayout(),
                 mHandler,
                 this);
-    }
-
-    private void releasePlayer() {
-        isPlayerPrepared = false;
-
-        if (mExoPlayerListener != null) {
-            mExoPlayerListener.releaseExoPlayerCalled();
-        }
-        if (mPlayer != null) {
-            updateResumePosition();
-            removeThumbImageView();
-            mPlayer.release();
-            mPlayer = null;
-            mTrackSelector = null;
-        }
-    }
-
-    private void releaseAdsLoader() {
-        if (mImaAdsLoader != null) {
-            mImaAdsLoader.release();
-            mImaAdsLoader = null;
-            mExoPlayerView.getOverlayFrameLayout().removeAllViews();
-        }
-    }
-
-
-    // UI control
-    private void setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
-        mExoPlayerView = exoPlayerView;
-        addProgressBar();
     }
 
     private void addProgressBar() {
@@ -396,13 +311,8 @@ public class ExoPlayerHelper implements View.OnClickListener,
 
         private ExoPlayerHelper mExoPlayerHelper;
 
-        public Builder(Context context) {
-            mExoPlayerHelper = new ExoPlayerHelper(context);
-        }
-
-        public Builder setExoPlayerView(SimpleExoPlayerView exoPlayerView) {
-            mExoPlayerHelper.setExoPlayerView(exoPlayerView);
-            return this;
+        public Builder(Context context, SimpleExoPlayerView exoPlayerView) {
+            mExoPlayerHelper = new ExoPlayerHelper(context, exoPlayerView);
         }
 
         public Builder addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
@@ -435,18 +345,18 @@ public class ExoPlayerHelper implements View.OnClickListener,
             return this;
         }
 
-        public Builder setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
-            mExoPlayerHelper.setExoPlayerEventsListener(pExoPlayerListenerListener);
+        public Builder setExoPlayerEventsListener(ExoPlayerListener exoPlayerListener) {
+            mExoPlayerHelper.setExoPlayerEventsListener(exoPlayerListener);
             return this;
         }
 
-        public Builder setExoAdEventsListener(ExoAdListener pExoAdEventsListener) {
-            mExoPlayerHelper.setExoAdListener(pExoAdEventsListener);
+        public Builder setExoAdEventsListener(ExoAdListener exoAdListener) {
+            mExoPlayerHelper.setExoAdListener(exoAdListener);
             return this;
         }
 
-        public Builder addSavedInstanceState(Bundle pSavedInstanceState) {
-            mExoPlayerHelper.addSavedInstanceState(pSavedInstanceState);
+        public Builder addSavedInstanceState(Bundle savedInstanceState) {
+            mExoPlayerHelper.addSavedInstanceState(savedInstanceState);
             return this;
         }
 
@@ -455,27 +365,42 @@ public class ExoPlayerHelper implements View.OnClickListener,
             return this;
         }
 
-        // If you have a list of videos set isToPrepareOnResume to be false
-        // to prevent auto prepare on activity onResume/onCreate
+        /**
+         * If you have a list of videos set isToPrepareOnResume to be false
+         * to prevent auto prepare on activity onResume/onCreate
+         */
         public Builder setToPrepareOnResume(boolean toPrepareOnResume) {
             mExoPlayerHelper.isToPrepareOnResume = toPrepareOnResume;
             return this;
         }
 
+        /**
+         * Probably you will feel a need to use that method when you need to show pre-roll ad
+         * and you not interested in auto play. That method allows to separate player creation
+         * from calling prepare()
+         * Note: To play ad/content you ned to call preparePlayer()
+         *
+         * @return ExoPlayerHelper instance
+         */
         public ExoPlayerHelper create() {
-            mExoPlayerHelper.createExoPlayer(false);
+            mExoPlayerHelper.createPlayer(false);
             return mExoPlayerHelper;
         }
 
+        /**
+         * Note: If you added tagUrl ad would start playing automatic even if you had set setAutoPlayOn(false)
+         *
+         * @return ExoPlayerHelper instance
+         */
         public ExoPlayerHelper createAndPrepare() {
-            mExoPlayerHelper.createExoPlayer(true);
+            mExoPlayerHelper.createPlayer(true);
             return mExoPlayerHelper;
         }
 
     }
 
     /**
-     * ExoPlayer Player.EventListener
+     * ExoPlayer Player.EventListener methods
      */
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
@@ -490,7 +415,7 @@ public class ExoPlayerHelper implements View.OnClickListener,
     @Override
     public void onLoadingChanged(boolean isLoading) {
         if (mExoPlayerListener != null) {
-            mExoPlayerListener.onLoadingStatusChanged(isLoading);
+            mExoPlayerListener.onLoadingStatusChanged(isLoading, mPlayer.getBufferedPosition(), mPlayer.getBufferedPercentage());
         }
     }
 
@@ -531,6 +456,22 @@ public class ExoPlayerHelper implements View.OnClickListener,
     public void onPlayerError(ExoPlaybackException error) {
         if (mExoPlayerListener != null) {
             mExoPlayerListener.onPlayerError();
+        }
+
+        Log.e("ExoPlayerHelper", "Player.onPlayerError: " + error.type);
+        switch (error.type) {
+            case ExoPlaybackException.TYPE_SOURCE:
+                IOException ioException = error.getSourceException();
+                Log.e("ExoPlayerHelper", ioException.getMessage());
+                break;
+            case ExoPlaybackException.TYPE_RENDERER:
+                Exception exception = error.getRendererException();
+                Log.e("ExoPlayerHelper", exception.getMessage());
+                break;
+            case ExoPlaybackException.TYPE_UNEXPECTED:
+                RuntimeException runtimeException = error.getUnexpectedException();
+                Log.e("ExoPlayerHelper", runtimeException.getMessage());
+                break;
         }
     }
 
@@ -629,27 +570,96 @@ public class ExoPlayerHelper implements View.OnClickListener,
     }
 
     @Override
-    public void onInitPlayer() {
-        createExoPlayer(true);
+    public void createPlayer(boolean isToPrepare) {
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.createExoPlayerCalled();
+        }
+        if (mPlayer != null) {
+            return;
+        }
+
+        if (isThumbImageViewEnabled) {
+            addThumbImageView();
+        }
+
+        // TrackSelector that selects tracks provided by the MediaSource to be consumed by each of the available Renderer's.
+        // A TrackSelector is injected when the exoPlayer is created.
+        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(mBandwidthMeter);
+        mTrackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+
+        //mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, trackSelector);
+
+        //noinspection deprecation
+        mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, mTrackSelector, mLoadControl);
+
+        mExoPlayerView.setPlayer(mPlayer);
+        mExoPlayerView.setControllerShowTimeoutMs(1500);
+        mExoPlayerView.setControllerHideOnTouch(false);
+
+        mTempCurrentVolume = mPlayer.getVolume();
+
+        mPlayer.setRepeatMode(isRepeatModeOn ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
+        mPlayer.setPlayWhenReady(isAutoPlayOn);
+        mPlayer.addListener(this);
+
+        createMediaSource();
+
+        if (isToPrepare) {
+            preparePlayer();
+        }
     }
 
     @Override
-    public void onPreparePlayer() {
-        prepareExoPlayer();
+    public void preparePlayer() {
+        if (isPlayerPrepared) {
+            return;
+        }
+        isPlayerPrepared = true;
+        boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
+        if (haveResumePosition) {
+            mPlayer.setPlayWhenReady(isResumePlayWhenReady);
+            mPlayer.seekTo(mResumeWindow, mResumePosition);
+
+            if (mExoPlayerListener != null) {
+                mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
+            }
+        }
+
+        mPlayer.prepare(mMediaSource, !haveResumePosition, false);
     }
 
     @Override
-    public void onReleasePlayer() {
-        releasePlayer();
+    public void releasePlayer() {
+        isPlayerPrepared = false;
+
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.releaseExoPlayerCalled();
+        }
+        if (mPlayer != null) {
+            updateResumePosition();
+            removeThumbImageView();
+            mPlayer.release();
+            mPlayer = null;
+            mTrackSelector = null;
+        }
     }
 
     @Override
-    public void onPausePlayer() {
+    public void releaseAdsLoader() {
+        if (mImaAdsLoader != null) {
+            mImaAdsLoader.release();
+            mImaAdsLoader = null;
+            mExoPlayerView.getOverlayFrameLayout().removeAllViews();
+        }
+    }
+
+    @Override
+    public void playerPause() {
         mPlayer.setPlayWhenReady(false);
     }
 
     @Override
-    public void onPlayPlayer() {
+    public void playerPlay() {
         mPlayer.setPlayWhenReady(true);
     }
 
@@ -664,14 +674,14 @@ public class ExoPlayerHelper implements View.OnClickListener,
     @Override
     public void onActivityStart() {
         if (Util.SDK_INT > 23) {
-            createExoPlayer(isToPrepareOnResume);
+            createPlayer(isToPrepareOnResume);
         }
     }
 
     @Override
     public void onActivityResume() {
         if ((Util.SDK_INT <= 23 || mPlayer == null)) {
-            createExoPlayer(isToPrepareOnResume);
+            createPlayer(isToPrepareOnResume);
         }
     }
 

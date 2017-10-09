@@ -6,7 +6,7 @@ public interface ExoPlayerListener {
 
     void onThumbImageViewReady(ImageView imageView);
 
-    void onLoadingStatusChanged(boolean isLoading);
+    void onLoadingStatusChanged(boolean isLoading, long bufferedPosition, int bufferedPercentage);
 
     void onPlayerPlaying();
 

@@ -5,13 +5,21 @@ import android.os.Bundle;
 
 public interface ExoPlayerControl {
 
-    void onInitPlayer();
+    void createPlayer(boolean isToPrepare);
 
-    void onReleasePlayer();
+    void preparePlayer();
 
-    void onPausePlayer();
+    void releasePlayer();
 
-    void onPlayPlayer();
+    void releaseAdsLoader();
+
+    void playerPause();
+
+    void playerPlay();
+
+    void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener);
+
+    void setExoAdListener(ExoAdListener exoAdListener);
 
     void onActivityStart();
 
@@ -24,10 +32,4 @@ public interface ExoPlayerControl {
     void onActivityDestroy();
 
     void onSaveInstanceState(Bundle outState);
-
-    void onPreparePlayer();
-
-    void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener);
-
-    void setExoAdListener(ExoAdListener exoAdListener);
 }

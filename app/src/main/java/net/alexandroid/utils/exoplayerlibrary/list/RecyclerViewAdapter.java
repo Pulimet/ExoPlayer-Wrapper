@@ -65,13 +65,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         MyLog.d("New first visible is: " + firstVisible);
         ExoPlayerHelper oldPlayer = getExoPlayerByPosition(currentFirstVisible);
         if (oldPlayer != null) {
-            oldPlayer.onPausePlayer();
+            oldPlayer.playerPause();
         }
 
         ExoPlayerHelper newPlayer = getExoPlayerByPosition(firstVisible);
         if (newPlayer != null) {
-            newPlayer.onPreparePlayer();
-            newPlayer.onPlayPlayer();
+            newPlayer.preparePlayer();
+            newPlayer.playerPlay();
         }
 
         currentFirstVisible = firstVisible;
@@ -125,7 +125,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         if (!isFirstItemPlayed && holder.mPosition == 0) {
             isFirstItemPlayed = true;
-            holder.mExoPlayerHelper.onPreparePlayer();
+            holder.mExoPlayerHelper.preparePlayer();
         }
     }
 
@@ -133,7 +133,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onViewDetachedFromWindow(ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         MyLog.i("Position: " + holder.mPosition + " - onViewDetachedFromWindow");
-        holder.mExoPlayerHelper.onReleasePlayer();
+        holder.mExoPlayerHelper.releasePlayer();
         holder.mExoPlayerHelper.onActivityDestroy();
     }
 
@@ -167,10 +167,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         public void createPlayer() {
-            mExoPlayerHelper = new ExoPlayerHelper.Builder(mExoPlayerView.getContext())
-                    .setExoPlayerView(mExoPlayerView)
+            mExoPlayerHelper = new ExoPlayerHelper.Builder(mExoPlayerView.getContext(), mExoPlayerView)
                     .setUiControllersVisibility(true)
-                    .setAutoPlayOn(true)
+                    .setAutoPlayOn(false)
                     .setToPrepareOnResume(false)
                     .setVideoUrls(mVideoUrl)
                     .setTagUrl(TEST_TAG_URL)
@@ -193,9 +192,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     .into(imageView);
         }
 
+
         @Override
-        public void onLoadingStatusChanged(boolean isLoading) {
-            //MyLog.d("Loading: " + isLoading);
+        public void onLoadingStatusChanged(boolean isLoading, long bufferedPosition, int bufferedPercentage) {
+/*
+        MyLog.d("onLoadingStatusChanged, isLoading: " + isLoading +
+                "   Buffered Position: " + bufferedPosition +
+                "   Buffered Percentage: " + bufferedPercentage);
+*/
         }
 
         @Override
@@ -307,8 +311,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         ExoPlayerHelper newPlayer = getExoPlayerByPosition(currentFirstVisible);
         if (newPlayer != null) {
-            newPlayer.onPreparePlayer();
-            newPlayer.onPlayPlayer();
+            newPlayer.preparePlayer();
+            newPlayer.playerPlay();
         }
     }
 
@@ -332,7 +336,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     protected void onDestroy() {
         MyLog.e("onActivityDestroy");
         for (ExoPlayerHelper exoPlayerHelper : getAllExoPlayers()) {
-            exoPlayerHelper.onActivityDestroy();
+            exoPlayerHelper.releaseAdsLoader();
         }
     }
 }
