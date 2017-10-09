@@ -36,4 +36,6 @@ public interface ExoPlayerControl {
     boolean isPlayerVideoMuted();
 
     int getCurrentWindowIndex();
+
+    long getCurrentPosition();
 }

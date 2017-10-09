@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -44,7 +45,9 @@ import java.io.IOException;
 
 
 @SuppressWarnings("WeakerAccess")
-public class ExoPlayerHelper implements View.OnClickListener,
+public class ExoPlayerHelper implements
+        View.OnClickListener,
+        View.OnTouchListener,
         ExoPlayerControl,
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
@@ -96,7 +99,7 @@ public class ExoPlayerHelper implements View.OnClickListener,
         mExoPlayerView = exoPlayerView;
 
         addProgressBar();
-        //setOverlayClickable();
+        setOverlayClickable();
 
         init();
     }
@@ -175,7 +178,7 @@ public class ExoPlayerHelper implements View.OnClickListener,
     }
 
     private void setOverlayClickable() {
-        mExoPlayerView.getOverlayFrameLayout().setOnClickListener(this);
+        mExoPlayerView.getOverlayFrameLayout().setOnTouchListener(this);
     }
 
     private void setProgressVisible(boolean visible) {
@@ -260,11 +263,16 @@ public class ExoPlayerHelper implements View.OnClickListener,
             updateMutedStatus();
         }
 
-        if (mExoPlayerListener != null && v.getId() == R.id.exo_overlay) {
-            mExoPlayerListener.onVideoTapped();
-        }
+
     }
 
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (mExoPlayerListener != null && v.getId() == R.id.exo_overlay && event.getAction() == MotionEvent.ACTION_DOWN) {
+            mExoPlayerListener.onVideoTapped();
+        }
+        return false;
+    }
 
     // Resume position saving
     private void addSavedInstanceState(Bundle savedInstanceState) {
@@ -688,6 +696,15 @@ public class ExoPlayerHelper implements View.OnClickListener,
     public int getCurrentWindowIndex() {
         if (mPlayer != null) {
             return mPlayer.getCurrentWindowIndex();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public long getCurrentPosition() {
+        if (mPlayer != null) {
+            return mPlayer.getCurrentPosition();
         } else {
             return 0;
         }
