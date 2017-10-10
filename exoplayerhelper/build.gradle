@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/Pulimet/ExoPlayerLibraryWrapper'
     gitUrl = 'https://github.com/Pulimet/ExoPlayerLibraryWrapper.git'
 
-    libraryVersion = '1.4'
+    libraryVersion = '1.5'
 
     developerId = 'pulimet'
     developerName = 'Alexey Korolev'
@@ -46,10 +46,10 @@ android {
 }
 
 dependencies {
-    api 'com.google.android.exoplayer:exoplayer-core:r2.5.3'
-    api 'com.google.android.exoplayer:exoplayer-ui:r2.5.3'
-    api 'com.google.android.exoplayer:exoplayer-hls:r2.5.3'
-    api 'com.google.android.exoplayer:extension-ima:r2.5.3'
+    compile 'com.google.android.exoplayer:exoplayer-core:r2.5.3'
+    compile 'com.google.android.exoplayer:exoplayer-ui:r2.5.3'
+    compile 'com.google.android.exoplayer:exoplayer-hls:r2.5.3'
+    compile 'com.google.android.exoplayer:extension-ima:r2.5.3'
 }
 
 apply from: 'installv1.gradle'
