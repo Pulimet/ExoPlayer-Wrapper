@@ -676,23 +676,33 @@ public class ExoPlayerHelper implements
 
     @Override
     public void playerPause() {
-        if(mPlayer != null) {
+        if (mPlayer != null) {
             mPlayer.setPlayWhenReady(false);
         }
     }
 
     @Override
     public void playerPlay() {
-        if(mPlayer != null) {
+        if (mPlayer != null) {
             mPlayer.setPlayWhenReady(true);
         }
     }
 
     @Override
     public void seekTo(int windowIndex, long positionMs) {
-        if(mPlayer != null) {
+        if (mPlayer != null) {
             mPlayer.seekTo(windowIndex, positionMs);
         }
+    }
+
+    @Override
+    public boolean isPlayerCreated() {
+        return mPlayer != null;
+    }
+
+    @Override
+    public boolean isPlayerPrepared() {
+        return isPlayerPrepared;
     }
 
     @Override

@@ -41,4 +41,8 @@ public interface ExoPlayerControl {
 
     void seekTo(int windowIndex, long positionMs);
 
+    boolean isPlayerCreated();
+
+    boolean isPlayerPrepared();
+
 }
