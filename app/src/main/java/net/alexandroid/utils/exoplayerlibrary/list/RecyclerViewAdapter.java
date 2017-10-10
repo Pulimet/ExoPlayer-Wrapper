@@ -126,6 +126,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         if (!isFirstItemPlayed && holder.mPosition == 0) {
             isFirstItemPlayed = true;
             holder.mExoPlayerHelper.preparePlayer();
+            holder.mExoPlayerHelper.playerPlay();
         }
     }
 

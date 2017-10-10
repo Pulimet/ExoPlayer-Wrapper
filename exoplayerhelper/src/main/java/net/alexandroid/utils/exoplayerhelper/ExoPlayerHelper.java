@@ -688,6 +688,11 @@ public class ExoPlayerHelper implements
     }
 
     @Override
+    public void seekTo(int windowIndex, long positionMs) {
+        mPlayer.seekTo(windowIndex, positionMs);
+    }
+
+    @Override
     public boolean isPlayerVideoMuted() {
         return isVideoMuted;
     }

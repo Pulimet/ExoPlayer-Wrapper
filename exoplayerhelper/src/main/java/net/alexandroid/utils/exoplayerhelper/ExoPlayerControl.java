@@ -38,4 +38,7 @@ public interface ExoPlayerControl {
     int getCurrentWindowIndex();
 
     long getCurrentPosition();
+
+    void seekTo(int windowIndex, long positionMs);
+
 }
