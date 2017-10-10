@@ -251,6 +251,7 @@ public class ExoPlayerHelper implements
 
     @Override
     public void onClick(View v) {
+        // Mute button click
         if (v.getId() == R.id.muteBtn) {
             if (mPlayer.isPlayingAd()) {
                 isVideoMuted = isAdMuted = !isAdMuted;
@@ -259,11 +260,15 @@ public class ExoPlayerHelper implements
             }
             ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
             updateMutedStatus();
+            if (mExoPlayerListener != null) {
+                mExoPlayerListener.onMuteStateChanged(isVideoMuted);
+            }
         }
+
+        // On video tap
         if (mExoPlayerListener != null && v.getId() == R.id.exo_content_frame) {
             mExoPlayerListener.onVideoTapped();
         }
-
     }
 
     // Resume position saving
