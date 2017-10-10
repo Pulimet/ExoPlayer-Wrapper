@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -47,7 +46,6 @@ import java.io.IOException;
 @SuppressWarnings("WeakerAccess")
 public class ExoPlayerHelper implements
         View.OnClickListener,
-        View.OnTouchListener,
         ExoPlayerControl,
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
@@ -178,7 +176,7 @@ public class ExoPlayerHelper implements
     }
 
     private void setOverlayClickable() {
-        mExoPlayerView.getOverlayFrameLayout().setOnTouchListener(this);
+        mExoPlayerView.findViewById(R.id.exo_content_frame).setOnClickListener(this);
     }
 
     private void setProgressVisible(boolean visible) {
@@ -262,16 +260,10 @@ public class ExoPlayerHelper implements
             ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
             updateMutedStatus();
         }
-
-
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (mExoPlayerListener != null && v.getId() == R.id.exo_overlay && event.getAction() == MotionEvent.ACTION_DOWN) {
+        if (mExoPlayerListener != null && v.getId() == R.id.exo_content_frame) {
             mExoPlayerListener.onVideoTapped();
         }
-        return false;
+
     }
 
     // Resume position saving
