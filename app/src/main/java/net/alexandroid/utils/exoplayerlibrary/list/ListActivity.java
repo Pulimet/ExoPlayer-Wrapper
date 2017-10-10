@@ -36,8 +36,8 @@ public class ListActivity extends AppCompatActivity {
     @NonNull
     private ArrayList<VideoItem> getVideoItemsList() {
         return new ArrayList<>(Arrays.asList(
-                new VideoItem("http://ynethd-i.akamaihd.net/i/cdnwiz/1017/gadotsnl_oeuQUMxw_800.mp4/master.m3u8",
-                        "https://images1.ynet.co.il/PicServer5/2017/10/08/8076774/80767641882064640360no.jpg"),
+                new VideoItem("http://ynethd-i.akamaihd.net/i/cdnwiz/1017/091017_yedioth_baby_fix_bP3D0Kgw_800.mp4/master.m3u8",
+                        "https://images1.ynet.co.il/PicServer5/2017/10/10/8082267/80822570100292640360no.jpg"),
                 new VideoItem("http://ynethd-i.akamaihd.net/i/cdnwiz/1017/0710171807_SWISS_GIANTS_7jHXuKJW_800.mp4/master.m3u8",
                         "https://images1.ynet.co.il/PicServer5/2017/10/08/8076970/80760114998850640360no.jpg"),
                 new VideoItem("http://ynethd-i.akamaihd.net/i/cdnwiz/1017/031017_yediot_batito_amazonas_3_Coqt1YHG_800.mp4/master.m3u8",

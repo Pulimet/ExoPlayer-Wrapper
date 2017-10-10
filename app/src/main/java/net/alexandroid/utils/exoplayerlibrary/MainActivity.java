@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, mExoPlayerView)
+                .setCustomCacheSize(50, 2)
                 .addMuteButton(false, true)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
@@ -190,6 +191,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {
         MyLog.d("currentWindowIndex: " + currentWindowIndex + "  nextWindowIndex: " + nextWindowIndex + " isPlayBackStateReady: " + isPlayBackStateReady);
+    }
+
+    @Override
+    public void onMuteStateChanged(boolean isMuted) {
+
     }
 
     /**

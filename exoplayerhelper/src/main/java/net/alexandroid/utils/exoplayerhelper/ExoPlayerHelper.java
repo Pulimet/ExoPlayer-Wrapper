@@ -110,7 +110,6 @@ public class ExoPlayerHelper implements
         mDataSourceFactory = new DefaultDataSourceFactory(mContext,
                 Util.getUserAgent(mContext, APPLICATION_NAME), mBandwidthMeter);
 
-
         // LoadControl that controls when the MediaSource buffers more media, and how much media is buffered.
         // LoadControl is injected when the player is created.
         mLoadControl = (new DefaultLoadControl(
@@ -249,6 +248,10 @@ public class ExoPlayerHelper implements
         }
     }
 
+    private void setCustomCacheSize(int maxCacheSizeMb, int maxFileSizeMb) {
+        mDataSourceFactory = new ExoCache(mContext, maxCacheSizeMb * 1024 * 1024, maxFileSizeMb * 1024 * 1024);
+    }
+
     @Override
     public void onClick(View v) {
         // Mute button click
@@ -382,6 +385,11 @@ public class ExoPlayerHelper implements
             return this;
         }
 
+        public Builder setCustomCacheSize(int maxCacheSizeMb, int maxFileSizeMb) {
+            mExoPlayerHelper.setCustomCacheSize(maxCacheSizeMb, maxFileSizeMb);
+            return this;
+        }
+
         /**
          * If you have a list of videos set isToPrepareOnResume to be false
          * to prevent auto prepare on activity onResume/onCreate
@@ -415,6 +423,7 @@ public class ExoPlayerHelper implements
         }
 
     }
+
 
     /**
      * ExoPlayer Player.EventListener methods
