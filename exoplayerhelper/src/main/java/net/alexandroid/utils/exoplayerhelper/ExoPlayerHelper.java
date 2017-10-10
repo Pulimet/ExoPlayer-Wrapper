@@ -632,7 +632,7 @@ public class ExoPlayerHelper implements
 
     @Override
     public void preparePlayer() {
-        if (isPlayerPrepared) {
+        if (mPlayer == null || isPlayerPrepared) {
             return;
         }
         isPlayerPrepared = true;
@@ -676,17 +676,23 @@ public class ExoPlayerHelper implements
 
     @Override
     public void playerPause() {
-        mPlayer.setPlayWhenReady(false);
+        if(mPlayer != null) {
+            mPlayer.setPlayWhenReady(false);
+        }
     }
 
     @Override
     public void playerPlay() {
-        mPlayer.setPlayWhenReady(true);
+        if(mPlayer != null) {
+            mPlayer.setPlayWhenReady(true);
+        }
     }
 
     @Override
     public void seekTo(int windowIndex, long positionMs) {
-        mPlayer.seekTo(windowIndex, positionMs);
+        if(mPlayer != null) {
+            mPlayer.seekTo(windowIndex, positionMs);
+        }
     }
 
     @Override
