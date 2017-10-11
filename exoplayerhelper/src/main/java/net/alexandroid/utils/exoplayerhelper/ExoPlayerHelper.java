@@ -38,8 +38,12 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
+import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
+import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 
+import java.io.File;
 import java.io.IOException;
 
 
@@ -108,7 +112,8 @@ public class ExoPlayerHelper implements
 
         // Produces DataSource instances through which media data is loaded.
         mDataSourceFactory = new DefaultDataSourceFactory(mContext,
-                Util.getUserAgent(mContext, APPLICATION_NAME), mBandwidthMeter);
+                Util.getUserAgent(mContext, mContext.getString(R.string.app_name)), mBandwidthMeter);
+
 
         // LoadControl that controls when the MediaSource buffers more media, and how much media is buffered.
         // LoadControl is injected when the player is created.
@@ -248,8 +253,12 @@ public class ExoPlayerHelper implements
         }
     }
 
-    private void setCustomCacheSize(int maxCacheSizeMb, int maxFileSizeMb) {
-        mDataSourceFactory = new ExoCache(mContext, maxCacheSizeMb * 1024 * 1024, maxFileSizeMb * 1024 * 1024);
+    private void enableCache(int maxCacheSizeMb) {
+        LeastRecentlyUsedCacheEvictor evictor = new LeastRecentlyUsedCacheEvictor(maxCacheSizeMb);
+        File file = new File(mContext.getCacheDir().getParentFile(), "media_vod");
+        Log.e("ZAQ", "enableCache, file: " + file.getAbsolutePath());
+        SimpleCache simpleCache = new SimpleCache(file, evictor);
+        mDataSourceFactory = new CacheDataSourceFactory(simpleCache, mDataSourceFactory);
     }
 
     @Override
@@ -271,6 +280,11 @@ public class ExoPlayerHelper implements
         // On video tap
         if (mExoPlayerListener != null && v.getId() == R.id.exo_content_frame) {
             mExoPlayerListener.onVideoTapped();
+
+/*            //TODO Test
+            Log.e("ZAQ", "Duration: " + (mPlayer.getDuration() / 1000) + "s.");
+            Log.e("ZAQ", "Current: " + (mPlayer.getContentPosition() / 1000) + "s.");
+            Log.e("ZAQ", "Left: " + ((mPlayer.getDuration() - mPlayer.getContentPosition()) / 1000) + "s.");*/
         }
     }
 
@@ -385,8 +399,8 @@ public class ExoPlayerHelper implements
             return this;
         }
 
-        public Builder setCustomCacheSize(int maxCacheSizeMb, int maxFileSizeMb) {
-            mExoPlayerHelper.setCustomCacheSize(maxCacheSizeMb, maxFileSizeMb);
+        public Builder enableCache(int maxCacheSizeMb) {
+            mExoPlayerHelper.enableCache(maxCacheSizeMb);
             return this;
         }
 

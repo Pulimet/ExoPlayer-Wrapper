@@ -169,7 +169,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         public void createPlayer() {
             mExoPlayerHelper = new ExoPlayerHelper.Builder(mExoPlayerView.getContext(), mExoPlayerView)
-                    .setCustomCacheSize(50, 2)
+                    .enableCache(50)
                     .setUiControllersVisibility(true)
                     .setAutoPlayOn(false)
                     .setToPrepareOnResume(false)

@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, mExoPlayerView)
-                .setCustomCacheSize(50, 2)
+                .enableCache(50)
                 .addMuteButton(false, true)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
