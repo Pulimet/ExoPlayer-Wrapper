@@ -254,7 +254,7 @@ public class ExoPlayerHelper implements
     }
 
     private void enableCache(int maxCacheSizeMb) {
-        LeastRecentlyUsedCacheEvictor evictor = new LeastRecentlyUsedCacheEvictor(maxCacheSizeMb);
+        LeastRecentlyUsedCacheEvictor evictor = new LeastRecentlyUsedCacheEvictor(maxCacheSizeMb * 1024 * 1024);
         File file = new File(mContext.getCacheDir().getParentFile(), "media_vod");
         Log.e("ZAQ", "enableCache, file: " + file.getAbsolutePath());
         SimpleCache simpleCache = new SimpleCache(file, evictor);
