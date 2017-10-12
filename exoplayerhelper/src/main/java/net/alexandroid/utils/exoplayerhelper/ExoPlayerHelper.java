@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -51,6 +52,7 @@ import java.io.IOException;
 public class ExoPlayerHelper implements
         View.OnClickListener,
         ExoPlayerControl,
+        ExoPlayerStatus,
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
         ImaAdsMediaSource.AdsListener {
@@ -101,7 +103,7 @@ public class ExoPlayerHelper implements
         mExoPlayerView = exoPlayerView;
 
         addProgressBar();
-        setOverlayClickable();
+        setVideoClickable();
 
         init();
     }
@@ -179,8 +181,16 @@ public class ExoPlayerHelper implements
         frameLayout.addView(mProgressBar);
     }
 
-    private void setOverlayClickable() {
-        mExoPlayerView.findViewById(R.id.exo_content_frame).setOnClickListener(this);
+    private void setVideoClickable() {
+        mExoPlayerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View pView, MotionEvent pMotionEvent) {
+                if (mExoPlayerListener != null && pMotionEvent.getAction() == MotionEvent.ACTION_UP){
+                    mExoPlayerListener.onVideoTapped();
+                }
+                return false;
+            }
+        });
     }
 
     private void setProgressVisible(boolean visible) {
@@ -746,6 +756,15 @@ public class ExoPlayerHelper implements
     public long getCurrentPosition() {
         if (mPlayer != null) {
             return mPlayer.getCurrentPosition();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public long getDuration() {
+        if (mPlayer != null) {
+            return mPlayer.getDuration();
         } else {
             return 0;
         }

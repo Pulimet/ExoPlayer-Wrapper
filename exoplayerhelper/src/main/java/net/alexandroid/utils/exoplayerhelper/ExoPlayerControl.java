@@ -1,6 +1,5 @@
 package net.alexandroid.utils.exoplayerhelper;
 
-
 import android.os.Bundle;
 
 public interface ExoPlayerControl {
@@ -17,6 +16,8 @@ public interface ExoPlayerControl {
 
     void playerPlay();
 
+    void seekTo(int windowIndex, long positionMs);
+
     void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener);
 
     void setExoAdListener(ExoAdListener exoAdListener);
@@ -32,17 +33,5 @@ public interface ExoPlayerControl {
     void onActivityDestroy();
 
     void onSaveInstanceState(Bundle outState);
-
-    boolean isPlayerVideoMuted();
-
-    int getCurrentWindowIndex();
-
-    long getCurrentPosition();
-
-    void seekTo(int windowIndex, long positionMs);
-
-    boolean isPlayerCreated();
-
-    boolean isPlayerPrepared();
 
 }

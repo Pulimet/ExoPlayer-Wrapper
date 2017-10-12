@@ -22,9 +22,19 @@ public class MainActivity extends AppCompatActivity
     public static final String PPLUS_TAG_URL = "https://pubads.g.doubleclick.net/gampad/live/ads?sz=640x480&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&url=&correlator=&iu=/6870/ynet_mobile/pplus.preroll.apps&description_url=http://pplus.ynet.co.il/articles/0,7340,L-5020780,00.html&cust_params=dcPath%3D11211.PnaiPlus%26yncd%3D5020780%26videoPosition%3DPreroll%26autoplay%3Dtrue%26videoPosition_autoplay%3DPreroll_false%26AppVersion%3D1.0%26View%3D1";
     public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
 
+    public static final String SAMPLE_1 = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8";
+    public static final String SAMPLE_2 = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8";
+    public static final String SAMPLE_3 = "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8";
+    public static final String SAMPLE_4 = "http://184.72.239.149/vod/smil:BigBuckBunny.smil/playlist.m3u8";
+    public static final String SAMPLE_5 = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
 
     private SimpleExoPlayerView mExoPlayerView;
     private ExoPlayerHelper mExoPlayerHelper;
+
+    private void log() {
+        MyLog.e("Duration: " + (mExoPlayerHelper.getDuration() / 1000) + "s.   " + "Current: " + (mExoPlayerHelper.getCurrentPosition() / 1000) + "s.");
+        MyLog.e("Left: " + ((mExoPlayerHelper.getDuration() - mExoPlayerHelper.getCurrentPosition()) / 1000) + "s.");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +52,7 @@ public class MainActivity extends AppCompatActivity
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(true)
-                .setVideoUrls(VIDEO_URL, VIDEO_URL2)
+                .setVideoUrls(SAMPLE_3, SAMPLE_4, SAMPLE_5, SAMPLE_2, SAMPLE_1)
                 //.setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 //.setExoAdEventsListener(this)
@@ -186,11 +196,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onVideoTapped() {
         MyLog.d("onVideoTapped");
+        log();
     }
 
     @Override
     public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {
         MyLog.d("currentWindowIndex: " + currentWindowIndex + "  nextWindowIndex: " + nextWindowIndex + " isPlayBackStateReady: " + isPlayBackStateReady);
+        log();
     }
 
     @Override
