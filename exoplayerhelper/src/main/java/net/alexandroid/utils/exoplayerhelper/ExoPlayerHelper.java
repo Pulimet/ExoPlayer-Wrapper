@@ -233,6 +233,10 @@ public class ExoPlayerHelper implements
 
     private void setUiControllersVisibility(boolean visibility) {
         mExoPlayerView.setUseController(visibility);
+        if (!visibility) {
+            AspectRatioFrameLayout frameLayout = mExoPlayerView.findViewById(R.id.exo_content_frame);
+            frameLayout.setOnClickListener(this);
+        }
     }
 
     @SuppressLint("RtlHardcoded")
@@ -306,11 +310,6 @@ public class ExoPlayerHelper implements
         // On video tap
         if (mExoPlayerListener != null && v.getId() == R.id.exo_content_frame) {
             mExoPlayerListener.onVideoTapped();
-
-/*            //TODO Test
-            Log.e("ZAQ", "Duration: " + (mPlayer.getDuration() / 1000) + "s.");
-            Log.e("ZAQ", "Current: " + (mPlayer.getContentPosition() / 1000) + "s.");
-            Log.e("ZAQ", "Left: " + ((mPlayer.getDuration() - mPlayer.getContentPosition()) / 1000) + "s.");*/
         }
     }
 
