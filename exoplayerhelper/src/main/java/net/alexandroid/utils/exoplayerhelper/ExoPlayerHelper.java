@@ -39,6 +39,9 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSinkFactory;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
@@ -121,7 +124,7 @@ public class ExoPlayerHelper implements
         // LoadControl is injected when the player is created.
         mLoadControl = (new DefaultLoadControl(
                 new DefaultAllocator(false, 2 * 1024 * 1024),
-                1000, 3000, 3000, 3000));
+                3000, 8000, 8000, 8000));
     }
 
     // Player creation and release
@@ -185,7 +188,7 @@ public class ExoPlayerHelper implements
         mExoPlayerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View pView, MotionEvent pMotionEvent) {
-                if (mExoPlayerListener != null && pMotionEvent.getAction() == MotionEvent.ACTION_UP){
+                if (mExoPlayerListener != null && pMotionEvent.getAction() == MotionEvent.ACTION_UP) {
                     mExoPlayerListener.onVideoTapped();
                 }
                 return false;
@@ -265,10 +268,21 @@ public class ExoPlayerHelper implements
 
     private void enableCache(int maxCacheSizeMb) {
         LeastRecentlyUsedCacheEvictor evictor = new LeastRecentlyUsedCacheEvictor(maxCacheSizeMb * 1024 * 1024);
-        File file = new File(mContext.getCacheDir().getParentFile(), "media_vod");
-        Log.e("ZAQ", "enableCache, file: " + file.getAbsolutePath());
+        File file = new File(mContext.getCacheDir(), "media");
+        Log.d("ZAQ", "enableCache (" + maxCacheSizeMb + " MB), file: " + file.getAbsolutePath());
         SimpleCache simpleCache = new SimpleCache(file, evictor);
-        mDataSourceFactory = new CacheDataSourceFactory(simpleCache, mDataSourceFactory);
+        mDataSourceFactory = new CacheDataSourceFactory(
+                simpleCache,
+                mDataSourceFactory,
+                new FileDataSourceFactory(),
+                new CacheDataSinkFactory(simpleCache, 2 * 1024 * 1024),
+                CacheDataSource.FLAG_BLOCK_ON_CACHE | CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR,
+                new CacheDataSource.EventListener() {
+                    @Override
+                    public void onCachedBytesRead(long cacheSizeBytes, long cachedBytesRead) {
+                        Log.d("ZAQ", "onCachedBytesRead , cacheSizeBytes: " + cacheSizeBytes + "   cachedBytesRead: " + cachedBytesRead);
+                    }
+                });
     }
 
     @Override
@@ -322,6 +336,10 @@ public class ExoPlayerHelper implements
 
     private int getNextWindowIndex() {
         return mPlayer.getCurrentTimeline().getNextWindowIndex(mPlayer.getCurrentWindowIndex(), mPlayer.getRepeatMode());
+    }
+
+    private int getPreviousWindowIndex() {
+        return mPlayer.getCurrentTimeline().getPreviousWindowIndex(mPlayer.getCurrentWindowIndex(), mPlayer.getRepeatMode());
     }
 
     // Player events, internal handle
@@ -722,51 +740,23 @@ public class ExoPlayerHelper implements
     }
 
     @Override
+    public void playerNext() {
+        if (mPlayer != null) {
+            seekTo(getNextWindowIndex(), 0);
+        }
+    }
+
+    @Override
+    public void playerPrevious() {
+        if (mPlayer != null) {
+            seekTo(getPreviousWindowIndex(), 0);
+        }
+    }
+
+    @Override
     public void seekTo(int windowIndex, long positionMs) {
         if (mPlayer != null) {
             mPlayer.seekTo(windowIndex, positionMs);
-        }
-    }
-
-    @Override
-    public boolean isPlayerCreated() {
-        return mPlayer != null;
-    }
-
-    @Override
-    public boolean isPlayerPrepared() {
-        return isPlayerPrepared;
-    }
-
-    @Override
-    public boolean isPlayerVideoMuted() {
-        return isVideoMuted;
-    }
-
-    @Override
-    public int getCurrentWindowIndex() {
-        if (mPlayer != null) {
-            return mPlayer.getCurrentWindowIndex();
-        } else {
-            return 0;
-        }
-    }
-
-    @Override
-    public long getCurrentPosition() {
-        if (mPlayer != null) {
-            return mPlayer.getCurrentPosition();
-        } else {
-            return 0;
-        }
-    }
-
-    @Override
-    public long getDuration() {
-        if (mPlayer != null) {
-            return mPlayer.getDuration();
-        } else {
-            return 0;
         }
     }
 
@@ -809,5 +799,51 @@ public class ExoPlayerHelper implements
     @Override
     public void onActivityDestroy() {
         releaseAdsLoader();
+    }
+
+
+    /**
+     * ExoPlayerStatus interface methods
+     */
+    @Override
+    public boolean isPlayerCreated() {
+        return mPlayer != null;
+    }
+
+    @Override
+    public boolean isPlayerPrepared() {
+        return isPlayerPrepared;
+    }
+
+    @Override
+    public boolean isPlayerVideoMuted() {
+        return isVideoMuted;
+    }
+
+    @Override
+    public int getCurrentWindowIndex() {
+        if (mPlayer != null) {
+            return mPlayer.getCurrentWindowIndex();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public long getCurrentPosition() {
+        if (mPlayer != null) {
+            return mPlayer.getCurrentPosition();
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public long getDuration() {
+        if (mPlayer != null) {
+            return mPlayer.getDuration();
+        } else {
+            return 0;
+        }
     }
 }
