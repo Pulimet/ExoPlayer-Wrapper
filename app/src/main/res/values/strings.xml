@@ -3,5 +3,6 @@
     <string name="open_list">Open list</string>
     <string name="pause">Pause</string>
     <string name="play">Play</string>
-    <string name="fakeImageUrl">https://images1.ynet.co.il/PicServer5/2017/10/10/8082267/80822570100292640360no.jpg</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
 </resources>

@@ -17,16 +17,23 @@ import net.alexandroid.utils.exoplayerlibrary.list.ListActivity;
 
 public class MainActivity extends AppCompatActivity
         implements ExoPlayerListener, ExoAdListener, View.OnClickListener {
-    public static final String VIDEO_URL = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/091017_yedioth_baby_fix_bP3D0Kgw_800.mp4/master.m3u8";
-    public static final String VIDEO_URL2 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/0710171807_SWISS_GIANTS_7jHXuKJW_800.mp4/master.m3u8";
-    public static final String PPLUS_TAG_URL = "https://pubads.g.doubleclick.net/gampad/live/ads?sz=640x480&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&url=&correlator=&iu=/6870/ynet_mobile/pplus.preroll.apps&description_url=http://pplus.ynet.co.il/articles/0,7340,L-5020780,00.html&cust_params=dcPath%3D11211.PnaiPlus%26yncd%3D5020780%26videoPosition%3DPreroll%26autoplay%3Dtrue%26videoPosition_autoplay%3DPreroll_false%26AppVersion%3D1.0%26View%3D1";
-    public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
 
-    public static final String SAMPLE_1 = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8";
+    public static final String SAMPLE_1 = "http://cdn-fms.rbs.com.br/vod/hls_sample1_manifest.m3u8";
     public static final String SAMPLE_2 = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8";
-    public static final String SAMPLE_3 = "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8";
+    public static final String SAMPLE_3 = "http://content.jwplatform.com/manifests/vM7nH0Kl.m3u8";
     public static final String SAMPLE_4 = "http://184.72.239.149/vod/smil:BigBuckBunny.smil/playlist.m3u8";
     public static final String SAMPLE_5 = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
+    public static final String SAMPLE_6 = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
+    public static final String SAMPLE_7 = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
+    public static final String SAMPLE_8 = " http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
+
+    public static final String S_1 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/0710171807_SWISS_GIANTS_7jHXuKJW_800.mp4/master.m3u8";
+    public static final String S_2 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/031017_yediot_batito_amazonas_3_Coqt1YHG_800.mp4/master.m3u8";
+    public static final String S_3 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/081017_meteor_rXwj2aTq_800.mp4/master.m3u8";
+    public static final String S_4 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/arnav_fpo8g7XF_800.mp4/master.m3u8";
+
+    public static final String THUMB_IMG_URL = "https://i0.wp.com/androidlibs.net/alexandroid/wp-content/uploads/2013/11/ava.jpg";
+
 
     private SimpleExoPlayerView mExoPlayerView;
     private ExoPlayerHelper mExoPlayerHelper;
@@ -52,7 +59,8 @@ public class MainActivity extends AppCompatActivity
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(true)
-                .setVideoUrls(SAMPLE_3, SAMPLE_4, SAMPLE_5, SAMPLE_2, SAMPLE_1)
+                //.setVideoUrls(SAMPLE_1, SAMPLE_2, SAMPLE_3, SAMPLE_4, SAMPLE_5, SAMPLE_6, SAMPLE_7, SAMPLE_8)
+                .setVideoUrls(S_1, S_2, S_3, S_4)
                 //.setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 //.setExoAdEventsListener(this)
@@ -65,6 +73,8 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnOpenList).setOnClickListener(this);
         findViewById(R.id.btnPlay).setOnClickListener(this);
         findViewById(R.id.btnPause).setOnClickListener(this);
+        findViewById(R.id.btnNext).setOnClickListener(this);
+        findViewById(R.id.btnPrev).setOnClickListener(this);
     }
 
     @Override
@@ -79,7 +89,12 @@ public class MainActivity extends AppCompatActivity
             case R.id.btnPause:
                 mExoPlayerHelper.playerPause();
                 break;
-
+            case R.id.btnNext:
+                mExoPlayerHelper.playerNext();
+                break;
+            case R.id.btnPrev:
+                mExoPlayerHelper.playerPrevious();
+                break;
         }
     }
 
@@ -133,7 +148,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onThumbImageViewReady(ImageView imageView) {
         Picasso.with(this)
-                .load(getString(R.string.fakeImageUrl))
+                .load(THUMB_IMG_URL)
                 .placeholder(R.drawable.no_image_wide)
                 .error(R.drawable.red_y_logo)
                 .into(imageView);
@@ -141,11 +156,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoadingStatusChanged(boolean isLoading, long bufferedPosition, int bufferedPercentage) {
-/*
-        MyLog.d("onLoadingStatusChanged, isLoading: " + isLoading +
+        MyLog.w("onLoadingStatusChanged, isLoading: " + isLoading +
                 "   Buffered Position: " + bufferedPosition +
                 "   Buffered Percentage: " + bufferedPercentage);
-*/
     }
 
     @Override

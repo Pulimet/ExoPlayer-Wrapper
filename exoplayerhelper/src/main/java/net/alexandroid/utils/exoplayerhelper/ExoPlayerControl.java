@@ -16,6 +16,10 @@ public interface ExoPlayerControl {
 
     void playerPlay();
 
+    void playerNext();
+
+    void playerPrevious();
+
     void seekTo(int windowIndex, long positionMs);
 
     void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener);
