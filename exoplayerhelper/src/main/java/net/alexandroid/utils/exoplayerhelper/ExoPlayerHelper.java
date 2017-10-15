@@ -530,7 +530,7 @@ public class ExoPlayerHelper implements
         boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
 
         if (haveResumePosition) {
-            mPlayer.seekTo(mResumeWindow, mResumePosition);
+            mPlayer.seekTo(mResumeWindow, mResumePosition + 100);
             mPlayer.setPlayWhenReady(isResumePlayWhenReady);
             if (mExoPlayerListener != null) {
                 mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
