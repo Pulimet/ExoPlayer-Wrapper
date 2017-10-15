@@ -125,7 +125,7 @@ public class ExoPlayerHelper implements
         // LoadControl that controls when the MediaSource buffers more media, and how much media is buffered.
         // LoadControl is injected when the player is created.
         mLoadControl = (new DefaultLoadControl(
-                new DefaultAllocator(false, 2 * 1024 * 1024),
+                new DefaultAllocator(true, 2 * 1024 * 1024),
                 2000, 5000, 5000, 5000));
     }
 
@@ -352,6 +352,14 @@ public class ExoPlayerHelper implements
         setProgressVisible(false);
         removeThumbImageView();
         updateMutedStatus();
+
+        if (mResumeWindow != C.INDEX_UNSET) {
+            Log.e("zaq", "mPlayer.isCurrentWindowSeekable(): " + mPlayer.isCurrentWindowSeekable());
+            mPlayer.seekTo(mResumeWindow, mResumePosition + 100);
+            if (mExoPlayerListener != null) {
+                mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
+            }
+        }
     }
 
     private void onPlayerPaused() {
@@ -526,16 +534,12 @@ public class ExoPlayerHelper implements
             return;
         }
         isPlayerPrepared = true;
-        boolean haveResumePosition = mResumeWindow != C.INDEX_UNSET;
 
-        if (haveResumePosition) {
-            mPlayer.seekTo(mResumeWindow, mResumePosition + 100);
+        if (mResumeWindow != C.INDEX_UNSET) {
             mPlayer.setPlayWhenReady(isResumePlayWhenReady);
-            if (mExoPlayerListener != null) {
-                mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
-            }
         }
-        mPlayer.prepare(mMediaSource, !haveResumePosition, false);
+
+        mPlayer.prepare(mMediaSource);
     }
 
     @Override
