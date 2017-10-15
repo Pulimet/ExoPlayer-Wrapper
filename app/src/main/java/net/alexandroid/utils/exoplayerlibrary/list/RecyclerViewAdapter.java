@@ -235,7 +235,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         @Override
-        public void createExoPlayerCalled() {
+        public void createExoPlayerCalled(boolean isToPrepare) {
             MyLog.d("Position: " + mPosition + " - createExoPlayerCalled");
         }
 

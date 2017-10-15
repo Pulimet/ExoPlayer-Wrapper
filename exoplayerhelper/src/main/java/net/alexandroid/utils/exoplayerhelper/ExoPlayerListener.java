@@ -20,7 +20,7 @@ public interface ExoPlayerListener {
 
     void onPlayerError();
 
-    void createExoPlayerCalled();
+    void createExoPlayerCalled(boolean isToPrepare);
 
     void releaseExoPlayerCalled();
 

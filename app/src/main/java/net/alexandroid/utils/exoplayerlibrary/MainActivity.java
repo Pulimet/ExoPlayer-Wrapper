@@ -39,8 +39,9 @@ public class MainActivity extends AppCompatActivity
     private ExoPlayerHelper mExoPlayerHelper;
 
     private void log() {
-        MyLog.e("Duration: " + (mExoPlayerHelper.getDuration() / 1000) + "s.   " + "Current: " + (mExoPlayerHelper.getCurrentPosition() / 1000) + "s.");
-        MyLog.e("Left: " + ((mExoPlayerHelper.getDuration() - mExoPlayerHelper.getCurrentPosition()) / 1000) + "s.");
+        MyLog.e("Duration: " + (mExoPlayerHelper.getDuration() / 1000) + "s.   "
+                + "Current: " + (mExoPlayerHelper.getCurrentPosition() / 1000) + "s.    "
+                + "Left: " + ((mExoPlayerHelper.getDuration() - mExoPlayerHelper.getCurrentPosition()) / 1000) + "s.");
     }
 
     @Override
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, mExoPlayerView)
-                .enableCache(10)
+                //.enableCache(10)
                 .addMuteButton(false, true)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
@@ -192,8 +193,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void createExoPlayerCalled() {
-        MyLog.d("createExoPlayerCalled");
+    public void createExoPlayerCalled(boolean isToPrepare) {
+        MyLog.d("createExoPlayerCalled, isToPrepare: " + isToPrepare);
     }
 
     @Override
@@ -209,13 +210,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onVideoTapped() {
         MyLog.d("onVideoTapped");
-        log();
     }
 
     @Override
     public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {
         MyLog.d("currentWindowIndex: " + currentWindowIndex + "  nextWindowIndex: " + nextWindowIndex + " isPlayBackStateReady: " + isPlayBackStateReady);
-        log();
     }
 
     @Override
