@@ -353,12 +353,12 @@ public class ExoPlayerHelper implements
         removeThumbImageView();
         updateMutedStatus();
 
-        if (mResumeWindow != C.INDEX_UNSET) {
-            Log.e("zaq", "mPlayer.isCurrentWindowSeekable(): " + mPlayer.isCurrentWindowSeekable());
+        if (mResumeWindow != C.INDEX_UNSET && !mPlayer.isPlayingAd()) {
             mPlayer.seekTo(mResumeWindow, mResumePosition + 100);
             if (mExoPlayerListener != null) {
                 mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
             }
+            mResumeWindow = C.INDEX_UNSET;
         }
     }
 
