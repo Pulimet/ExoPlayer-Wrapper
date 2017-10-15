@@ -352,14 +352,6 @@ public class ExoPlayerHelper implements
         setProgressVisible(false);
         removeThumbImageView();
         updateMutedStatus();
-
-        if (mResumeWindow != C.INDEX_UNSET && !mPlayer.isPlayingAd()) {
-            mPlayer.seekTo(mResumeWindow, mResumePosition + 100);
-            if (mExoPlayerListener != null) {
-                mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
-            }
-            mResumeWindow = C.INDEX_UNSET;
-        }
     }
 
     private void onPlayerPaused() {
@@ -535,12 +527,26 @@ public class ExoPlayerHelper implements
         }
         isPlayerPrepared = true;
 
-        if (mResumeWindow != C.INDEX_UNSET) {
+        if (mResumeWindow != C.INDEX_UNSET && !mPlayer.isPlayingAd()) {
             mPlayer.setPlayWhenReady(isResumePlayWhenReady);
+            mPlayer.seekTo(mResumeWindow, mResumePosition + 100);
+            if (mExoPlayerListener != null) {
+                mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
+            }
+            mExoPlayerView.postDelayed(checkFreeze, 1000);
         }
-
         mPlayer.prepare(mMediaSource);
     }
+
+    private Runnable checkFreeze = new Runnable() {
+        @Override
+        public void run() {
+            if (mPlayer != null && mPlayer.getPlaybackState() == Player.STATE_BUFFERING && mPlayer.getPlayWhenReady()) {
+                Log.e("zaq", "Player.STATE_BUFFERING stuck issue");
+                mPlayer.seekTo(mPlayer.getContentPosition() - 500);
+            }
+        }
+    };
 
     @Override
     public void releasePlayer() {
@@ -833,6 +839,9 @@ public class ExoPlayerHelper implements
     public void onPause() {
         if (mExoAdListener != null) {
             mExoAdListener.onAdPause();
+        }
+        if (mExoPlayerView != null) {
+            mExoPlayerView.removeCallbacks(checkFreeze);
         }
     }
 
