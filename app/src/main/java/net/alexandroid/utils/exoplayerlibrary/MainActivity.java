@@ -27,10 +27,7 @@ public class MainActivity extends AppCompatActivity
     public static final String SAMPLE_7 = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
     public static final String SAMPLE_8 = " http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
 
-    public static final String S_1 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/0710171807_SWISS_GIANTS_7jHXuKJW_800.mp4/master.m3u8";
-    public static final String S_2 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/031017_yediot_batito_amazonas_3_Coqt1YHG_800.mp4/master.m3u8";
-    public static final String S_3 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/081017_meteor_rXwj2aTq_800.mp4/master.m3u8";
-    public static final String S_4 = "http://ynethd-i.akamaihd.net/i/cdnwiz/1017/arnav_fpo8g7XF_800.mp4/master.m3u8";
+
 
     public static final String THUMB_IMG_URL = "https://i0.wp.com/androidlibs.net/alexandroid/wp-content/uploads/2013/11/ava.jpg";
 
@@ -60,8 +57,7 @@ public class MainActivity extends AppCompatActivity
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(true)
-                //.setVideoUrls(SAMPLE_1, SAMPLE_2, SAMPLE_3, SAMPLE_4, SAMPLE_5, SAMPLE_6, SAMPLE_7, SAMPLE_8)
-                .setVideoUrls(S_1, S_2, S_3, S_4)
+                .setVideoUrls(SAMPLE_1, SAMPLE_2, SAMPLE_3, SAMPLE_4, SAMPLE_5, SAMPLE_6, SAMPLE_7, SAMPLE_8)
                 //.setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 //.setExoAdEventsListener(this)
