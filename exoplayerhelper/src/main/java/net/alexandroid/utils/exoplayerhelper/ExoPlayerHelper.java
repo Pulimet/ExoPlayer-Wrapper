@@ -877,6 +877,7 @@ public class ExoPlayerHelper implements
      */
     @Override
     public void onAdLoadError(IOException error) {
+        Log.e("ExoPlayerHelper", "onAdLoadError: " + error.getMessage());
         if (mExoAdListener != null) {
             mExoAdListener.onAdLoadError();
         }
