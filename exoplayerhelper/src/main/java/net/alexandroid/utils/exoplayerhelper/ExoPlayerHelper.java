@@ -543,7 +543,7 @@ public class ExoPlayerHelper implements
         public void run() {
             if (mPlayer != null && mPlayer.getPlaybackState() == Player.STATE_BUFFERING && mPlayer.getPlayWhenReady()) {
                 Log.e("zaq", "Player.STATE_BUFFERING stuck issue");
-                mPlayer.seekTo(mPlayer.getContentPosition() - 500);
+                mPlayer.seekTo(mPlayer.getContentPosition() > 500 ? mPlayer.getContentPosition() - 500 : 0);
             }
         }
     };
@@ -692,6 +692,11 @@ public class ExoPlayerHelper implements
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public boolean isPlayingAd() {
+        return mPlayer != null && mPlayer.isPlayingAd();
     }
 
     /**

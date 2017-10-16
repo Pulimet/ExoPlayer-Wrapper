@@ -23,7 +23,6 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void serRecyclerView() {
-
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 

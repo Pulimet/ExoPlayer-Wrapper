@@ -14,4 +14,6 @@ public interface ExoPlayerStatus {
 
     boolean isPlayerPrepared();
 
+    boolean isPlayingAd();
+
 }
