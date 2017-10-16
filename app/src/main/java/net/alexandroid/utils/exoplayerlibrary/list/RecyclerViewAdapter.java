@@ -255,6 +255,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         @Override
+        public void onPlayBtnTap() {
+            MyLog.d("Position: " + mPosition + " - onPlayBtnTap");
+        }
+
+        @Override
+        public void onPauseBtnTap() {
+            MyLog.d("Position: " + mPosition + " - onPauseBtnTap");
+        }
+
+        @Override
         public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {
             MyLog.d("currentWindowIndex: " + currentWindowIndex + "  nextWindowIndex: " + nextWindowIndex + " isPlayBackStateReady: " + isPlayBackStateReady);
         }

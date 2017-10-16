@@ -26,9 +26,13 @@ public interface ExoPlayerListener {
 
     void onVideoResumeDataLoaded(int window, long position, boolean isResumeWhenReady);
 
-    void onVideoTapped();
-
     void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady);
 
     void onMuteStateChanged(boolean isMuted);
+
+    void onVideoTapped();
+
+    void onPlayBtnTap();
+
+    void onPauseBtnTap();
 }

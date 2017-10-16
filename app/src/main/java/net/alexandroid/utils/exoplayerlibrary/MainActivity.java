@@ -217,6 +217,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onPlayBtnTap() {
+        MyLog.d("onPlayBtnTap");
+    }
+
+    @Override
+    public void onPauseBtnTap() {
+        MyLog.d("onPauseBtnTap");
+    }
+
+    @Override
     public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {
         MyLog.d("currentWindowIndex: " + currentWindowIndex + "  nextWindowIndex: " + nextWindowIndex + " isPlayBackStateReady: " + isPlayBackStateReady);
     }

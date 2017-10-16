@@ -109,9 +109,34 @@ public class ExoPlayerHelper implements
 
         addProgressBar();
         setVideoClickable();
+        setControllerListener();
 
         init();
     }
+
+    private void addProgressBar() {
+        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+        mProgressBar = new ProgressBar(mContext, null, android.R.attr.progressBarStyleLarge);
+        mProgressBar.setId(R.id.progressBar);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
+        mProgressBar.setLayoutParams(params);
+        mProgressBar.setIndeterminate(true);
+        mProgressBar.setVisibility(View.GONE);
+        frameLayout.addView(mProgressBar);
+    }
+
+    private void setVideoClickable() {
+        mExoPlayerView.setOnTouchListener(this);
+    }
+
+    private void setControllerListener() {
+        mExoPlayerView.findViewById(R.id.exo_play).setOnTouchListener(this);
+        mExoPlayerView.findViewById(R.id.exo_pause).setOnTouchListener(this);
+    }
+
 
     private void init() {
         // Measures bandwidth during playback. Can be null if not required.
@@ -170,24 +195,6 @@ public class ExoPlayerHelper implements
                 mExoPlayerView.getOverlayFrameLayout(),
                 mHandler,
                 this);
-    }
-
-    private void addProgressBar() {
-        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
-        mProgressBar = new ProgressBar(mContext, null, android.R.attr.progressBarStyleLarge);
-        mProgressBar.setId(R.id.progressBar);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.CENTER;
-        mProgressBar.setLayoutParams(params);
-        mProgressBar.setIndeterminate(true);
-        mProgressBar.setVisibility(View.GONE);
-        frameLayout.addView(mProgressBar);
-    }
-
-    private void setVideoClickable() {
-        mExoPlayerView.setOnTouchListener(this);
     }
 
     private void setProgressVisible(boolean visible) {
@@ -308,9 +315,17 @@ public class ExoPlayerHelper implements
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-        if (view.getId() == mExoPlayerView.getId()) {
-            if (mExoPlayerListener != null && motionEvent.getAction() == MotionEvent.ACTION_UP) {
+
+
+        if (motionEvent.getAction() == MotionEvent.ACTION_UP && mExoPlayerListener != null) {
+            if (view.getId() == mExoPlayerView.getId()) {
                 mExoPlayerListener.onVideoTapped();
+            }
+            if (view.getId() == R.id.exo_play) {
+                mExoPlayerListener.onPlayBtnTap();
+            }
+            if (view.getId() == R.id.exo_pause) {
+                mExoPlayerListener.onPauseBtnTap();
             }
         }
 
