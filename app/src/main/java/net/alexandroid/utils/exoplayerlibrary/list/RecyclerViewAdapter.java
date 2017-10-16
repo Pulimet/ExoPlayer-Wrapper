@@ -230,7 +230,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         @Override
-        public void onPlayerError() {
+        public void onPlayerError(String errorString) {
             MyLog.e("Position: " + mPosition + " - onPlayerError");
         }
 

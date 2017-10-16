@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
-import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -760,15 +759,13 @@ public class ExoPlayerHelper implements
 
     @Override
     public void onPlayerError(ExoPlaybackException e) {
-        if (mExoPlayerListener != null) {
-            mExoPlayerListener.onPlayerError();
-        }
+        String errorString = null;
 
-        Log.e("ExoPlayerHelper", "Player.onPlayerError: " + e.type);
         switch (e.type) {
             case ExoPlaybackException.TYPE_SOURCE:
                 IOException ioException = e.getSourceException();
                 Log.e("ExoPlayerHelper", ioException.getMessage());
+                errorString = ioException.getMessage();
                 break;
             case ExoPlaybackException.TYPE_RENDERER:
                 Exception exception = e.getRendererException();
@@ -777,10 +774,11 @@ public class ExoPlayerHelper implements
             case ExoPlaybackException.TYPE_UNEXPECTED:
                 RuntimeException runtimeException = e.getUnexpectedException();
                 Log.e("ExoPlayerHelper", runtimeException.getMessage());
+                errorString = runtimeException.getMessage();
                 break;
         }
 
-        String errorString = null;
+
         if (e.type == ExoPlaybackException.TYPE_RENDERER) {
             Exception cause = e.getRendererException();
             if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
@@ -807,13 +805,9 @@ public class ExoPlayerHelper implements
             Log.e("ExoPlayerHelper", "errorString: " + errorString);
         }
 
-        if (isBehindLiveWindow(e)) {
-            clearResumePosition();
-            createPlayer(isToPrepareOnResume);
-        } else {
-            updateResumePosition();
+        if (mExoPlayerListener != null) {
+            mExoPlayerListener.onPlayerError(errorString);
         }
-
     }
 
     @Override
@@ -898,18 +892,4 @@ public class ExoPlayerHelper implements
         }
     }
 
-    // Static https://github.com/google/ExoPlayer/blob/release-v2/demo/src/main/java/com/google/android/exoplayer2/demo/PlayerActivity.java
-    private static boolean isBehindLiveWindow(ExoPlaybackException e) {
-        if (e.type != ExoPlaybackException.TYPE_SOURCE) {
-            return false;
-        }
-        Throwable cause = e.getSourceException();
-        while (cause != null) {
-            if (cause instanceof BehindLiveWindowException) {
-                return true;
-            }
-            cause = cause.getCause();
-        }
-        return false;
-    }
 }

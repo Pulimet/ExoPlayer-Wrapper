@@ -18,7 +18,7 @@ public interface ExoPlayerListener {
 
     void onPlayerStateIdle(int currentWindowIndex);
 
-    void onPlayerError();
+    void onPlayerError(String errorString);
 
     void createExoPlayerCalled(boolean isToPrepare);
 

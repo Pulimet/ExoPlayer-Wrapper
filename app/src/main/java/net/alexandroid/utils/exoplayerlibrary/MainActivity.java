@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPlayerError() {
+    public void onPlayerError(String errorString) {
         MyLog.e("onPlayerError");
     }
 
