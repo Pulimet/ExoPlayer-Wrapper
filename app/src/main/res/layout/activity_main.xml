@@ -92,4 +92,27 @@
         app:layout_constraintTop_toBottomOf="@+id/exoPlayerView"/>
 
 
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btnBlock"
+        android:layout_width="88dp"
+        android:layout_height="wrap_content"
+        android:text="@string/block"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/colorPrimary"
+        app:layout_constraintEnd_toStartOf="@+id/btnPlay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnPlay"/>
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btnUnBlock"
+        android:layout_width="88dp"
+        android:layout_height="wrap_content"
+        android:text="@string/unblock"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnPlay"
+        app:layout_constraintTop_toBottomOf="@+id/btnPlay"/>
+
+
 </android.support.constraint.ConstraintLayout>

@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnPause).setOnClickListener(this);
         findViewById(R.id.btnNext).setOnClickListener(this);
         findViewById(R.id.btnPrev).setOnClickListener(this);
+        findViewById(R.id.btnBlock).setOnClickListener(this);
+        findViewById(R.id.btnUnBlock).setOnClickListener(this);
     }
 
     @Override
@@ -91,6 +93,12 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnPrev:
                 mExoPlayerHelper.playerPrevious();
+                break;
+            case R.id.btnBlock:
+                mExoPlayerHelper.playerBlock();
+                break;
+            case R.id.btnUnBlock:
+                mExoPlayerHelper.playerUnBlock();
                 break;
         }
     }

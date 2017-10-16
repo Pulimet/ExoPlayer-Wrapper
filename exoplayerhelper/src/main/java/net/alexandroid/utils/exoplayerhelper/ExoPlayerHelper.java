@@ -56,6 +56,7 @@ import java.io.IOException;
 @SuppressWarnings("WeakerAccess")
 public class ExoPlayerHelper implements
         View.OnClickListener,
+        View.OnTouchListener,
         ExoPlayerControl,
         ExoPlayerStatus,
         Player.EventListener,
@@ -186,15 +187,7 @@ public class ExoPlayerHelper implements
     }
 
     private void setVideoClickable() {
-        mExoPlayerView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View pView, MotionEvent pMotionEvent) {
-                if (mExoPlayerListener != null && pMotionEvent.getAction() == MotionEvent.ACTION_UP) {
-                    mExoPlayerListener.onVideoTapped();
-                }
-                return false;
-            }
-        });
+        mExoPlayerView.setOnTouchListener(this);
     }
 
     private void setProgressVisible(boolean visible) {
@@ -310,6 +303,23 @@ public class ExoPlayerHelper implements
         if (mExoPlayerListener != null && v.getId() == R.id.exo_content_frame) {
             mExoPlayerListener.onVideoTapped();
         }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        if (view.getId() == mExoPlayerView.getId()) {
+            if (mExoPlayerListener != null && motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                mExoPlayerListener.onVideoTapped();
+            }
+        }
+
+        // Player block
+        if (view.getId() == mExoPlayerView.getOverlayFrameLayout().getId()) {
+            return true;
+        }
+
+        return false;
     }
 
     // Resume position saving
@@ -608,6 +618,20 @@ public class ExoPlayerHelper implements
     }
 
     @Override
+    public void playerBlock() {
+        if (mExoPlayerView != null) {
+            mExoPlayerView.getOverlayFrameLayout().setOnTouchListener(this);
+        }
+    }
+
+    @Override
+    public void playerUnBlock() {
+        if (mExoPlayerView != null) {
+            mExoPlayerView.getOverlayFrameLayout().setOnTouchListener(null);
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putBoolean(PARAM_IS_AD_WAS_SHOWN, !mPlayer.isPlayingAd());
         outState.putBoolean(PARAM_AUTO_PLAY, mPlayer.getPlayWhenReady());
@@ -763,6 +787,7 @@ public class ExoPlayerHelper implements
 
         switch (e.type) {
             case ExoPlaybackException.TYPE_SOURCE:
+                //https://github.com/google/ExoPlayer/issues/2702
                 IOException ioException = e.getSourceException();
                 Log.e("ExoPlayerHelper", ioException.getMessage());
                 errorString = ioException.getMessage();

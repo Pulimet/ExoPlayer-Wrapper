@@ -38,4 +38,7 @@ public interface ExoPlayerControl {
 
     void onSaveInstanceState(Bundle outState);
 
+    void playerBlock();
+
+    void playerUnBlock();
 }
