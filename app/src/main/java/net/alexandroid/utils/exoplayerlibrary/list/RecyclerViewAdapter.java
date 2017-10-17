@@ -189,8 +189,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public void onThumbImageViewReady(ImageView imageView) {
             Picasso.with(mView.getContext())
                     .load(mThumbUrl)
-                    .placeholder(R.drawable.no_image_wide)
-                    .error(R.drawable.red_y_logo)
+                    .placeholder(R.drawable.place_holder)
+                    .error(R.drawable.error_image)
                     .into(imageView);
         }
 
