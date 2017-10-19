@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity
     public static final String SAMPLE_7 = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
     public static final String SAMPLE_8 = " http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
 
-
+    public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
 
     public static final String THUMB_IMG_URL = "https://i0.wp.com/androidlibs.net/alexandroid/wp-content/uploads/2013/11/ava.jpg";
 
@@ -52,15 +52,15 @@ public class MainActivity extends AppCompatActivity
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, mExoPlayerView)
-                //.enableCache(10)
+                .enableCache(10)
                 .addMuteButton(false, true)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(true)
                 .setVideoUrls(SAMPLE_1, SAMPLE_2, SAMPLE_3, SAMPLE_4, SAMPLE_5, SAMPLE_6, SAMPLE_7, SAMPLE_8)
-                //.setTagUrl(TEST_TAG_URL)
+                .setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
-                //.setExoAdEventsListener(this)
+                .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
                 .setThumbImageViewEnabled()
                 .createAndPrepare();
