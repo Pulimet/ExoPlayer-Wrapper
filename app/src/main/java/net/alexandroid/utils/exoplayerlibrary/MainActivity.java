@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(false)
-                .setVideoUrls(SAMPLE_1)
+                .setVideoUrls(SAMPLE_1, SAMPLE_2)
                 //.setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)

@@ -25,9 +25,11 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
@@ -169,12 +171,32 @@ public class ExoPlayerHelper implements
 
         MediaSource[] mediaSources = new MediaSource[mVideosUris.length];
         for (int i = 0; i < mVideosUris.length; i++) {
-            mediaSources[i] = new HlsMediaSource(mVideosUris[i], mDataSourceFactory, null, null);
+            //mediaSources[i] = new HlsMediaSource(mVideosUris[i], mDataSourceFactory, null, null);
+            mediaSources[i] = buildMediaSource(mVideosUris[i]);
         }
 
         mMediaSource = mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
 
         addAdsToMediaSource();
+    }
+
+    private MediaSource buildMediaSource(Uri uri) {
+        int type = Util.inferContentType(uri);
+        switch (type) {
+/*            case C.TYPE_SS:
+                return new SsMediaSource(uri, buildDataSourceFactory(false),
+                        new DefaultSsChunkSource.Factory(mDataSourceFactory), null, null);
+            case C.TYPE_DASH:
+                return new DashMediaSource(uri, buildDataSourceFactory(false),
+                        new DefaultDashChunkSource.Factory(mDataSourceFactory), null, null);*/
+            case C.TYPE_HLS:
+                return new HlsMediaSource(uri, mDataSourceFactory, null, null);
+            case C.TYPE_OTHER:
+                return new ExtractorMediaSource(uri, mDataSourceFactory, new DefaultExtractorsFactory(), null, null);
+            default: {
+                throw new IllegalStateException("Unsupported type: " + type);
+            }
+        }
     }
 
     private void addAdsToMediaSource() {
