@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity
     public void onThumbImageViewReady(ImageView imageView) {
         Picasso.with(this)
                 .load(THUMB_IMG_URL)
-                .fit()
+                //.fit()
                 .placeholder(R.drawable.place_holder)
                 .error(R.drawable.error_image)
                 .into(imageView);

@@ -3,6 +3,7 @@ package net.alexandroid.utils.exoplayerhelper;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -215,6 +216,7 @@ public class ExoPlayerHelper implements
                 FrameLayout.LayoutParams.MATCH_PARENT);
         params.gravity = Gravity.CENTER;
         mThumbImage.setLayoutParams(params);
+        mThumbImage.setBackgroundColor(Color.BLACK);
         frameLayout.addView(mThumbImage);
 
         if (mExoPlayerListener != null) {
