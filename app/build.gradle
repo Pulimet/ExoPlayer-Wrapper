@@ -28,5 +28,5 @@ dependencies {
 
     implementation project(':exoplayerhelper')
 
-    //implementation 'net.alexandroid.utils:exoplayerhelper:1.7'
+    //implementation 'net.alexandroid.utils:exoplayerhelper:1.99'
 }

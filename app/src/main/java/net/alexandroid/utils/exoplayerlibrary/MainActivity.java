@@ -52,13 +52,13 @@ public class MainActivity extends AppCompatActivity
         mExoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, mExoPlayerView)
-                .enableCache(10)
+                //.enableCache(10)
                 .addMuteButton(false, true)
                 .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
-                .setAutoPlayOn(true)
-                .setVideoUrls(SAMPLE_1, SAMPLE_2, SAMPLE_3, SAMPLE_4, SAMPLE_5, SAMPLE_6, SAMPLE_7, SAMPLE_8)
-                .setTagUrl(TEST_TAG_URL)
+                .setAutoPlayOn(false)
+                .setVideoUrls(SAMPLE_1)
+                //.setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity
     public void onThumbImageViewReady(ImageView imageView) {
         Picasso.with(this)
                 .load(THUMB_IMG_URL)
+                .fit()
                 .placeholder(R.drawable.place_holder)
                 .error(R.drawable.error_image)
                 .into(imageView);
@@ -193,7 +194,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onPlayerError(String errorString) {
-        MyLog.e("onPlayerError");
+        MyLog.e("onPlayerError: " + errorString);
     }
 
     @Override

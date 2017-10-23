@@ -369,7 +369,9 @@ public class ExoPlayerHelper implements
 
     // Player events, internal handle
     private void onPlayerBuffering() {
-        setProgressVisible(true);
+        if (mPlayer.getPlayWhenReady()) {
+            setProgressVisible(true);
+        }
     }
 
     private void onPlayerPlaying() {
@@ -380,7 +382,6 @@ public class ExoPlayerHelper implements
 
     private void onPlayerPaused() {
         setProgressVisible(false);
-        removeThumbImageView();
     }
 
     private void onAdEnded() {
