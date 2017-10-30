@@ -85,6 +85,7 @@ public class ExoPlayerHelper implements
 
     private ExoAdListener mExoAdListener;
     private ExoPlayerListener mExoPlayerListener;
+    private ExoThumbListener mExoThumbListener;
 
     private ProgressBar mProgressBar;
     private ImageView mMuteBtn;
@@ -119,6 +120,10 @@ public class ExoPlayerHelper implements
 
     private void addProgressBar() {
         FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+        mProgressBar = frameLayout.findViewById(R.id.progressBar);
+        if (mProgressBar != null) {
+            return;
+        }
         mProgressBar = new ProgressBar(mContext, null, android.R.attr.progressBarStyleLarge);
         mProgressBar.setId(R.id.progressBar);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -241,8 +246,8 @@ public class ExoPlayerHelper implements
         mThumbImage.setBackgroundColor(Color.BLACK);
         frameLayout.addView(mThumbImage);
 
-        if (mExoPlayerListener != null) {
-            mExoPlayerListener.onThumbImageViewReady(mThumbImage);
+        if (mExoThumbListener != null) {
+            mExoThumbListener.onThumbImageViewReady(mThumbImage);
         }
     }
 
@@ -472,8 +477,8 @@ public class ExoPlayerHelper implements
             return this;
         }
 
-        public Builder setThumbImageViewEnabled() {
-            mExoPlayerHelper.isThumbImageViewEnabled = true;
+        public Builder setThumbImageViewEnabled(ExoThumbListener exoThumbListener) {
+            mExoPlayerHelper.setExoThumbListener(exoThumbListener);
             return this;
         }
 
@@ -520,6 +525,11 @@ public class ExoPlayerHelper implements
     /**
      * ExoPlayerControl interface methods
      */
+    @Override
+    public void setExoThumbListener(ExoThumbListener exoThumbListener) {
+        isThumbImageViewEnabled = true;
+        mExoThumbListener = exoThumbListener;
+    }
 
     @Override
     public void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener) {
@@ -788,7 +798,7 @@ public class ExoPlayerHelper implements
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        if (mExoPlayerListener == null) {
+        if (mExoPlayerListener == null || mPlayer == null) {
             return;
         }
         switch (playbackState) {

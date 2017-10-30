@@ -18,6 +18,7 @@ import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerhelper.ExoAdListener;
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerHelper;
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerListener;
+import net.alexandroid.utils.exoplayerhelper.ExoThumbListener;
 import net.alexandroid.utils.exoplayerlibrary.R;
 
 import java.util.ArrayList;
@@ -150,7 +151,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     @SuppressWarnings("WeakerAccess")
-    public class ViewHolder extends RecyclerView.ViewHolder implements ExoPlayerListener, ExoAdListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements ExoPlayerListener, ExoAdListener, ExoThumbListener {
 
         public final View mView;
         public final TextView mTextView;
@@ -169,15 +170,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         public void createPlayer() {
             mExoPlayerHelper = new ExoPlayerHelper.Builder(mExoPlayerView.getContext(), mExoPlayerView)
-                    .enableCache(50)
+                    //.enableCache(50)
                     .setUiControllersVisibility(true)
                     .setAutoPlayOn(false)
                     .setToPrepareOnResume(false)
                     .setVideoUrls(mVideoUrl)
-                    .setTagUrl(TEST_TAG_URL)
+                    //.setTagUrl(TEST_TAG_URL)
                     .setExoPlayerEventsListener(this)
                     .setExoAdEventsListener(this)
-                    .setThumbImageViewEnabled()
+                    .setThumbImageViewEnabled(this)
                     .create();
         }
 

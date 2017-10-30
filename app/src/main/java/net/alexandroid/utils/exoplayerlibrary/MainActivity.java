@@ -13,19 +13,19 @@ import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerhelper.ExoAdListener;
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerHelper;
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerListener;
+import net.alexandroid.utils.exoplayerhelper.ExoThumbListener;
 import net.alexandroid.utils.exoplayerlibrary.list.ListActivity;
 
 public class MainActivity extends AppCompatActivity
-        implements ExoPlayerListener, ExoAdListener, View.OnClickListener {
+        implements ExoPlayerListener, ExoAdListener, ExoThumbListener, View.OnClickListener {
 
     public static final String SAMPLE_1 = "http://cdn-fms.rbs.com.br/vod/hls_sample1_manifest.m3u8";
     public static final String SAMPLE_2 = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8";
-    public static final String SAMPLE_3 = "http://content.jwplatform.com/manifests/vM7nH0Kl.m3u8";
+    public static final String SAMPLE_3 = " http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
     public static final String SAMPLE_4 = "http://184.72.239.149/vod/smil:BigBuckBunny.smil/playlist.m3u8";
     public static final String SAMPLE_5 = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
     public static final String SAMPLE_6 = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
     public static final String SAMPLE_7 = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
-    public static final String SAMPLE_8 = " http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
 
     public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
 
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
-                .setThumbImageViewEnabled()
+                .setThumbImageViewEnabled(this)
                 .createAndPrepare();
     }
 

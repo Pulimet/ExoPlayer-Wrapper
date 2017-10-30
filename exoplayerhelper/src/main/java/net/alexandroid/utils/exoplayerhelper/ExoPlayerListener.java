@@ -1,10 +1,6 @@
 package net.alexandroid.utils.exoplayerhelper;
 
-import android.widget.ImageView;
-
 public interface ExoPlayerListener {
-
-    void onThumbImageViewReady(ImageView imageView);
 
     void onLoadingStatusChanged(boolean isLoading, long bufferedPosition, int bufferedPercentage);
 

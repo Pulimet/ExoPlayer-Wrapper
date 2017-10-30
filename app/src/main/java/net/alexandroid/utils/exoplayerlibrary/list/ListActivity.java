@@ -40,8 +40,6 @@ public class ListActivity extends AppCompatActivity {
                         MainActivity.THUMB_IMG_URL),
                 new VideoItem(MainActivity.SAMPLE_2,
                         MainActivity.THUMB_IMG_URL),
-                new VideoItem(MainActivity.SAMPLE_3,
-                        MainActivity.THUMB_IMG_URL),
                 new VideoItem(MainActivity.SAMPLE_4,
                         MainActivity.THUMB_IMG_URL),
                 new VideoItem(MainActivity.SAMPLE_5,
@@ -50,7 +48,7 @@ public class ListActivity extends AppCompatActivity {
                         MainActivity.THUMB_IMG_URL),
                 new VideoItem(MainActivity.SAMPLE_7,
                         MainActivity.THUMB_IMG_URL),
-                new VideoItem(MainActivity.SAMPLE_8,
+                new VideoItem(MainActivity.SAMPLE_3,
                         MainActivity.THUMB_IMG_URL))
         );
     }

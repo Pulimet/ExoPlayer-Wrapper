@@ -26,6 +26,8 @@ public interface ExoPlayerControl {
 
     void setExoAdListener(ExoAdListener exoAdListener);
 
+    void setExoThumbListener(ExoThumbListener exoThumbListener);
+
     void onActivityStart();
 
     void onActivityResume();
