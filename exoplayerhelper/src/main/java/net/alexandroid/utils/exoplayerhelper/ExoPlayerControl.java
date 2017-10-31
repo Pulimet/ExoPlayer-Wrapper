@@ -12,6 +12,8 @@ public interface ExoPlayerControl {
 
     void releaseAdsLoader();
 
+    void updateVideoUrls(String... urls);
+
     void playerPause();
 
     void playerPlay();

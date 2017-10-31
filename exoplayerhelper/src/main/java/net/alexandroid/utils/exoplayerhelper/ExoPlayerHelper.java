@@ -173,7 +173,9 @@ public class ExoPlayerHelper implements
     private void createMediaSource() {
         // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
         // A MediaSource is injected via ExoPlayer.prepare at the start of playback.
-
+        if (mVideosUris == null) {
+            return;
+        }
         MediaSource[] mediaSources = new MediaSource[mVideosUris.length];
         for (int i = 0; i < mVideosUris.length; i++) {
             //mediaSources[i] = new HlsMediaSource(mVideosUris[i], mDataSourceFactory, null, null);
@@ -629,6 +631,16 @@ public class ExoPlayerHelper implements
             mImaAdsLoader.release();
             mImaAdsLoader = null;
             mExoPlayerView.getOverlayFrameLayout().removeAllViews();
+        }
+    }
+
+    @Override
+    public void updateVideoUrls(String... urls) {
+        if (!isPlayerPrepared) {
+            setVideoUrls(urls);
+            createMediaSource();
+        } else {
+            throw new IllegalStateException("Can't update url's when player is prepared");
         }
     }
 

@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
                 .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
                 .setThumbImageViewEnabled(this)
-                .createAndPrepare();
+                .create();
     }
 
     private void setButtons() {
@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnPrev).setOnClickListener(this);
         findViewById(R.id.btnBlock).setOnClickListener(this);
         findViewById(R.id.btnUnBlock).setOnClickListener(this);
+        findViewById(R.id.btnUpdateUrls).setOnClickListener(this);
+        findViewById(R.id.btnPrepare).setOnClickListener(this);
     }
 
     @Override
@@ -99,6 +101,12 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnUnBlock:
                 mExoPlayerHelper.playerUnBlock();
+                break;
+            case R.id.btnUpdateUrls:
+                mExoPlayerHelper.updateVideoUrls(SAMPLE_7, SAMPLE_6);
+                break;
+            case R.id.btnPrepare:
+                mExoPlayerHelper.preparePlayer();
                 break;
         }
     }

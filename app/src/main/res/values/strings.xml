@@ -7,4 +7,6 @@
     <string name="previous">Previous</string>
     <string name="block">Block</string>
     <string name="unblock">UnBlock</string>
+    <string name="update_urls">Update URLs</string>
+    <string name="prepare">Prepare</string>
 </resources>
