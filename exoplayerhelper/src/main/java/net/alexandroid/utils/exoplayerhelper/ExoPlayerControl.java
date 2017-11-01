@@ -24,6 +24,8 @@ public interface ExoPlayerControl {
 
     void seekTo(int windowIndex, long positionMs);
 
+    void seekToDefaultPosition();
+
     void setExoPlayerEventsListener(ExoPlayerListener pExoPlayerListenerListener);
 
     void setExoAdListener(ExoAdListener exoAdListener);

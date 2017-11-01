@@ -9,4 +9,7 @@
     <string name="unblock">UnBlock</string>
     <string name="update_urls">Update URLs</string>
     <string name="prepare">Prepare</string>
+    <string name="reset">Reset</string>
+    <string name="create">Create</string>
+    <string name="release">Release</string>
 </resources>

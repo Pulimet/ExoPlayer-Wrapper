@@ -76,6 +76,9 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnUnBlock).setOnClickListener(this);
         findViewById(R.id.btnUpdateUrls).setOnClickListener(this);
         findViewById(R.id.btnPrepare).setOnClickListener(this);
+        findViewById(R.id.btnReset).setOnClickListener(this);
+        findViewById(R.id.btnCreate).setOnClickListener(this);
+        findViewById(R.id.btnRelease).setOnClickListener(this);
     }
 
     @Override
@@ -107,6 +110,15 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnPrepare:
                 mExoPlayerHelper.preparePlayer();
+                break;
+            case R.id.btnReset:
+                mExoPlayerHelper.seekToDefaultPosition();
+                break;
+            case R.id.btnCreate:
+                mExoPlayerHelper.createPlayer(false);
+                break;
+            case R.id.btnRelease:
+                mExoPlayerHelper.releasePlayer();
                 break;
         }
     }

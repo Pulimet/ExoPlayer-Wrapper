@@ -626,6 +626,13 @@ public class ExoPlayerHelper implements
     }
 
     @Override
+    public void seekToDefaultPosition() {
+        if (mPlayer != null) {
+            mPlayer.seekToDefaultPosition();
+        }
+    }
+
+    @Override
     public void releaseAdsLoader() {
         if (mImaAdsLoader != null) {
             mImaAdsLoader.release();
