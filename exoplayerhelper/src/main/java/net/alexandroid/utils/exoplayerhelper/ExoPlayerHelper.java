@@ -867,7 +867,10 @@ public class ExoPlayerHelper implements
                 break;
             case ExoPlaybackException.TYPE_UNEXPECTED:
                 RuntimeException runtimeException = e.getUnexpectedException();
-                Log.e("ExoPlayerHelper", runtimeException.getMessage());
+                Log.e("ExoPlayerHelper", runtimeException.getMessage() == null ? "Message is null" : runtimeException.getMessage());
+                if (runtimeException.getMessage() == null) {
+                    runtimeException.printStackTrace();
+                }
                 errorString = runtimeException.getMessage();
                 break;
         }

@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/Pulimet/ExoPlayerLibraryWrapper'
     gitUrl = 'https://github.com/Pulimet/ExoPlayerLibraryWrapper.git'
 
-    libraryVersion = '2.05'
+    libraryVersion = '2.06'
 
     developerId = 'pulimet'
     developerName = 'Alexey Korolev'
