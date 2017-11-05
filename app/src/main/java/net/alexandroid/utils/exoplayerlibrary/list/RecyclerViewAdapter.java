@@ -14,12 +14,12 @@ import android.widget.TextView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.squareup.picasso.Picasso;
 
-import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerhelper.ExoAdListener;
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerHelper;
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerListener;
 import net.alexandroid.utils.exoplayerhelper.ExoThumbListener;
 import net.alexandroid.utils.exoplayerlibrary.R;
+import net.alexandroid.utils.mylog.MyLog;
 
 import java.util.ArrayList;
 

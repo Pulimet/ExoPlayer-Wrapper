@@ -9,12 +9,12 @@ import android.widget.ImageView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.squareup.picasso.Picasso;
 
-import net.alexandroid.shpref.MyLog;
 import net.alexandroid.utils.exoplayerhelper.ExoAdListener;
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerHelper;
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerListener;
 import net.alexandroid.utils.exoplayerhelper.ExoThumbListener;
 import net.alexandroid.utils.exoplayerlibrary.list.ListActivity;
+import net.alexandroid.utils.mylog.MyLog;
 
 public class MainActivity extends AppCompatActivity
         implements ExoPlayerListener, ExoAdListener, ExoThumbListener, View.OnClickListener {
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
                 .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
                 .setThumbImageViewEnabled(this)
-                .create();
+                .createAndPrepare();
     }
 
     private void setButtons() {
