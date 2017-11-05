@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
+import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -902,9 +903,29 @@ public class ExoPlayerHelper implements
             Log.e("ExoPlayerHelper", "errorString: " + errorString);
         }
 
+        if (isBehindLiveWindow(e)) {
+            createPlayer(true);
+            Log.e("ExoPlayerHelper", "isBehindLiveWindow is true");
+        }
+
+
         if (mExoPlayerListener != null) {
             mExoPlayerListener.onPlayerError(errorString);
         }
+    }
+
+    private static boolean isBehindLiveWindow(ExoPlaybackException e) {
+        if (e.type != ExoPlaybackException.TYPE_SOURCE) {
+            return false;
+        }
+        Throwable cause = e.getSourceException();
+        while (cause != null) {
+            if (cause instanceof BehindLiveWindowException) {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     @Override
