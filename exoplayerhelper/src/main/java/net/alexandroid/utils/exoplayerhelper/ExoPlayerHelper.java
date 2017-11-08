@@ -437,9 +437,9 @@ public class ExoPlayerHelper implements
     private void liveStreamCheck() {
         if(isLiveStreamSupportEnabled) {
             boolean isLiveStream = mPlayer.isCurrentWindowDynamic() || !mPlayer.isCurrentWindowSeekable();
-            Log.e("ZAQ", "isCurrentWindowDynamic: " + mPlayer.isCurrentWindowDynamic());
+/*            Log.e("ZAQ", "isCurrentWindowDynamic: " + mPlayer.isCurrentWindowDynamic());
             Log.e("ZAQ", "isCurrentWindowSeekable: " + mPlayer.isCurrentWindowDynamic());
-            Log.e("ZAQ", "isLiveStream: " + isLiveStream);
+            Log.e("ZAQ", "isLiveStream: " + isLiveStream);*/
             mBottomProgress.setVisibility(isLiveStream ? View.GONE : View.VISIBLE);
         }
     }
