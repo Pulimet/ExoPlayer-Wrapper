@@ -414,15 +414,25 @@ public class ExoPlayerHelper implements
 
     // Player events, internal handle
     private void onPlayerBuffering() {
+        liveStreamCheck();
         if (mPlayer.getPlayWhenReady()) {
             setProgressVisible(true);
         }
     }
 
     private void onPlayerPlaying() {
+        liveStreamCheck();
         setProgressVisible(false);
         removeThumbImageView();
         updateMutedStatus();
+    }
+
+    private void liveStreamCheck() {
+        boolean isLiveStream = mPlayer.isCurrentWindowDynamic() || !mPlayer.isCurrentWindowSeekable();
+        Log.e("ZAQ", "isCurrentWindowDynamic: " + mPlayer.isCurrentWindowDynamic());
+        Log.e("ZAQ", "isCurrentWindowSeekable: " + mPlayer.isCurrentWindowDynamic());
+        Log.e("ZAQ", "isLiveStream: " + isLiveStream);
+        mExoPlayerView.findViewById(R.id.bottom_progress).setVisibility(isLiveStream ? View.GONE : View.VISIBLE);
     }
 
     private void onPlayerPaused() {
