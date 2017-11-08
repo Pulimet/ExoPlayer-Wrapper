@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.google.android.exoplayer2.C;
@@ -107,6 +108,8 @@ public class ExoPlayerHelper implements
     private boolean isPlayerPrepared;
     private boolean isToPrepareOnResume = true;
     private boolean isThumbImageViewEnabled;
+    private boolean isLiveStreamSupportEnabled;
+    private LinearLayout mBottomProgress;
 
     private ExoPlayerHelper(Context context, SimpleExoPlayerView exoPlayerView) {
         if (context == null) {
@@ -124,6 +127,8 @@ public class ExoPlayerHelper implements
         mHandler = new Handler();
         mContext = context;
         mExoPlayerView = exoPlayerView;
+
+        mBottomProgress = mExoPlayerView.findViewById(R.id.bottom_progress);
 
         addProgressBar();
         setVideoClickable();
@@ -414,25 +419,29 @@ public class ExoPlayerHelper implements
 
     // Player events, internal handle
     private void onPlayerBuffering() {
-        liveStreamCheck();
         if (mPlayer.getPlayWhenReady()) {
             setProgressVisible(true);
         }
     }
 
     private void onPlayerPlaying() {
-        liveStreamCheck();
         setProgressVisible(false);
         removeThumbImageView();
         updateMutedStatus();
     }
 
+    private void onPlayerLoadingChanged(boolean isLoading) {
+        liveStreamCheck();
+    }
+
     private void liveStreamCheck() {
-        boolean isLiveStream = mPlayer.isCurrentWindowDynamic() || !mPlayer.isCurrentWindowSeekable();
-        Log.e("ZAQ", "isCurrentWindowDynamic: " + mPlayer.isCurrentWindowDynamic());
-        Log.e("ZAQ", "isCurrentWindowSeekable: " + mPlayer.isCurrentWindowDynamic());
-        Log.e("ZAQ", "isLiveStream: " + isLiveStream);
-        mExoPlayerView.findViewById(R.id.bottom_progress).setVisibility(isLiveStream ? View.GONE : View.VISIBLE);
+        if(isLiveStreamSupportEnabled) {
+            boolean isLiveStream = mPlayer.isCurrentWindowDynamic() || !mPlayer.isCurrentWindowSeekable();
+            Log.e("ZAQ", "isCurrentWindowDynamic: " + mPlayer.isCurrentWindowDynamic());
+            Log.e("ZAQ", "isCurrentWindowSeekable: " + mPlayer.isCurrentWindowDynamic());
+            Log.e("ZAQ", "isLiveStream: " + isLiveStream);
+            mBottomProgress.setVisibility(isLiveStream ? View.GONE : View.VISIBLE);
+        }
     }
 
     private void onPlayerPaused() {
@@ -519,6 +528,11 @@ public class ExoPlayerHelper implements
          */
         public Builder setToPrepareOnResume(boolean toPrepareOnResume) {
             mExoPlayerHelper.isToPrepareOnResume = toPrepareOnResume;
+            return this;
+        }
+
+        public Builder enableLiveStreamSupport() {
+            mExoPlayerHelper.isLiveStreamSupportEnabled = true;
             return this;
         }
 
@@ -834,6 +848,7 @@ public class ExoPlayerHelper implements
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
+        onPlayerLoadingChanged(isLoading);
         if (mExoPlayerListener != null) {
             mExoPlayerListener.onLoadingStatusChanged(isLoading, mPlayer.getBufferedPosition(), mPlayer.getBufferedPercentage());
         }
