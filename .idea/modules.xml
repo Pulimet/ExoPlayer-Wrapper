@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ExoPlayerLibrary.iml" filepath="$PROJECT_DIR$/ExoPlayerLibrary.iml" />
-      <module fileurl="file://C:\Users\alexey-k\AndroidStudioProjects\ExoPlayerLibrary\ExoPlayerLibraryWrapper.iml" filepath="C:\Users\alexey-k\AndroidStudioProjects\ExoPlayerLibrary\ExoPlayerLibraryWrapper.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/exoplayerhelper/exoplayerhelper.iml" filepath="$PROJECT_DIR$/exoplayerhelper/exoplayerhelper.iml" />
     </modules>

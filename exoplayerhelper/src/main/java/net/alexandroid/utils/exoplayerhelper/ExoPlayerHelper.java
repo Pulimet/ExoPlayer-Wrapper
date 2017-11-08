@@ -2,6 +2,7 @@ package net.alexandroid.utils.exoplayerhelper;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
@@ -108,6 +109,18 @@ public class ExoPlayerHelper implements
     private boolean isThumbImageViewEnabled;
 
     private ExoPlayerHelper(Context context, SimpleExoPlayerView exoPlayerView) {
+        if (context == null) {
+            throw new IllegalArgumentException("ExoPlayerHelper constructor - Context can't be null");
+        }
+
+        if (!(context instanceof Activity)) {
+            throw new IllegalArgumentException("ExoPlayerHelper constructor - Context must be an instance of Activity");
+        }
+
+        if (exoPlayerView == null) {
+            throw new IllegalArgumentException("ExoPlayerHelper constructor - SimpleExoPlayerView can't be null");
+        }
+
         mHandler = new Handler();
         mContext = context;
         mExoPlayerView = exoPlayerView;
