@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 
 import net.alexandroid.utils.exoplayerlibrary.MainActivity;
 import net.alexandroid.utils.exoplayerlibrary.R;
@@ -13,11 +14,15 @@ import java.util.Arrays;
 
 public class ListActivity extends AppCompatActivity {
 
+    private RecyclerViewAdapter mAdapter;
+    private Toolbar mToolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-
+        mToolbar = findViewById(R.id.toolBar);
+        setSupportActionBar(mToolbar);
         serRecyclerView();
     }
 
@@ -27,9 +32,9 @@ public class ListActivity extends AppCompatActivity {
 
         ArrayList<VideoItem> list = getVideoItemsList();
 
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(list);
-        getLifecycle().addObserver(adapter);
-        recyclerView.setAdapter(adapter);
+        mAdapter = new RecyclerViewAdapter(list, mToolbar);
+        getLifecycle().addObserver(mAdapter);
+        recyclerView.setAdapter(mAdapter);
     }
 
     @NonNull
@@ -50,5 +55,14 @@ public class ListActivity extends AppCompatActivity {
                 new VideoItem(MainActivity.SAMPLE_3,
                         MainActivity.THUMB_IMG_URL))
         );
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (mAdapter.onBack()) {
+            return;
+        }
+        super.onBackPressed();
     }
 }

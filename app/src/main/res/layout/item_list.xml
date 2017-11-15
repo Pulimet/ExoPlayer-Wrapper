@@ -6,13 +6,26 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:padding="8dp"
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:textColor="@android:color/white"
         android:textSize="14sp"
-        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnFullScreen"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/btnFullScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:background="?selectableItemBackground"
+        android:src="@drawable/ic_fullscreen_white"
+        app:layout_constraintBottom_toTopOf="@+id/exoPlayerView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <com.google.android.exoplayer2.ui.SimpleExoPlayerView

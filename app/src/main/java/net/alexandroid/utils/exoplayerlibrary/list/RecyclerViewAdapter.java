@@ -1,10 +1,14 @@
 package net.alexandroid.utils.exoplayerlibrary.list;
 
+import android.app.Activity;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
+import android.content.pm.ActivityInfo;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +27,11 @@ import net.alexandroid.utils.mylog.MyLog;
 
 import java.util.ArrayList;
 
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> implements LifecycleObserver {
+
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>
+        implements LifecycleObserver, View.OnClickListener {
 
     public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
 
@@ -32,11 +39,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private RecyclerView mRecyclerView;
     private boolean isFirstItemPlayed;
     private int currentSelected = 0;
-    private SliderLayoutManager mSliderLayoutManager;
+    private SliderLayoutManager mLayoutManager;
     private boolean mIsFirstItemSelected;
+    private boolean mIsInFullScreen;
+    private int mPositionInFullScreen;
+    private final Toolbar mToolbar;
 
-    public RecyclerViewAdapter(ArrayList<VideoItem> pList) {
+    public RecyclerViewAdapter(ArrayList<VideoItem> pList, Toolbar toolbar) {
         mList = pList;
+        mToolbar = toolbar;
     }
 
     @Override
@@ -44,7 +55,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         super.onAttachedToRecyclerView(recyclerView);
         MyLog.e("onAttachedToRecyclerView");
         mRecyclerView = recyclerView;
-        mSliderLayoutManager = ((SliderLayoutManager) mRecyclerView.getLayoutManager());
+        mLayoutManager = ((SliderLayoutManager) mRecyclerView.getLayoutManager());
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -172,7 +183,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 
         View view = inflater.inflate(R.layout.item_list, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, mLayoutManager);
     }
 
     @Override
@@ -182,11 +193,46 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.mThumbUrl = mList.get(position).getThumbUrl();
         holder.mPosition = position;
 
+        setClickListenerAndPositionAsTag(position, holder.mBtnFullScreen);
+
         if (!mIsFirstItemSelected) {
             mIsFirstItemSelected = true;
             holder.mView.setAlpha(1.0f);
         } else {
             holder.mView.setAlpha(0.2f);
+        }
+    }
+
+    private void setClickListenerAndPositionAsTag(int position, View... views) {
+        for (View view : views) {
+            view.setOnClickListener(this);
+            view.setTag(position);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        int position = (int) v.getTag();
+        switch (v.getId()) {
+            case R.id.btnFullScreen:
+                onBtnFullScreen(position);
+                break;
+        }
+    }
+
+    private void onBtnFullScreen(int position) {
+        ViewHolder holder = getViewHolder(position);
+
+        if (mIsInFullScreen) {
+            mIsInFullScreen = false;
+            mPositionInFullScreen = 0;
+            mToolbar.setVisibility(View.VISIBLE);
+            holder.changeToNormalScreen();
+        } else if (position == currentSelected) {
+            mIsInFullScreen = true;
+            mPositionInFullScreen = position;
+            mToolbar.setVisibility(View.GONE);
+            holder.changeToFullScreen();
         }
     }
 
@@ -229,16 +275,29 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public final View mView;
         public final TextView mTextView;
         public final SimpleExoPlayerView mExoPlayerView;
+        public final ImageView mBtnFullScreen;
         public ExoPlayerHelper mExoPlayerHelper;
         public String mThumbUrl;
         public String mVideoUrl;
         private int mPosition;
 
-        public ViewHolder(View itemView) {
+        private final SliderLayoutManager mLayouManager;
+        private int mItemHeight;
+        private int mItemWidth;
+        private int mItemTopMargin;
+        private int mItemBottomMargin;
+        private int mVideoHeight;
+        private int mVideoWidth;
+        private int mItemLeftMargin;
+        private int mItemRightMargin;
+
+        public ViewHolder(View itemView, SliderLayoutManager layouManager) {
             super(itemView);
             mView = itemView;
+            mLayouManager = layouManager;
             mTextView = mView.findViewById(R.id.textView);
             mExoPlayerView = mView.findViewById(R.id.exoPlayerView);
+            mBtnFullScreen = mView.findViewById(R.id.btnFullScreen);
         }
 
         public void createPlayer() {
@@ -253,6 +312,68 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     .setExoAdEventsListener(this)
                     .setThumbImageViewEnabled(this)
                     .create();
+        }
+
+        public void changeToFullScreen() {
+            mLayouManager.disableScroll();
+            RecyclerView.LayoutParams layoutParamsItem = (RecyclerView.LayoutParams) mView.getLayoutParams();
+            mItemHeight = layoutParamsItem.height;
+            mItemWidth = layoutParamsItem.width;
+            mItemTopMargin = layoutParamsItem.topMargin;
+            mItemBottomMargin = layoutParamsItem.bottomMargin;
+            mItemLeftMargin = layoutParamsItem.leftMargin;
+            mItemRightMargin = layoutParamsItem.rightMargin;
+
+            layoutParamsItem.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            layoutParamsItem.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            layoutParamsItem.topMargin = 0;
+            layoutParamsItem.bottomMargin = 0;
+            layoutParamsItem.leftMargin = 0;
+            layoutParamsItem.rightMargin = 0;
+            mView.setLayoutParams(layoutParamsItem);
+
+            ConstraintLayout.LayoutParams videoParams = (ConstraintLayout.LayoutParams) mExoPlayerView.getLayoutParams();
+            mVideoHeight = videoParams.height;
+            mVideoWidth = videoParams.width;
+            videoParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            videoParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            //videoParams.bottomToBottom = R.id.parent;
+            mExoPlayerView.setLayoutParams(videoParams);
+
+            mExoPlayerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mLayouManager.scrollToPosition(getAdapterPosition());
+                }
+            });
+
+            mTextView.setVisibility(View.GONE);
+
+            ((Activity) mTextView.getContext()).setRequestedOrientation(SCREEN_ORIENTATION_LANDSCAPE);
+
+        }
+
+        public void changeToNormalScreen() {
+            ((Activity) mTextView.getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+            mLayouManager.enableScroll();
+
+            RecyclerView.LayoutParams layoutParamsItem = (RecyclerView.LayoutParams) mView.getLayoutParams();
+            layoutParamsItem.height = mItemHeight;
+            layoutParamsItem.width = mItemWidth;
+            layoutParamsItem.topMargin = mItemTopMargin;
+            layoutParamsItem.bottomMargin = mItemBottomMargin;
+            layoutParamsItem.leftMargin = mItemLeftMargin;
+            layoutParamsItem.rightMargin = mItemRightMargin;
+            mView.setLayoutParams(layoutParamsItem);
+
+            ConstraintLayout.LayoutParams videoParams = (ConstraintLayout.LayoutParams) mExoPlayerView.getLayoutParams();
+            videoParams.height = mVideoHeight;
+            videoParams.width = mVideoWidth;
+            //videoParams.bottomToBottom = 0;
+            mExoPlayerView.setLayoutParams(videoParams);
+
+            mTextView.setVisibility(View.VISIBLE);
         }
 
         /**
@@ -438,6 +559,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         MyLog.e("onActivityDestroy");
         for (ExoPlayerHelper exoPlayerHelper : getAllExoPlayers()) {
             exoPlayerHelper.releaseAdsLoader();
+        }
+    }
+
+    public boolean onBack() {
+        if (mIsInFullScreen) {
+            onBtnFullScreen(mPositionInFullScreen);
+            return true;
+        } else {
+            return false;
         }
     }
 }
