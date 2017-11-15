@@ -3,7 +3,6 @@ package net.alexandroid.utils.exoplayerlibrary.list;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import net.alexandroid.utils.exoplayerlibrary.MainActivity;
@@ -24,7 +23,7 @@ public class ListActivity extends AppCompatActivity {
 
     private void serRecyclerView() {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new SliderLayoutManager(this));
 
         ArrayList<VideoItem> list = getVideoItemsList();
 

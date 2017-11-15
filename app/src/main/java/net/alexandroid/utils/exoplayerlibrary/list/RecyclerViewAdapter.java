@@ -30,9 +30,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private final ArrayList<VideoItem> mList;
     private RecyclerView mRecyclerView;
-    private int currentFirstVisible;
-
     private boolean isFirstItemPlayed;
+    private int currentSelected = 0;
+    private SliderLayoutManager mSliderLayoutManager;
+    private boolean mIsFirstItemSelected;
 
     public RecyclerViewAdapter(ArrayList<VideoItem> pList) {
         mList = pList;
@@ -43,39 +44,102 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         super.onAttachedToRecyclerView(recyclerView);
         MyLog.e("onAttachedToRecyclerView");
         mRecyclerView = recyclerView;
+        mSliderLayoutManager = ((SliderLayoutManager) mRecyclerView.getLayoutManager());
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                int firstVisible = ((LinearLayoutManager) recyclerView.getLayoutManager())
-                        .findFirstCompletelyVisibleItemPosition();
-                if (firstVisible != currentFirstVisible) {
-                    onFirstCompleteVisibleItemChange(firstVisible);
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                int firstVisible = layoutManager.findFirstVisibleItemPosition();
+                int lastVisible = layoutManager.findLastVisibleItemPosition();
+                int top = mRecyclerView.getChildAt(0).getTop();
+                int height = mRecyclerView.getChildAt(0).getHeight();
+
+                //MyLog.d("firstVisible: " + firstVisible + "  top: " + top + "  height: " + height);
+
+                if (top < height / 3 * (-1)) {
+                    firstVisible++;
+                }
+
+                if (lastVisible == getItemCount() - 1) {
+                    int lastViewTop = mRecyclerView.getChildAt(mRecyclerView.getChildCount() - 1).getBottom();
+                    int listHeight = mRecyclerView.getHeight();
+
+                    if (lastViewTop - listHeight < height / 4) {
+                        firstVisible++;
+                    }
+
+/*                    MyLog.d("getChildCount: " + mRecyclerView.getChildCount()
+                            + "  lastViewTop: " + lastViewTop
+                            + "  listHeight: " + listHeight
+                            + "  lastViewTop - listHeight: " + (lastViewTop - listHeight)
+                    );*/
+                }
+
+                if (firstVisible != currentSelected) {
+                    onSelectedItemChanged(firstVisible);
                 }
             }
         });
     }
 
-    @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView);
-        MyLog.e("onDetachedFromRecyclerView");
+
+    private void onSelectedItemChanged(int newSelected) {
+        MyLog.d("New first visible is: " + newSelected);
+
+        changeAlphaToVisible(currentSelected, false);
+        pausePlayerByPosition(currentSelected);
+        blockPlayerByPosition(currentSelected);
+        //---------
+        changeAlphaToVisible(newSelected, true);
+        prepareAndPlayByPosition(newSelected);
+        unBlockPlayerByPosition(newSelected);
+
+        currentSelected = newSelected;
     }
 
-    private void onFirstCompleteVisibleItemChange(int firstVisible) {
-        MyLog.d("New first visible is: " + firstVisible);
-        ExoPlayerHelper oldPlayer = getExoPlayerByPosition(currentFirstVisible);
-        if (oldPlayer != null) {
-            oldPlayer.playerPause();
+    private void unBlockPlayerByPosition(int newSelected) {
+        ViewHolder viewHolder = getViewHolder(newSelected);
+        if (viewHolder != null) {
+            viewHolder.mExoPlayerHelper.playerUnBlock();
         }
+    }
 
-        ExoPlayerHelper newPlayer = getExoPlayerByPosition(firstVisible);
+    private void prepareAndPlayByPosition(int position) {
+        ExoPlayerHelper newPlayer = getExoPlayerByPosition(position);
         if (newPlayer != null) {
             newPlayer.preparePlayer();
             newPlayer.playerPlay();
         }
+    }
 
-        currentFirstVisible = firstVisible;
+    private void blockPlayerByPosition(int position) {
+        ViewHolder viewHolder = getViewHolder(position);
+        if (viewHolder != null) {
+            viewHolder.mExoPlayerHelper.playerBlock();
+        }
+    }
+
+    private void pausePlayerByPosition(int position) {
+        ExoPlayerHelper oldPlayer = getExoPlayerByPosition(position);
+        if (oldPlayer != null) {
+            oldPlayer.playerPause();
+        }
+    }
+
+    private void changeAlphaToVisible(int position, boolean isVisible) {
+        ViewHolder viewHolder = getViewHolder(position);
+        if (viewHolder != null) {
+            viewHolder.mView.setAlpha(isVisible ? 1.0f : 0.2f);
+        }
+    }
+
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        MyLog.e("onDetachedFromRecyclerView");
     }
 
     private ExoPlayerHelper getExoPlayerByPosition(int firstVisible) {
@@ -106,6 +170,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public RecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
         View view = inflater.inflate(R.layout.item_list, parent, false);
         return new ViewHolder(view);
     }
@@ -116,6 +181,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         holder.mVideoUrl = mList.get(position).getVideoUrl();
         holder.mThumbUrl = mList.get(position).getThumbUrl();
         holder.mPosition = position;
+
+        if (!mIsFirstItemSelected) {
+            mIsFirstItemSelected = true;
+            holder.mView.setAlpha(1.0f);
+        } else {
+            holder.mView.setAlpha(0.2f);
+        }
     }
 
     @Override
@@ -124,10 +196,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         MyLog.i("Position: " + holder.mPosition + " - onViewAttachedToWindow");
         holder.createPlayer();
 
-        if (!isFirstItemPlayed && holder.mPosition == 0) {
+        if (!isFirstItemPlayed && holder.getAdapterPosition() == 0) {
             isFirstItemPlayed = true;
             holder.mExoPlayerHelper.preparePlayer();
             holder.mExoPlayerHelper.playerPlay();
+            holder.mExoPlayerHelper.playerUnBlock();
         }
     }
 
@@ -337,7 +410,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             exoPlayerHelper.onActivityResume();
         }
 
-        ExoPlayerHelper newPlayer = getExoPlayerByPosition(currentFirstVisible);
+        ExoPlayerHelper newPlayer = getExoPlayerByPosition(currentSelected);
         if (newPlayer != null) {
             newPlayer.preparePlayer();
             newPlayer.playerPlay();
