@@ -372,10 +372,14 @@ public class ExoPlayerHelper implements
                 mExoPlayerListener.onVideoTapped();
             }
             if (view.getId() == R.id.exo_play) {
-                mExoPlayerListener.onPlayBtnTap();
+                if (mExoPlayerListener.onPlayBtnTap()) {
+                    return true;
+                }
             }
             if (view.getId() == R.id.exo_pause) {
-                mExoPlayerListener.onPauseBtnTap();
+                if (mExoPlayerListener.onPauseBtnTap()) {
+                    return true;
+                }
             }
         }
 
@@ -435,7 +439,7 @@ public class ExoPlayerHelper implements
     }
 
     private void liveStreamCheck() {
-        if(isLiveStreamSupportEnabled) {
+        if (isLiveStreamSupportEnabled) {
             boolean isLiveStream = mPlayer.isCurrentWindowDynamic() || !mPlayer.isCurrentWindowSeekable();
 /*            Log.e("ZAQ", "isCurrentWindowDynamic: " + mPlayer.isCurrentWindowDynamic());
             Log.e("ZAQ", "isCurrentWindowSeekable: " + mPlayer.isCurrentWindowDynamic());

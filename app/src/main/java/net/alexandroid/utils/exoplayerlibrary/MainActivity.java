@@ -239,13 +239,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onPlayBtnTap() {
+    public boolean onPlayBtnTap() {
         MyLog.d("onPlayBtnTap");
+        return false;
     }
 
     @Override
-    public void onPauseBtnTap() {
+    public boolean onPauseBtnTap() {
         MyLog.d("onPauseBtnTap");
+        return true;
     }
 
     @Override

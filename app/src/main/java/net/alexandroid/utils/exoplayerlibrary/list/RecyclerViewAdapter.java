@@ -450,13 +450,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         @Override
-        public void onPlayBtnTap() {
+        public boolean onPlayBtnTap() {
             MyLog.d("Position: " + mPosition + " - onPlayBtnTap");
+            return false;
         }
 
         @Override
-        public void onPauseBtnTap() {
+        public boolean onPauseBtnTap() {
             MyLog.d("Position: " + mPosition + " - onPauseBtnTap");
+            return false;
         }
 
         @Override

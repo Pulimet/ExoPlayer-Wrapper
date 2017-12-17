@@ -28,7 +28,13 @@ public interface ExoPlayerListener {
 
     void onVideoTapped();
 
-    void onPlayBtnTap();
+    /**
+     * @return - true to handle the tap
+     */
+    boolean onPlayBtnTap();
 
-    void onPauseBtnTap();
+    /**
+     * @return - true to handle the tap
+     */
+    boolean onPauseBtnTap();
 }
