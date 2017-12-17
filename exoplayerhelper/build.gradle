@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/Pulimet/ExoPlayerLibraryWrapper'
     gitUrl = 'https://github.com/Pulimet/ExoPlayerLibraryWrapper.git'
 
-    libraryVersion = '2.07'
+    libraryVersion = '2.08'
 
     developerId = 'pulimet'
     developerName = 'Alexey Korolev'
@@ -25,13 +25,11 @@ ext {
 }
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
-
+    compileSdkVersion 27
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
     }
@@ -44,6 +42,8 @@ android {
     }
 
 }
+
+// TODO Update to 2.6.0 (without r) https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
 
 dependencies {
     compile 'com.google.android.exoplayer:exoplayer-core:r2.5.4'
