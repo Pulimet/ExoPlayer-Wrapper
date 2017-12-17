@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onPauseBtnTap() {
         MyLog.d("onPauseBtnTap");
-        return true;
+        return false;
     }
 
     @Override
