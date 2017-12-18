@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
-import com.google.android.exoplayer2.ext.ima.ImaAdsMediaSource;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -35,6 +34,7 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -67,7 +67,7 @@ public class ExoPlayerHelper implements
         ExoPlayerStatus,
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
-        ImaAdsMediaSource.AdsListener {
+        AdsMediaSource.AdsListener{
 
     public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
     public static final String PARAM_WINDOW = "PARAM_WINDOW";
@@ -238,7 +238,7 @@ public class ExoPlayerHelper implements
             mImaAdsLoader.addCallback(this);
         }
 
-        mMediaSource = new ImaAdsMediaSource(mMediaSource,
+        mMediaSource = new AdsMediaSource(mMediaSource,
                 mDataSourceFactory,
                 mImaAdsLoader,
                 mExoPlayerView.getOverlayFrameLayout(),
@@ -414,11 +414,11 @@ public class ExoPlayerHelper implements
     }
 
     private int getNextWindowIndex() {
-        return mPlayer.getCurrentTimeline().getNextWindowIndex(mPlayer.getCurrentWindowIndex(), mPlayer.getRepeatMode());
+        return mPlayer.getCurrentTimeline().getNextWindowIndex(mPlayer.getCurrentWindowIndex(), mPlayer.getRepeatMode(), false);
     }
 
     private int getPreviousWindowIndex() {
-        return mPlayer.getCurrentTimeline().getPreviousWindowIndex(mPlayer.getCurrentWindowIndex(), mPlayer.getRepeatMode());
+        return mPlayer.getCurrentTimeline().getPreviousWindowIndex(mPlayer.getCurrentWindowIndex(), mPlayer.getRepeatMode(), false);
     }
 
     // Player events, internal handle
@@ -837,10 +837,6 @@ public class ExoPlayerHelper implements
      * ExoPlayer Player.EventListener methods
      */
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
-    }
-
-    @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
         if (mExoPlayerListener != null) {
             mExoPlayerListener.onTracksChanged(
@@ -887,10 +883,6 @@ public class ExoPlayerHelper implements
                 Log.e("ExoPlayerHelper-zaq", "onPlayerStateChanged unknown: " + playbackState);
 
         }
-    }
-
-    @Override
-    public void onRepeatModeChanged(int repeatMode) {
     }
 
     @Override
@@ -971,11 +963,33 @@ public class ExoPlayerHelper implements
     }
 
     @Override
-    public void onPositionDiscontinuity() {
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+
+    }
+
+    @Override
+    public void onRepeatModeChanged(int repeatMode) {
+
+    }
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+    }
+
+    @Override
+    public void onPositionDiscontinuity(int reason) {
+
     }
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+    }
+
+    @Override
+    public void onSeekProcessed() {
+
     }
 
     /**
@@ -1026,6 +1040,7 @@ public class ExoPlayerHelper implements
         }
     }
 
+
     /**
      * ImaAdsMediaSource.AdsListener
      */
@@ -1051,5 +1066,7 @@ public class ExoPlayerHelper implements
             mExoAdListener.onAdTapped();
         }
     }
+
+
 
 }

@@ -43,13 +43,11 @@ android {
 
 }
 
-// TODO Update to 2.6.0 (without r) https://github.com/google/ExoPlayer/blob/release-v2/RELEASENOTES.md
-
 dependencies {
-    compile 'com.google.android.exoplayer:exoplayer-core:r2.5.4'
-    compile 'com.google.android.exoplayer:exoplayer-ui:r2.5.4'
-    compile 'com.google.android.exoplayer:exoplayer-hls:r2.5.4'
-    compile 'com.google.android.exoplayer:extension-ima:r2.5.4'
+    compile 'com.google.android.exoplayer:exoplayer-core:2.6.0'
+    compile 'com.google.android.exoplayer:exoplayer-ui:2.6.0'
+    compile 'com.google.android.exoplayer:exoplayer-hls:2.6.0'
+    compile 'com.google.android.exoplayer:extension-ima:2.6.0'
 }
 
 apply from: 'installv1.gradle'
