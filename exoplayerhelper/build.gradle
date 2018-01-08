@@ -47,6 +47,7 @@ dependencies {
     compile 'com.google.android.exoplayer:exoplayer-core:2.6.0'
     compile 'com.google.android.exoplayer:exoplayer-ui:2.6.0'
     compile 'com.google.android.exoplayer:exoplayer-hls:2.6.0'
+    compile 'com.google.android.exoplayer:exoplayer-dash:2.6.0'
     compile 'com.google.android.exoplayer:extension-ima:2.6.0'
 }
 

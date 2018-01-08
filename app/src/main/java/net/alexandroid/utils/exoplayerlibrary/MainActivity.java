@@ -19,6 +19,8 @@ import net.alexandroid.utils.mylog.MyLog;
 public class MainActivity extends AppCompatActivity
         implements ExoPlayerListener, ExoAdListener, ExoThumbListener, View.OnClickListener {
 
+    public static final String DASH_SAMPLE = "http://www.bok.net/dash/tears_of_steel/cleartext/stream.mpd";
+
     public static final String SAMPLE_1 = "http://cdn-fms.rbs.com.br/vod/hls_sample1_manifest.m3u8";
     public static final String SAMPLE_2 = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8";
     public static final String SAMPLE_3 = " http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8";
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity
                 .setUiControllersVisibility(false)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(false)
-                .setVideoUrls(SAMPLE_1)
+                .setVideoUrls(DASH_SAMPLE)
                 //.setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)

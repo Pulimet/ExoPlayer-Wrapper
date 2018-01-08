@@ -35,6 +35,8 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -67,7 +69,7 @@ public class ExoPlayerHelper implements
         ExoPlayerStatus,
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
-        AdsMediaSource.AdsListener{
+        AdsMediaSource.AdsListener {
 
     public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
     public static final String PARAM_WINDOW = "PARAM_WINDOW";
@@ -211,10 +213,10 @@ public class ExoPlayerHelper implements
         switch (type) {
 /*            case C.TYPE_SS:
                 return new SsMediaSource(uri, buildDataSourceFactory(false),
-                        new DefaultSsChunkSource.Factory(mDataSourceFactory), null, null);
+                        new DefaultSsChunkSource.Factory(mDataSourceFactory), null, null);*/
             case C.TYPE_DASH:
-                return new DashMediaSource(uri, buildDataSourceFactory(false),
-                        new DefaultDashChunkSource.Factory(mDataSourceFactory), null, null);*/
+                return new DashMediaSource(uri, mDataSourceFactory,
+                        new DefaultDashChunkSource.Factory(mDataSourceFactory), null, null);
             case C.TYPE_HLS:
                 return new HlsMediaSource(uri, mDataSourceFactory, null, null);
             case C.TYPE_OTHER:
@@ -1066,7 +1068,6 @@ public class ExoPlayerHelper implements
             mExoAdListener.onAdTapped();
         }
     }
-
 
 
 }
