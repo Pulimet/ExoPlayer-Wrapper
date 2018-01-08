@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -605,8 +606,11 @@ public class ExoPlayerHelper implements
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(mBandwidthMeter);
         mTrackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
 
-        //noinspection deprecation // TODO
-        mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, mTrackSelector, mLoadControl);
+
+        DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(mContext,
+                null,  DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF);
+
+        mPlayer = ExoPlayerFactory.newSimpleInstance(renderersFactory, mTrackSelector, mLoadControl);
 
         mExoPlayerView.setPlayer(mPlayer);
         mExoPlayerView.setControllerShowTimeoutMs(1500);

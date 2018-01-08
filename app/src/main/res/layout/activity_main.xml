@@ -180,5 +180,15 @@
         app:layout_constraintStart_toEndOf="@+id/btnPlay"
         app:layout_constraintTop_toBottomOf="@+id/btnPlay"/>
 
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btnOpenActivity"
+        android:layout_width="88dp"
+        android:layout_height="wrap_content"
+        android:text="@string/open_activity"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/colorPrimary"
+        app:layout_constraintStart_toStartOf="@+id/btnBlock"
+        app:layout_constraintTop_toBottomOf="@+id/btnBlock"/>
+
 
 </android.support.constraint.ConstraintLayout>

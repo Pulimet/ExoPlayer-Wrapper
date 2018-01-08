@@ -13,4 +13,5 @@
     <string name="create">Create</string>
     <string name="release">Release</string>
     <string name="open_video_action">Open video action</string>
+    <string name="open_activity">Open Activity</string>
 </resources>

@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnReset).setOnClickListener(this);
         findViewById(R.id.btnCreate).setOnClickListener(this);
         findViewById(R.id.btnRelease).setOnClickListener(this);
+        findViewById(R.id.btnOpenActivity).setOnClickListener(this);
     }
 
     @Override
@@ -122,6 +123,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnRelease:
                 mExoPlayerHelper.releasePlayer();
+                break;
+            case R.id.btnOpenActivity:
+                startActivity(new Intent(MainActivity.this, DashTestActivity.class));
                 break;
         }
     }
