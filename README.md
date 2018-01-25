@@ -39,9 +39,8 @@ And in your code:
 public class MainActivity extends AppCompatActivity 
         implements ExoPlayerListener, ExoAdListener{
         
-    public static final String SAMPLE_1 = "http://cdn-fms.rbs.com.br/vod/hls_sample1_manifest.m3u8";
-    public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
-    private SimpleExoPlayerView mExoPlayerView;
+    public static final String SAMPLE_1 = "http://...video.m3u8";
+    public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/...";
     private ExoPlayerHelper mExoPlayerHelper;
 ```
 ...
@@ -53,21 +52,25 @@ protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
-    mExoPlayerView = findViewById(R.id.exoPlayerView);
+        SimpleExoPlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
 
-    mExoPlayerHelper = new ExoPlayerHelper.Builder(this, mExoPlayerView)
-            .enableCache(10)
-            .addMuteButton(false, true)
-            .setUiControllersVisibility(true)
-            .setRepeatModeOn(true)
-            .setAutoPlayOn(true)
-            .setVideoUrls(SAMPLE_1)
-             .setTagUrl(TEST_TAG_URL)
-            .setExoPlayerEventsListener(this)
-            .setExoAdEventsListener(this)      
-            .setThumbImageViewEnabled()
-            .createAndPrepare();
+        mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
+                .addMuteButton(false, false)
+                .setUiControllersVisibility(false)
+                .setRepeatModeOn(true)
+                .setAutoPlayOn(false)
+                .setVideoUrls(SAMPLE_1)
+                .setTagUrl(TEST_TAG_URL)
+                .setExoPlayerEventsListener(this)
+                .setExoAdEventsListener(this)
+                .addSavedInstanceState(savedInstanceState)
+                .setThumbImageViewEnabled(this)
+                .enableLiveStreamSupport()
+                .createAndPrepare();
 }
+
+
+// Lifecycle events
 
 @Override
 protected void onStart() {
@@ -98,6 +101,93 @@ protected void onDestroy() {
     super.onDestroy();
     mExoPlayerHelper.onActivityDestroy();
 }
+
+// ExoPlayerListener methods
+
+@Override
+public void onThumbImageViewReady(ImageView imageView) {
+    Picasso.with(this)
+            .load(THUMB_IMG_URL)
+            .placeholder(R.drawable.place_holder)
+            .error(R.drawable.error_image)
+            .into(imageView);
+}
+
+@Override
+public void onLoadingStatusChanged(boolean isLoading, long bufferedPosition, int bufferedPercentage) {}
+
+@Override
+public void onPlayerPlaying(int currentWindowIndex) {}
+
+@Override
+public void onPlayerPaused(int currentWindowIndex) {}
+
+@Override
+public void onPlayerBuffering(int currentWindowIndex) {}
+
+@Override
+public void onPlayerStateEnded(int currentWindowIndex) {}
+
+@Override
+public void onPlayerStateIdle(int currentWindowIndex) {}
+
+@Override
+public void onPlayerError(String errorString) {}
+
+@Override
+public void createExoPlayerCalled(boolean isToPrepare) {}
+
+@Override
+public void releaseExoPlayerCalled() {}
+
+@Override
+public void onVideoResumeDataLoaded(int window, long position, boolean isResumeWhenReady) {}
+
+@Override
+public void onVideoTapped() {}
+
+@Override
+public boolean onPlayBtnTap() {
+    return false;
+}
+
+@Override
+public boolean onPauseBtnTap() {
+    return false;
+}
+
+@Override
+public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {}
+
+@Override
+public void onMuteStateChanged(boolean isMuted) {}
+
+
+// ExoAdListener methods
+
+@Override
+public void onAdPlay() {}
+
+@Override
+public void onAdPause() {}
+
+@Override
+public void onAdResume() {}
+
+@Override
+public void onAdEnded() {}
+
+@Override
+public void onAdError() {}
+
+@Override
+public void onAdLoadError() {}
+
+@Override
+public void onAdClicked() {}
+
+@Override
+public void onAdTapped() {}
 
 ```
 

@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity
     public static final String THUMB_IMG_URL = "https://i0.wp.com/androidlibs.net/alexandroid/wp-content/uploads/2013/11/ava.jpg";
 
 
-    private SimpleExoPlayerView mExoPlayerView;
     private ExoPlayerHelper mExoPlayerHelper;
 
     private void log() {
@@ -49,16 +48,15 @@ public class MainActivity extends AppCompatActivity
 
         setButtons();
 
-        mExoPlayerView = findViewById(R.id.exoPlayerView);
+        SimpleExoPlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
 
-        mExoPlayerHelper = new ExoPlayerHelper.Builder(this, mExoPlayerView)
-                //.enableCache(10)
+        mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
                 .addMuteButton(false, false)
                 .setUiControllersVisibility(false)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(false)
                 .setVideoUrls(SAMPLE_1)
-                //.setTagUrl(TEST_TAG_URL)
+                .setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)
                 .addSavedInstanceState(savedInstanceState)
