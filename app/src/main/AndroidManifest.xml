@@ -24,6 +24,8 @@
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait">
         </activity>
+        <activity android:name=".SimplePlayerActivity">
+        </activity>
     </application>
 
 </manifest>

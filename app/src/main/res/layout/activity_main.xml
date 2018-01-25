@@ -36,6 +36,20 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btnOpenSimple"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="@string/simple_demo"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnOpenList"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <android.support.v7.widget.AppCompatButton
         android:id="@+id/btnUpdateUrls"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

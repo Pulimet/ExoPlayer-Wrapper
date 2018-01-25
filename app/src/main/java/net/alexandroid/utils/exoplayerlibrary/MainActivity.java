@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnReset).setOnClickListener(this);
         findViewById(R.id.btnCreate).setOnClickListener(this);
         findViewById(R.id.btnRelease).setOnClickListener(this);
+        findViewById(R.id.btnOpenSimple).setOnClickListener(this);
     }
 
     @Override
@@ -118,6 +119,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnRelease:
                 mExoPlayerHelper.releasePlayer();
+                break;
+            case R.id.btnOpenSimple:
+                startActivity(new Intent(MainActivity.this, SimplePlayerActivity.class));
                 break;
         }
     }

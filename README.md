@@ -73,6 +73,12 @@ protected void onCreate(Bundle savedInstanceState) {
 // Lifecycle events
 
 @Override
+protected void onSaveInstanceState(Bundle outState) {
+    mExoPlayerHelper.onSaveInstanceState(outState);
+    super.onSaveInstanceState(outState);
+}
+
+@Override
 protected void onStart() {
     super.onStart();
     mExoPlayerHelper.onActivityStart();
