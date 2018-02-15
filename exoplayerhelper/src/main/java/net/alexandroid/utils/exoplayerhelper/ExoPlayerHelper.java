@@ -4,7 +4,6 @@ package net.alexandroid.utils.exoplayerhelper;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -120,6 +119,7 @@ public class ExoPlayerHelper implements
     private PreviewTimeBar mPreviewTimeBar;
     private PreviewTimeBarLayout mPreviewTimeBarLayout;
     private ImageView mImageView;
+    private SurfaceView mSurfaceView;
 
     private ExoPlayerHelper(Context context, SimpleExoPlayerView exoPlayerView) {
         if (context == null) {
@@ -190,14 +190,14 @@ public class ExoPlayerHelper implements
             @Override
             public void loadPreview(long currentPosition, long max) {
                 Log.d("ZAQ", "loadPreview");
-                SurfaceView surfaceView = (SurfaceView) mExoPlayerView.getVideoSurfaceView();
+/*                SurfaceView surfaceView = (SurfaceView) mExoPlayerView.getVideoSurfaceView();
                 surfaceView.setDrawingCacheEnabled(true);
                 surfaceView.buildDrawingCache(true);
                 final Bitmap bitmap = Bitmap.createBitmap(surfaceView.getDrawingCache());
                 surfaceView.setDrawingCacheEnabled(false);
-                surfaceView.destroyDrawingCache();
-
-                mImageView.setImageBitmap(bitmap);
+                surfaceView.destroyDrawingCache();*/
+/*                TextureView textureView = (TextureView) mExoPlayerView.getVideoSurfaceView();
+                mImageView.setImageBitmap(textureView.getBitmap());*/
             }
         });
 
