@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/pulimet/utils/exoplayerhelper/images/download.svg) ](https://bintray.com/pulimet/utils/exoplayerhelper/_latestVersion)      [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)  
+[ ![Download](https://api.bintray.com/packages/pulimet/utils/exoplayerhelper/images/download.svg) ](https://bintray.com/pulimet/utils/exoplayerhelper/_latestVersion)      [![License](https://img.shields.io/badge/license-Apache%202-green.svg)](https://www.apache.org/licenses/LICENSE-2.0) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-ExoPlayer%20wrapper-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/6717)
 
 <img align="right" width="200" src="https://raw.githubusercontent.com/Pulimet/ExoPlayer-Wrapper/master/art/1.jpg">
 
