@@ -191,7 +191,11 @@ public class ExoPlayerHelper implements
             public void loadPreview(long currentPosition, long max) {
                 Log.d("ZAQ", "loadPreview");
                 SurfaceView surfaceView = (SurfaceView) mExoPlayerView.getVideoSurfaceView();
-                Bitmap bitmap = surfaceView.getDrawingCache();
+                surfaceView.setDrawingCacheEnabled(true);
+                surfaceView.buildDrawingCache(true);
+                final Bitmap bitmap = Bitmap.createBitmap(surfaceView.getDrawingCache());
+                surfaceView.setDrawingCacheEnabled(false);
+                surfaceView.destroyDrawingCache();
                 mImageView.setImageBitmap(bitmap);
             }
         });
