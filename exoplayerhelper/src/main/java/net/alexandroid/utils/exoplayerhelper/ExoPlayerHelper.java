@@ -196,6 +196,7 @@ public class ExoPlayerHelper implements
                 final Bitmap bitmap = Bitmap.createBitmap(surfaceView.getDrawingCache());
                 surfaceView.setDrawingCacheEnabled(false);
                 surfaceView.destroyDrawingCache();
+
                 mImageView.setImageBitmap(bitmap);
             }
         });
