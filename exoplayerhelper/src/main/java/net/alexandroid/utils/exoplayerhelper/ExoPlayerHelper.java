@@ -21,12 +21,12 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -67,7 +68,7 @@ public class ExoPlayerHelper implements
         ExoPlayerStatus,
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
-        AdsMediaSource.AdsListener{
+        AdsMediaSource.EventListener {
 
     public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
     public static final String PARAM_WINDOW = "PARAM_WINDOW";
@@ -176,9 +177,14 @@ public class ExoPlayerHelper implements
 
         // LoadControl that controls when the MediaSource buffers more media, and how much media is buffered.
         // LoadControl is injected when the player is created.
-        mLoadControl = (new DefaultLoadControl(
+        mLoadControl = new DefaultLoadControl(
                 new DefaultAllocator(true, 2 * 1024 * 1024),
-                2000, 5000, 5000, 5000));
+                2000,
+                5000,
+                5000,
+                5000,
+                5000,
+                true);
     }
 
     // Player creation and release
@@ -216,9 +222,11 @@ public class ExoPlayerHelper implements
                 return new DashMediaSource(uri, buildDataSourceFactory(false),
                         new DefaultDashChunkSource.Factory(mDataSourceFactory), null, null);*/
             case C.TYPE_HLS:
-                return new HlsMediaSource(uri, mDataSourceFactory, null, null);
+                return new HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
+                //return new HlsMediaSource(uri, mDataSourceFactory, null, null);
             case C.TYPE_OTHER:
-                return new ExtractorMediaSource(uri, mDataSourceFactory, new DefaultExtractorsFactory(), null, null);
+                return new ExtractorMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
+                //return new ExtractorMediaSource(uri, mDataSourceFactory, new DefaultExtractorsFactory(), null, null);
             default: {
                 throw new IllegalStateException("Unsupported type: " + type);
             }
@@ -242,8 +250,7 @@ public class ExoPlayerHelper implements
                 mDataSourceFactory,
                 mImaAdsLoader,
                 mExoPlayerView.getOverlayFrameLayout(),
-                mHandler,
-                this);
+                mHandler,this);
     }
 
     private void setProgressVisible(boolean visible) {
@@ -1042,7 +1049,7 @@ public class ExoPlayerHelper implements
 
 
     /**
-     * ImaAdsMediaSource.AdsListener
+     * AdsMediaSource.EventListener
      */
     @Override
     public void onAdLoadError(IOException error) {
@@ -1067,6 +1074,33 @@ public class ExoPlayerHelper implements
         }
     }
 
+    @Override
+    public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
 
+    }
 
+    @Override
+    public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+
+    }
+
+    @Override
+    public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+
+    }
+
+    @Override
+    public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
+
+    }
+
+    @Override
+    public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
+
+    }
+
+    @Override
+    public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaTimeMs) {
+
+    }
 }
