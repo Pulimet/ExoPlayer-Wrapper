@@ -45,6 +45,7 @@ android {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.aar'], dir: 'libs')
     compile 'com.google.android.exoplayer:exoplayer-core:2.6.1'
     compile 'com.google.android.exoplayer:exoplayer-ui:2.6.1'
     compile 'com.google.android.exoplayer:exoplayer-hls:2.6.1'
