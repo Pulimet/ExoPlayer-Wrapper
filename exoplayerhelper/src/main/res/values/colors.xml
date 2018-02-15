@@ -5,4 +5,5 @@
     <color name="unplayedColor">#77FFFFFF</color>
     <color name="bufferedColor">#FFFFFFFF</color>
     <color name="progressBarColor">#303F9F</color>
+    <color name="colorPrimaryDarkSeek">#F44336</color>
 </resources>

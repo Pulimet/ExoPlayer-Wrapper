@@ -4,6 +4,7 @@ package net.alexandroid.utils.exoplayerhelper;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,12 +12,17 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.github.rubensousa.previewseekbar.base.PreviewLoader;
+import com.github.rubensousa.previewseekbar.base.PreviewView;
+import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBar;
+import com.github.rubensousa.previewseekbar.exoplayer.PreviewTimeBarLayout;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -111,6 +117,9 @@ public class ExoPlayerHelper implements
     private boolean isThumbImageViewEnabled;
     private boolean isLiveStreamSupportEnabled;
     private LinearLayout mBottomProgress;
+    private PreviewTimeBar mPreviewTimeBar;
+    private PreviewTimeBarLayout mPreviewTimeBarLayout;
+    private ImageView mImageView;
 
     private ExoPlayerHelper(Context context, SimpleExoPlayerView exoPlayerView) {
         if (context == null) {
@@ -139,8 +148,8 @@ public class ExoPlayerHelper implements
     }
 
     private void addProgressBar() {
-        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
-        mProgressBar = frameLayout.findViewById(R.id.progressBar);
+      /*    FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+      mProgressBar = frameLayout.findViewById(R.id.progressBar);
         if (mProgressBar != null) {
             return;
         }
@@ -153,7 +162,41 @@ public class ExoPlayerHelper implements
         mProgressBar.setLayoutParams(params);
         mProgressBar.setIndeterminate(true);
         mProgressBar.setVisibility(View.GONE);
-        frameLayout.addView(mProgressBar);
+        frameLayout.addView(mProgressBar);*/
+
+        mPreviewTimeBar = mExoPlayerView.findViewById(R.id.exo_progress);
+        mPreviewTimeBarLayout = mExoPlayerView.findViewById(R.id.previewSeekBarLayout);
+        mImageView = mExoPlayerView.findViewById(R.id.imageView);
+        mPreviewTimeBar.addOnPreviewChangeListener(new PreviewView.OnPreviewChangeListener() {
+            @Override
+            public void onStartPreview(PreviewView previewView) {
+                Log.d("ZAQ", "onStartPreview");
+            }
+
+            @Override
+            public void onStopPreview(PreviewView previewView) {
+                Log.d("ZAQ", "onStopPreview");
+            }
+
+            @Override
+            public void onPreview(PreviewView previewView, int progress, boolean fromUser) {
+                Log.d("ZAQ", "onPreview");
+            }
+        });
+/*        ExoPlayerManager exoPlayerManager = new ExoPlayerManager(playerView, mPreviewTimeBarLayout,
+                (ImageView) mExoPlayerView.findViewById(R.id.imageView), getString(R.string.url_thumbnails));
+        exoPlayerManager.play(Uri.parse(getString(R.string.url_dash)));*/
+        mPreviewTimeBarLayout.setPreviewLoader(new PreviewLoader() {
+            @Override
+            public void loadPreview(long currentPosition, long max) {
+                Log.d("ZAQ", "loadPreview");
+                SurfaceView surfaceView = (SurfaceView) mExoPlayerView.getVideoSurfaceView();
+                Bitmap bitmap = surfaceView.getDrawingCache();
+                mImageView.setImageBitmap(bitmap);
+            }
+        });
+
+
     }
 
     private void setVideoClickable() {
@@ -223,10 +266,10 @@ public class ExoPlayerHelper implements
                         new DefaultDashChunkSource.Factory(mDataSourceFactory), null, null);*/
             case C.TYPE_HLS:
                 return new HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
-                //return new HlsMediaSource(uri, mDataSourceFactory, null, null);
+            //return new HlsMediaSource(uri, mDataSourceFactory, null, null);
             case C.TYPE_OTHER:
                 return new ExtractorMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
-                //return new ExtractorMediaSource(uri, mDataSourceFactory, new DefaultExtractorsFactory(), null, null);
+            //return new ExtractorMediaSource(uri, mDataSourceFactory, new DefaultExtractorsFactory(), null, null);
             default: {
                 throw new IllegalStateException("Unsupported type: " + type);
             }
@@ -250,7 +293,7 @@ public class ExoPlayerHelper implements
                 mDataSourceFactory,
                 mImaAdsLoader,
                 mExoPlayerView.getOverlayFrameLayout(),
-                mHandler,this);
+                mHandler, this);
     }
 
     private void setProgressVisible(boolean visible) {

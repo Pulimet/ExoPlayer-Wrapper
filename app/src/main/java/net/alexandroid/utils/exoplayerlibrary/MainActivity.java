@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
                 .addMuteButton(false, false)
-                .setUiControllersVisibility(false)
+                .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(false)
                 .setVideoUrls(SAMPLE_1)
