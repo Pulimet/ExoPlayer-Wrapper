@@ -152,6 +152,8 @@ public class ExoPlayerHelper implements
         params.gravity = Gravity.CENTER;
         mProgressBar.setLayoutParams(params);
         mProgressBar.setIndeterminate(true);
+        mProgressBar.getIndeterminateDrawable().setColorFilter(
+                Color.RED, android.graphics.PorterDuff.Mode.SRC_IN);
         mProgressBar.setVisibility(View.GONE);
         frameLayout.addView(mProgressBar);
     }
