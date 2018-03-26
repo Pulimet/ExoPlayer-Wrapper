@@ -970,11 +970,6 @@ public class ExoPlayerHelper implements
     }
 
     @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest) {
-
-    }
-
-    @Override
     public void onRepeatModeChanged(int repeatMode) {
 
     }
@@ -996,6 +991,11 @@ public class ExoPlayerHelper implements
 
     @Override
     public void onSeekProcessed() {
+
+    }
+
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
 
     }
 
@@ -1046,7 +1046,6 @@ public class ExoPlayerHelper implements
             mExoAdListener.onAdError();
         }
     }
-
 
     /**
      * AdsMediaSource.EventListener
@@ -1101,6 +1100,11 @@ public class ExoPlayerHelper implements
 
     @Override
     public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaTimeMs) {
+
+    }
+
+    @Override
+    public void onInternalAdLoadError(RuntimeException error) {
 
     }
 }

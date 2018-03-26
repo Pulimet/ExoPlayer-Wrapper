@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onThumbImageViewReady(ImageView imageView) {
-        Picasso.with(this)
+        Picasso.get()
                 .load(THUMB_IMG_URL)
                 //.fit()
                 .placeholder(R.drawable.place_holder)

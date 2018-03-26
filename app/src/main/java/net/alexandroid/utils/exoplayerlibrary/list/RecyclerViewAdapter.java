@@ -382,7 +382,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public void onThumbImageViewReady(ImageView imageView) {
-            Picasso.with(mView.getContext())
+            Picasso.get()
                     .load(mThumbUrl)
                     .placeholder(R.drawable.place_holder)
                     .error(R.drawable.error_image)
