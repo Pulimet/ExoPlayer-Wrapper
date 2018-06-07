@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
                 .addMuteButton(false, false)
-                .setUiControllersVisibility(false)
+                .setUiControllersVisibility(true)
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(false)
                 .setVideoUrls(SAMPLE_1)
@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity
                 .addSavedInstanceState(savedInstanceState)
                 .setThumbImageViewEnabled(this)
                 .enableLiveStreamSupport()
+                .addProgressBarWithColor(getResources().getColor(R.color.colorAccent))
                 .createAndPrepare();
     }
 

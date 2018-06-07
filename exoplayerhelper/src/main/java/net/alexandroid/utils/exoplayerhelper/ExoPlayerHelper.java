@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -44,7 +43,6 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -111,6 +109,7 @@ public class ExoPlayerHelper implements
     private boolean isThumbImageViewEnabled;
     private boolean isLiveStreamSupportEnabled;
     private LinearLayout mBottomProgress;
+    private int progressBarColor;
 
     private ExoPlayerHelper(Context context, SimpleExoPlayerView exoPlayerView) {
         if (context == null) {
@@ -131,14 +130,12 @@ public class ExoPlayerHelper implements
 
         mBottomProgress = mExoPlayerView.findViewById(R.id.bottom_progress);
 
-        addProgressBar();
         setVideoClickable();
         setControllerListener();
-
         init();
     }
 
-    private void addProgressBar() {
+    private void addProgressBar(int color) {
         FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
         mProgressBar = frameLayout.findViewById(R.id.progressBar);
         if (mProgressBar != null) {
@@ -153,7 +150,8 @@ public class ExoPlayerHelper implements
         mProgressBar.setLayoutParams(params);
         mProgressBar.setIndeterminate(true);
         mProgressBar.getIndeterminateDrawable().setColorFilter(
-                Color.RED, android.graphics.PorterDuff.Mode.SRC_IN);
+                color == 0 ? Color.RED : color,
+                android.graphics.PorterDuff.Mode.SRC_IN);
         mProgressBar.setVisibility(View.GONE);
         frameLayout.addView(mProgressBar);
     }
@@ -181,7 +179,7 @@ public class ExoPlayerHelper implements
         // LoadControl is injected when the player is created.
         mLoadControl = new DefaultLoadControl(
                 new DefaultAllocator(true, 2 * 1024 * 1024),
-                2000,
+                5000,
                 5000,
                 5000,
                 5000,
@@ -342,6 +340,11 @@ public class ExoPlayerHelper implements
                 new CacheDataSinkFactory(simpleCache, 2 * 1024 * 1024),
                 CacheDataSource.FLAG_BLOCK_ON_CACHE | CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR,
                 new CacheDataSource.EventListener() {
+                    @Override
+                    public void onCacheIgnored(int reason) {
+                        Log.d("ZAQ", "onCacheIgnored");
+                    }
+
                     @Override
                     public void onCachedBytesRead(long cacheSizeBytes, long cachedBytesRead) {
                         Log.d("ZAQ", "onCachedBytesRead , cacheSizeBytes: " + cacheSizeBytes + "   cachedBytesRead: " + cachedBytesRead);
@@ -549,6 +552,13 @@ public class ExoPlayerHelper implements
             return this;
         }
 
+
+
+        public Builder addProgressBarWithColor(int colorAccent) {
+            mExoPlayerHelper.addProgressBar(colorAccent);
+            return this;
+        }
+
         /**
          * Probably you will feel a need to use that method when you need to show pre-roll ad
          * and you not interested in auto play. That method allows to separate player creation
@@ -639,17 +649,19 @@ public class ExoPlayerHelper implements
         }
         isPlayerPrepared = true;
 
+        mPlayer.prepare(mMediaSource);
+
         if (mResumeWindow != C.INDEX_UNSET && !mPlayer.isPlayingAd()) {
             mPlayer.setPlayWhenReady(isResumePlayWhenReady);
             mPlayer.seekTo(mResumeWindow, mResumePosition + 100);
             if (mExoPlayerListener != null) {
                 mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
             }
-            mExoPlayerView.postDelayed(checkFreeze, 1000);
+            //mExoPlayerView.postDelayed(checkFreeze, 1000);
         }
-        mPlayer.prepare(mMediaSource);
     }
 
+    // It looks like the issue was solved and no need for this Runnable
     private Runnable checkFreeze = new Runnable() {
         @Override
         public void run() {
@@ -1018,6 +1030,11 @@ public class ExoPlayerHelper implements
     }
 
     @Override
+    public void onLoaded() {
+
+    }
+
+    @Override
     public void onPause() {
         if (mExoAdListener != null) {
             mExoAdListener.onAdPause();
@@ -1073,36 +1090,6 @@ public class ExoPlayerHelper implements
         if (mExoAdListener != null) {
             mExoAdListener.onAdTapped();
         }
-    }
-
-    @Override
-    public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
-
-    }
-
-    @Override
-    public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-
-    }
-
-    @Override
-    public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-
-    }
-
-    @Override
-    public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
-
-    }
-
-    @Override
-    public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
-
-    }
-
-    @Override
-    public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaTimeMs) {
-
     }
 
     @Override

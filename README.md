@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compile 'net.alexandroid.utils:exoplayerhelper:2.13'
+    compile 'net.alexandroid.utils:exoplayerhelper:2.14'
 }
 ```
 
@@ -66,6 +66,7 @@ protected void onCreate(Bundle savedInstanceState) {
                 .addSavedInstanceState(savedInstanceState)
                 .setThumbImageViewEnabled(this)
                 .enableLiveStreamSupport()
+                .addProgressBarWithColor(getResources().getColor(R.color.colorAccent))
                 .createAndPrepare();
 }
 
@@ -118,82 +119,104 @@ public void onThumbImageViewReady(ImageView imageView) {
             .error(R.drawable.error_image)
             .into(imageView);
 }
-
 @Override
-public void onLoadingStatusChanged(boolean isLoading, long bufferedPosition, int bufferedPercentage) {}
-
+public void onLoadingStatusChanged(boolean isLoading, long bufferedPosition, int bufferedPercentage) {
+    MyLog.w("onLoadingStatusChanged, isLoading: " + isLoading +
+            "   Buffered Position: " + bufferedPosition +
+            "   Buffered Percentage: " + bufferedPercentage);
+}
 @Override
-public void onPlayerPlaying(int currentWindowIndex) {}
-
+public void onPlayerPlaying(int currentWindowIndex) {
+    MyLog.d("onPlayerPlaying, currentWindowIndex: " + currentWindowIndex);
+}
 @Override
-public void onPlayerPaused(int currentWindowIndex) {}
-
+public void onPlayerPaused(int currentWindowIndex) {
+    MyLog.d("onPlayerPaused, currentWindowIndex: " + currentWindowIndex);
+}
 @Override
-public void onPlayerBuffering(int currentWindowIndex) {}
-
+public void onPlayerBuffering(int currentWindowIndex) {
+    MyLog.d("onPlayerBuffering, currentWindowIndex: " + currentWindowIndex);
+}
 @Override
-public void onPlayerStateEnded(int currentWindowIndex) {}
-
+public void onPlayerStateEnded(int currentWindowIndex) {
+    MyLog.d("onPlayerStateEnded, currentWindowIndex: " + currentWindowIndex);
+}
 @Override
-public void onPlayerStateIdle(int currentWindowIndex) {}
-
+public void onPlayerStateIdle(int currentWindowIndex) {
+    MyLog.d("onPlayerStateIdle, currentWindowIndex: " + currentWindowIndex);
+}
 @Override
-public void onPlayerError(String errorString) {}
-
+public void onPlayerError(String errorString) {
+    MyLog.e("onPlayerError: " + errorString);
+}
 @Override
-public void createExoPlayerCalled(boolean isToPrepare) {}
-
+public void createExoPlayerCalled(boolean isToPrepare) {
+    MyLog.d("createExoPlayerCalled, isToPrepare: " + isToPrepare);
+}
 @Override
-public void releaseExoPlayerCalled() {}
-
+public void releaseExoPlayerCalled() {
+    MyLog.d("releaseExoPlayerCalled");
+}
 @Override
-public void onVideoResumeDataLoaded(int window, long position, boolean isResumeWhenReady) {}
-
+public void onVideoResumeDataLoaded(int window, long position, boolean isResumeWhenReady) {
+    MyLog.d("window: " + window + "  position: " + position + " autoPlay: " + isResumeWhenReady);
+}
 @Override
-public void onVideoTapped() {}
-
+public void onVideoTapped() {
+    MyLog.d("onVideoTapped");
+}
 @Override
 public boolean onPlayBtnTap() {
+    MyLog.d("onPlayBtnTap");
     return false;
 }
-
 @Override
 public boolean onPauseBtnTap() {
+    MyLog.d("onPauseBtnTap");
     return false;
 }
-
 @Override
-public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {}
-
+public void onTracksChanged(int currentWindowIndex, int nextWindowIndex, boolean isPlayBackStateReady) {
+    MyLog.d("currentWindowIndex: " + currentWindowIndex + "  nextWindowIndex: " + nextWindowIndex + " isPlayBackStateReady: " + isPlayBackStateReady);
+}
 @Override
-public void onMuteStateChanged(boolean isMuted) {}
-
-
-// ExoAdListener methods
-
+public void onMuteStateChanged(boolean isMuted) {
+}
+/**
+ * ExoAdListener
+ */
 @Override
-public void onAdPlay() {}
-
+public void onAdPlay() {
+    MyLog.d("onAdPlay");
+}
 @Override
-public void onAdPause() {}
-
+public void onAdPause() {
+    MyLog.d("onAdPause");
+}
 @Override
-public void onAdResume() {}
-
+public void onAdResume() {
+    MyLog.d("onAdResume");
+}
 @Override
-public void onAdEnded() {}
-
+public void onAdEnded() {
+    MyLog.d("onAdEnded");
+}
 @Override
-public void onAdError() {}
-
+public void onAdError() {
+    MyLog.d("onAdError");
+}
 @Override
-public void onAdLoadError() {}
-
+public void onAdLoadError() {
+    MyLog.d("onAdLoadError");
+}
 @Override
-public void onAdClicked() {}
-
+public void onAdClicked() {
+    MyLog.d("onAdClicked");
+}
 @Override
-public void onAdTapped() {}
+public void onAdTapped() {
+    MyLog.d("onAdTapped");
+}
 
 ```
 
