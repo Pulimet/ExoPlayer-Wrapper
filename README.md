@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compile 'net.alexandroid.utils:exoplayerhelper:2.14'
+    compile 'net.alexandroid.utils:exoplayerhelper:2.15'
 }
 ```
 
@@ -67,6 +67,8 @@ protected void onCreate(Bundle savedInstanceState) {
                 .setThumbImageViewEnabled(this)
                 .enableLiveStreamSupport()
                 .addProgressBarWithColor(getResources().getColor(R.color.colorAccent))
+                .setFullScreenBtnVisible()
+                .setMuteBtnVisible()
                 .createAndPrepare();
 }
 

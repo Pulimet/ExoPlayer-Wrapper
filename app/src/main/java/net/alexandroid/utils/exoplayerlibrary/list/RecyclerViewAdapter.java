@@ -5,6 +5,7 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -311,6 +312,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                     .setExoPlayerEventsListener(this)
                     .setExoAdEventsListener(this)
                     .setThumbImageViewEnabled(this)
+                    .addProgressBarWithColor(Color.RED)
                     .create();
         }
 
@@ -459,6 +461,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public boolean onPauseBtnTap() {
             MyLog.d("Position: " + mPosition + " - onPauseBtnTap");
             return false;
+        }
+
+        @Override
+        public void onFullScreenBtnTap() {
+
         }
 
         @Override

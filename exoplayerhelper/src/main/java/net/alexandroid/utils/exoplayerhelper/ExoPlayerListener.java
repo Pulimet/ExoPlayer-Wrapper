@@ -37,4 +37,6 @@ public interface ExoPlayerListener {
      * @return - true to handle the tap
      */
     boolean onPauseBtnTap();
+
+    void onFullScreenBtnTap();
 }

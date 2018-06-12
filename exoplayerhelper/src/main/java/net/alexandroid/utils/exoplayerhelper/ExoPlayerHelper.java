@@ -90,7 +90,8 @@ public class ExoPlayerHelper implements
     private ExoThumbListener mExoThumbListener;
 
     private ProgressBar mProgressBar;
-    private ImageView mMuteBtn;
+    private ImageView mBtnMute;
+    private ImageView mBtnFullScreen;
     private ImageView mThumbImage;
 
     private Uri[] mVideosUris;
@@ -109,7 +110,7 @@ public class ExoPlayerHelper implements
     private boolean isThumbImageViewEnabled;
     private boolean isLiveStreamSupportEnabled;
     private LinearLayout mBottomProgress;
-    private int progressBarColor;
+
 
     private ExoPlayerHelper(Context context, SimpleExoPlayerView exoPlayerView) {
         if (context == null) {
@@ -156,13 +157,20 @@ public class ExoPlayerHelper implements
         frameLayout.addView(mProgressBar);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setVideoClickable() {
         mExoPlayerView.setOnTouchListener(this);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setControllerListener() {
         mExoPlayerView.findViewById(R.id.exo_play).setOnTouchListener(this);
         mExoPlayerView.findViewById(R.id.exo_pause).setOnTouchListener(this);
+
+        mBtnMute = mExoPlayerView.findViewById(R.id.btnMute);
+        mBtnFullScreen = mExoPlayerView.findViewById(R.id.btnFullScreen);
+        mBtnMute.setOnTouchListener(this);
+        mBtnFullScreen.setOnTouchListener(this);
     }
 
 
@@ -223,10 +231,10 @@ public class ExoPlayerHelper implements
                         new DefaultDashChunkSource.Factory(mDataSourceFactory), null, null);*/
             case C.TYPE_HLS:
                 return new HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
-                //return new HlsMediaSource(uri, mDataSourceFactory, null, null);
+            //return new HlsMediaSource(uri, mDataSourceFactory, null, null);
             case C.TYPE_OTHER:
                 return new ExtractorMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
-                //return new ExtractorMediaSource(uri, mDataSourceFactory, new DefaultExtractorsFactory(), null, null);
+            //return new ExtractorMediaSource(uri, mDataSourceFactory, new DefaultExtractorsFactory(), null, null);
             default: {
                 throw new IllegalStateException("Unsupported type: " + type);
             }
@@ -250,7 +258,7 @@ public class ExoPlayerHelper implements
                 mDataSourceFactory,
                 mImaAdsLoader,
                 mExoPlayerView.getOverlayFrameLayout(),
-                mHandler,this);
+                mHandler, this);
     }
 
     private void setProgressVisible(boolean visible) {
@@ -299,21 +307,40 @@ public class ExoPlayerHelper implements
     private void addMuteButton(boolean isAdMuted, boolean isVideoMuted) {
         this.isVideoMuted = isVideoMuted;
         this.isAdMuted = isAdMuted;
+        mBtnMute.setImageResource(this.isVideoMuted ? R.drawable.ic_action_mute : R.drawable.ic_action_volume_up);
 
+ /*     FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+        mBtnMute = new ImageView(mContext);
+        mBtnMute.setId(R.id.muteBtn);
+        mBtnMute.setImageResource(this.isVideoMuted ? R.drawable.ic_action_mute : R.drawable.ic_action_volume_up);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.LEFT | Gravity.BOTTOM;
+        //params.bottomMargin = Math.round(3 * mExoPlayerView.getContext().getResources().getDisplayMetrics().density);
+        mBtnMute.setLayoutParams(params);
+
+        mBtnMute.setOnClickListener(this);
+
+        frameLayout.addView(mBtnMute);*/
+    }
+
+    @SuppressLint("RtlHardcoded")
+    private void addFullScreenBtn() {
         FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
-
-        mMuteBtn = new ImageView(mContext);
-        mMuteBtn.setId(R.id.muteBtn);
-        mMuteBtn.setImageResource(this.isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+        mBtnFullScreen = new ImageView(mContext);
+        mBtnFullScreen.setId(R.id.btnFullScreen);
+        mBtnFullScreen.setImageResource(R.drawable.ic_action_fullscreen);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.RIGHT | Gravity.BOTTOM;
-        mMuteBtn.setLayoutParams(params);
+        //params.bottomMargin = Math.round(3 * mExoPlayerView.getContext().getResources().getDisplayMetrics().density);
+        mBtnFullScreen.setLayoutParams(params);
 
-        mMuteBtn.setOnClickListener(this);
+        mBtnFullScreen.setOnClickListener(this);
 
-        frameLayout.addView(mMuteBtn);
+        frameLayout.addView(mBtnFullScreen);
     }
 
     private void updateMutedStatus() {
@@ -323,8 +350,8 @@ public class ExoPlayerHelper implements
         } else {
             mPlayer.setVolume(mTempCurrentVolume);
         }
-        if (mMuteBtn != null) {
-            mMuteBtn.setImageResource(isMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
+        if (mBtnMute != null) {
+            mBtnMute.setImageResource(isMuted ? R.drawable.ic_action_mute : R.drawable.ic_action_volume_up);
         }
     }
 
@@ -354,20 +381,6 @@ public class ExoPlayerHelper implements
 
     @Override
     public void onClick(View v) {
-        // Mute button click
-        if (v.getId() == R.id.muteBtn) {
-            if (mPlayer.isPlayingAd()) {
-                isVideoMuted = isAdMuted = !isAdMuted;
-            } else {
-                isAdMuted = isVideoMuted = !isVideoMuted;
-            }
-            ((ImageView) v).setImageResource(isVideoMuted ? R.drawable.mute_ic : R.drawable.sound_on_ic);
-            updateMutedStatus();
-            if (mExoPlayerListener != null) {
-                mExoPlayerListener.onMuteStateChanged(isVideoMuted);
-            }
-        }
-
         // On video tap
         if (mExoPlayerListener != null && v.getId() == R.id.exo_content_frame) {
             mExoPlayerListener.onVideoTapped();
@@ -377,8 +390,6 @@ public class ExoPlayerHelper implements
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-
-
         if (motionEvent.getAction() == MotionEvent.ACTION_UP && mExoPlayerListener != null) {
             if (view.getId() == mExoPlayerView.getId()) {
                 mExoPlayerListener.onVideoTapped();
@@ -392,6 +403,26 @@ public class ExoPlayerHelper implements
                 if (mExoPlayerListener.onPauseBtnTap()) {
                     return true;
                 }
+            }
+
+            if (view.getId() == R.id.btnFullScreen) {
+                if (mExoPlayerListener != null) {
+                    mExoPlayerListener.onFullScreenBtnTap();
+                }
+                return true;
+            }
+            if (view.getId() == R.id.btnMute) {
+                if (mPlayer.isPlayingAd()) {
+                    isVideoMuted = isAdMuted = !isAdMuted;
+                } else {
+                    isAdMuted = isVideoMuted = !isVideoMuted;
+                }
+                ((ImageView) view).setImageResource(isVideoMuted ? R.drawable.ic_action_mute : R.drawable.ic_action_volume_up);
+                updateMutedStatus();
+                if (mExoPlayerListener != null) {
+                    mExoPlayerListener.onMuteStateChanged(isVideoMuted);
+                }
+                return true;
             }
         }
 
@@ -553,9 +584,18 @@ public class ExoPlayerHelper implements
         }
 
 
-
         public Builder addProgressBarWithColor(int colorAccent) {
             mExoPlayerHelper.addProgressBar(colorAccent);
+            return this;
+        }
+
+        public Builder setFullScreenBtnVisible() {
+            mExoPlayerHelper.mBtnFullScreen.setVisibility(View.VISIBLE);
+            return this;
+        }
+
+        public Builder setMuteBtnVisible() {
+            mExoPlayerHelper.mBtnMute.setVisibility(View.VISIBLE);
             return this;
         }
 
@@ -581,7 +621,6 @@ public class ExoPlayerHelper implements
             mExoPlayerHelper.createPlayer(true);
             return mExoPlayerHelper;
         }
-
     }
 
 

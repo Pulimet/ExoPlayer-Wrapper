@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity
                 .setThumbImageViewEnabled(this)
                 .enableLiveStreamSupport()
                 .addProgressBarWithColor(getResources().getColor(R.color.colorAccent))
+                .setFullScreenBtnVisible()
+                .setMuteBtnVisible()
                 .createAndPrepare();
     }
 
@@ -251,6 +253,11 @@ public class MainActivity extends AppCompatActivity
     public boolean onPauseBtnTap() {
         MyLog.d("onPauseBtnTap");
         return false;
+    }
+
+    @Override
+    public void onFullScreenBtnTap() {
+        MyLog.d("onFullScreenBtnTap");
     }
 
     @Override
