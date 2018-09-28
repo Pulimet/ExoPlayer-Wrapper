@@ -3,7 +3,7 @@ package net.alexandroid.utils.exoplayerlibrary;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.ui.PlayerView;
 
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerHelper;
 import net.alexandroid.utils.mylog.MyLog;
@@ -19,7 +19,7 @@ public class SimplePlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_player);
 
-        SimpleExoPlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
+        PlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
                 .setUiControllersVisibility(true)
