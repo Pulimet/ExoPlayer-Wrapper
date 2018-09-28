@@ -43,10 +43,10 @@ android {
 }
 
 dependencies {
-    compile 'com.google.android.exoplayer:exoplayer-core:2.8.1'
-    compile 'com.google.android.exoplayer:exoplayer-ui:2.8.1'
-    compile 'com.google.android.exoplayer:exoplayer-hls:2.8.1'
-    compile 'com.google.android.exoplayer:extension-ima:2.8.1'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.8.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.8.1'
+    implementation 'com.google.android.exoplayer:exoplayer-hls:2.8.1'
+    implementation 'com.google.android.exoplayer:extension-ima:2.8.1'
 }
 
 apply from: 'installv1.gradle'
