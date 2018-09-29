@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.squareup.picasso.Picasso;
 
 import net.alexandroid.utils.exoplayerhelper.ExoAdListener;
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity
 
         setButtons();
 
-        SimpleExoPlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
+        PlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
                 .addMuteButton(false, false)

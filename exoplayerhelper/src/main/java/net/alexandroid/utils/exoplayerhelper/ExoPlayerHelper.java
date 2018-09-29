@@ -41,7 +41,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
@@ -76,7 +76,7 @@ public class ExoPlayerHelper implements
     private Context mContext;
     private Handler mHandler;
 
-    private SimpleExoPlayerView mExoPlayerView;
+    private PlayerView mExoPlayerView;
     private SimpleExoPlayer mPlayer;
     private ImaAdsLoader mImaAdsLoader;
     private DataSource.Factory mDataSourceFactory;
@@ -112,7 +112,7 @@ public class ExoPlayerHelper implements
     private LinearLayout mBottomProgress;
 
 
-    private ExoPlayerHelper(Context context, SimpleExoPlayerView exoPlayerView) {
+    private ExoPlayerHelper(Context context, PlayerView exoPlayerView) {
         if (context == null) {
             throw new IllegalArgumentException("ExoPlayerHelper constructor - Context can't be null");
         }
@@ -185,14 +185,13 @@ public class ExoPlayerHelper implements
 
         // LoadControl that controls when the MediaSource buffers more media, and how much media is buffered.
         // LoadControl is injected when the player is created.
-        mLoadControl = new DefaultLoadControl(
-                new DefaultAllocator(true, 2 * 1024 * 1024),
-                5000,
-                5000,
-                5000,
-                5000,
-                5000,
-                true);
+        //removed deprecated DefaultLoadControl creation method
+        DefaultLoadControl.Builder builder=new DefaultLoadControl.Builder();
+        builder.setAllocator(new DefaultAllocator(true, 2 * 1024 * 1024));
+        builder.setBufferDurationsMs(5000,5000,5000,5000);
+        builder.setPrioritizeTimeOverSizeThresholds(true);
+        mLoadControl=builder.createDefaultLoadControl();
+
     }
 
     // Player creation and release
@@ -427,11 +426,8 @@ public class ExoPlayerHelper implements
         }
 
         // Player block
-        if (view.getId() == mExoPlayerView.getOverlayFrameLayout().getId()) {
-            return true;
-        }
+        return view.getId() == mExoPlayerView.getOverlayFrameLayout().getId();
 
-        return false;
     }
 
     // Resume position saving
@@ -510,7 +506,7 @@ public class ExoPlayerHelper implements
 
         private ExoPlayerHelper mExoPlayerHelper;
 
-        public Builder(Context context, SimpleExoPlayerView exoPlayerView) {
+        public Builder(Context context, PlayerView exoPlayerView) {
             mExoPlayerHelper = new ExoPlayerHelper(context, exoPlayerView);
         }
 
@@ -788,6 +784,7 @@ public class ExoPlayerHelper implements
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void playerBlock() {
         if (mExoPlayerView != null) {
@@ -795,6 +792,7 @@ public class ExoPlayerHelper implements
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void playerUnBlock() {
         if (mExoPlayerView != null) {
