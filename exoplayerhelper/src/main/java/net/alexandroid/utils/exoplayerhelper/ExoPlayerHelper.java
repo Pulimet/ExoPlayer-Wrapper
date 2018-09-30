@@ -66,7 +66,8 @@ public class ExoPlayerHelper implements
         ExoPlayerStatus,
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
-        AdsMediaSource.EventListener {
+        AdsMediaSource.MediaSourceFactory/*,
+        AdsLoader.EventListener*/ {
 
     public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
     public static final String PARAM_WINDOW = "PARAM_WINDOW";
@@ -186,12 +187,11 @@ public class ExoPlayerHelper implements
         // LoadControl that controls when the MediaSource buffers more media, and how much media is buffered.
         // LoadControl is injected when the player is created.
         //removed deprecated DefaultLoadControl creation method
-        DefaultLoadControl.Builder builder=new DefaultLoadControl.Builder();
+        DefaultLoadControl.Builder builder = new DefaultLoadControl.Builder();
         builder.setAllocator(new DefaultAllocator(true, 2 * 1024 * 1024));
-        builder.setBufferDurationsMs(5000,5000,5000,5000);
+        builder.setBufferDurationsMs(5000, 5000, 5000, 5000);
         builder.setPrioritizeTimeOverSizeThresholds(true);
-        mLoadControl=builder.createDefaultLoadControl();
-
+        mLoadControl = builder.createDefaultLoadControl();
     }
 
     // Player creation and release
@@ -253,11 +253,13 @@ public class ExoPlayerHelper implements
             mImaAdsLoader.addCallback(this);
         }
 
-        mMediaSource = new AdsMediaSource(mMediaSource,
-                mDataSourceFactory,
+        // TODO Ad onAdTaped onAdClicked and onAdLoadError events
+
+        mMediaSource = new AdsMediaSource(
+                mMediaSource,
+                this,
                 mImaAdsLoader,
-                mExoPlayerView.getOverlayFrameLayout(),
-                mHandler, this);
+                mExoPlayerView.getOverlayFrameLayout());
     }
 
     private void setProgressVisible(boolean visible) {
@@ -1103,11 +1105,31 @@ public class ExoPlayerHelper implements
         }
     }
 
+
     /**
-     * AdsMediaSource.EventListener
+     * AdsMediaSource.MediaSourceFactory
      */
     @Override
-    public void onAdLoadError(IOException error) {
+    public MediaSource createMediaSource(Uri uri) {
+        return buildMediaSource(uri);
+    }
+
+    @Override
+    public int[] getSupportedTypes() {
+        return new int[]{C.TYPE_DASH, C.TYPE_HLS, C.TYPE_OTHER};
+    }
+
+    /* *//**
+     * AdsLoader.EventListener
+     *//*
+
+    @Override
+    public void onAdPlaybackState(AdPlaybackState adPlaybackState) {
+
+    }
+
+    @Override
+    public void onAdLoadError(AdsMediaSource.AdLoadException error, DataSpec dataSpec) {
         Log.e("ExoPlayerHelper", "onAdLoadError: " + error.getMessage());
         if (mExoAdListener != null) {
             mExoAdListener.onAdLoadError();
@@ -1127,10 +1149,5 @@ public class ExoPlayerHelper implements
         if (mExoAdListener != null) {
             mExoAdListener.onAdTapped();
         }
-    }
-
-    @Override
-    public void onInternalAdLoadError(RuntimeException error) {
-
-    }
+    }*/
 }
