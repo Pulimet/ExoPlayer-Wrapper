@@ -39,6 +39,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
 
 }
 
@@ -51,3 +55,4 @@ dependencies {
 
 apply from: 'installv1.gradle'
 apply from: 'bintrayv1.gradle'
+//apply from: 'publish.gradle'
