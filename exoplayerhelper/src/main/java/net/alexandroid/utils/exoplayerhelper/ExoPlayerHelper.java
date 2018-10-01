@@ -7,7 +7,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -20,6 +19,7 @@ import android.widget.ProgressBar;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
@@ -38,16 +38,14 @@ import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
+import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -74,8 +72,7 @@ public class ExoPlayerHelper implements
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
         AdsMediaSource.MediaSourceFactory,
-        AdEvent.AdEventListener/*,
-        AdsLoader.EventListener*/ {
+        AdEvent.AdEventListener {
 
     public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
     public static final String PARAM_WINDOW = "PARAM_WINDOW";
@@ -83,16 +80,13 @@ public class ExoPlayerHelper implements
     public static final String PARAM_IS_AD_WAS_SHOWN = "PARAM_IS_AD_WAS_SHOWN";
 
     private Context mContext;
-    private Handler mHandler;
 
     private PlayerView mExoPlayerView;
     private SimpleExoPlayer mPlayer;
     private ImaAdsLoader mImaAdsLoader;
     private DataSource.Factory mDataSourceFactory;
     private DefaultLoadControl mLoadControl;
-    private DefaultBandwidthMeter mBandwidthMeter;
     private MediaSource mMediaSource;
-    private TrackSelector mTrackSelector;
 
     private ExoAdListener mExoAdListener;
     private ExoPlayerListener mExoPlayerListener;
@@ -135,7 +129,6 @@ public class ExoPlayerHelper implements
             throw new IllegalArgumentException("ExoPlayerHelper constructor - SimpleExoPlayerView can't be null");
         }
 
-        mHandler = new Handler();
         mContext = context;
         mExoPlayerView = exoPlayerView;
 
@@ -186,11 +179,11 @@ public class ExoPlayerHelper implements
 
     private void init() {
         // Measures bandwidth during playback. Can be null if not required.
-        mBandwidthMeter = new DefaultBandwidthMeter();
+        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
         // Produces DataSource instances through which media data is loaded.
         mDataSourceFactory = new DefaultDataSourceFactory(mContext,
-                Util.getUserAgent(mContext, mContext.getString(R.string.app_name)), mBandwidthMeter);
+                Util.getUserAgent(mContext, mContext.getString(R.string.app_name)), bandwidthMeter);
 
 
         // LoadControl that controls when the MediaSource buffers more media, and how much media is buffered.
@@ -226,7 +219,7 @@ public class ExoPlayerHelper implements
             mediaSources[i] = buildMediaSource(mVideosUris[i]);
 
             if (mSubTitlesUrls != null && i < mSubTitlesUrls.size() & mSubTitlesUrls.get(i) != null) {
-                mediaSources[i]  = addSubTitlesToMediaSource(mediaSources[i], mSubTitlesUrls.get(i));
+                mediaSources[i] = addSubTitlesToMediaSource(mediaSources[i], mSubTitlesUrls.get(i));
             }
         }
 
@@ -247,18 +240,14 @@ public class ExoPlayerHelper implements
     private MediaSource buildMediaSource(Uri uri) {
         int type = Util.inferContentType(uri);
         switch (type) {
-/*            case C.TYPE_SS:
-                return new SsMediaSource(uri, buildDataSourceFactory(false),
-                        new DefaultSsChunkSource.Factory(mDataSourceFactory), null, null);
+            case C.TYPE_SS:
+                return new SsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
             case C.TYPE_DASH:
-                return new DashMediaSource(uri, buildDataSourceFactory(false),
-                        new DefaultDashChunkSource.Factory(mDataSourceFactory), null, null);*/
+                return new DashMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
             case C.TYPE_HLS:
                 return new HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
-            //return new HlsMediaSource(uri, mDataSourceFactory, null, null);
             case C.TYPE_OTHER:
                 return new ExtractorMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
-            //return new ExtractorMediaSource(uri, mDataSourceFactory, new DefaultExtractorsFactory(), null, null);
             default: {
                 throw new IllegalStateException("Unsupported type: " + type);
             }
@@ -350,24 +339,6 @@ public class ExoPlayerHelper implements
         mBtnMute.setOnClickListener(this);
 
         frameLayout.addView(mBtnMute);*/
-    }
-
-    @SuppressLint("RtlHardcoded")
-    private void addFullScreenBtn() {
-        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
-        mBtnFullScreen = new ImageView(mContext);
-        mBtnFullScreen.setId(R.id.btnFullScreen);
-        mBtnFullScreen.setImageResource(R.drawable.ic_action_fullscreen);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT);
-        params.gravity = Gravity.RIGHT | Gravity.BOTTOM;
-        //params.bottomMargin = Math.round(3 * mExoPlayerView.getContext().getResources().getDisplayMetrics().density);
-        mBtnFullScreen.setLayoutParams(params);
-
-        mBtnFullScreen.setOnClickListener(this);
-
-        frameLayout.addView(mBtnFullScreen);
     }
 
     private void updateMutedStatus() {
@@ -501,7 +472,7 @@ public class ExoPlayerHelper implements
         updateMutedStatus();
     }
 
-    private void onPlayerLoadingChanged(boolean isLoading) {
+    private void onPlayerLoadingChanged() {
         liveStreamCheck();
     }
 
@@ -521,11 +492,6 @@ public class ExoPlayerHelper implements
 
     private void onAdEnded() {
         updateMutedStatus();
-        isAdWasShown = true;
-    }
-
-    private void onAdUserClicked() {
-        mImaAdsLoader.stopAd();
         isAdWasShown = true;
     }
 
@@ -593,6 +559,7 @@ public class ExoPlayerHelper implements
             return this;
         }
 
+        @SuppressWarnings("unused")
         public Builder enableCache(int maxCacheSizeMb) {
             mExoPlayerHelper.enableCache(maxCacheSizeMb);
             return this;
@@ -685,13 +652,11 @@ public class ExoPlayerHelper implements
             addThumbImageView();
         }
 
-        // TrackSelector that selects tracks provided by the MediaSource to be consumed by each of the available Renderer's.
-        // A TrackSelector is injected when the exoPlayer is created.
-        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(mBandwidthMeter);
-        mTrackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-
-        //noinspection deprecation // TODO
-        mPlayer = ExoPlayerFactory.newSimpleInstance(mContext, mTrackSelector, mLoadControl);
+        mPlayer = ExoPlayerFactory.newSimpleInstance(
+                mContext,
+                new DefaultRenderersFactory(mContext),
+                new DefaultTrackSelector(),
+                mLoadControl);
 
         mExoPlayerView.setPlayer(mPlayer);
         mExoPlayerView.setControllerShowTimeoutMs(1500);
@@ -752,7 +717,6 @@ public class ExoPlayerHelper implements
             removeThumbImageView();
             mPlayer.release();
             mPlayer = null;
-            mTrackSelector = null;
         }
     }
 
@@ -939,7 +903,7 @@ public class ExoPlayerHelper implements
 
     @Override
     public void onLoadingChanged(boolean isLoading) {
-        onPlayerLoadingChanged(isLoading);
+        onPlayerLoadingChanged();
         if (mExoPlayerListener != null) {
             mExoPlayerListener.onLoadingStatusChanged(isLoading, mPlayer.getBufferedPosition(), mPlayer.getBufferedPercentage());
         }
