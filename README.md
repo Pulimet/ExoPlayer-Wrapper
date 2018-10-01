@@ -5,7 +5,7 @@
 
 # ExoPlayer-Wrapper
 
-Simpe ExoPlayer wrapper
+Simple ExoPlayer v. 2.9.0 wrapper
 
 # Installation
 
@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compile 'net.alexandroid.utils:exoplayerhelper:2.15'
+    compile 'net.alexandroid.utils:exoplayerhelper:2.16'
 }
 ```
 
