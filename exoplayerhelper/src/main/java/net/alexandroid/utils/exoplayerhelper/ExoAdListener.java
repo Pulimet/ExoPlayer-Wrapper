@@ -13,8 +13,6 @@ public interface ExoAdListener {
 
     void onAdError();
 
-    void onAdLoadError();
-
     void onAdClicked();
 
     void onAdTapped();

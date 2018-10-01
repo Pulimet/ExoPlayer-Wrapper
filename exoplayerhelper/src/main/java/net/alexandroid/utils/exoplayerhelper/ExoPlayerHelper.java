@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -43,6 +44,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -66,7 +68,8 @@ public class ExoPlayerHelper implements
         ExoPlayerStatus,
         Player.EventListener,
         ImaAdsLoader.VideoAdPlayerCallback,
-        AdsMediaSource.MediaSourceFactory/*,
+        AdsMediaSource.MediaSourceFactory,
+        AdEvent.AdEventListener/*,
         AdsLoader.EventListener*/ {
 
     public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
@@ -249,11 +252,12 @@ public class ExoPlayerHelper implements
         }
 
         if (mImaAdsLoader == null) {
-            mImaAdsLoader = new ImaAdsLoader(mContext, Uri.parse(mTagUrl));
+            mImaAdsLoader = new ImaAdsLoader.Builder(mContext)
+                    .setAdEventListener(this)
+                    .buildForAdTag(Uri.parse(mTagUrl));
+            //mImaAdsLoader = new ImaAdsLoader(mContext, Uri.parse(mTagUrl));
             mImaAdsLoader.addCallback(this);
         }
-
-        // TODO Ad onAdTaped onAdClicked and onAdLoadError events
 
         mMediaSource = new AdsMediaSource(
                 mMediaSource,
@@ -1119,35 +1123,22 @@ public class ExoPlayerHelper implements
         return new int[]{C.TYPE_DASH, C.TYPE_HLS, C.TYPE_OTHER};
     }
 
-    /* *//**
-     * AdsLoader.EventListener
-     *//*
-
+    /**
+     * AdEvent.AdEventListener
+     */
     @Override
-    public void onAdPlaybackState(AdPlaybackState adPlaybackState) {
-
-    }
-
-    @Override
-    public void onAdLoadError(AdsMediaSource.AdLoadException error, DataSpec dataSpec) {
-        Log.e("ExoPlayerHelper", "onAdLoadError: " + error.getMessage());
-        if (mExoAdListener != null) {
-            mExoAdListener.onAdLoadError();
+    public void onAdEvent(AdEvent adEvent) {
+        if (mExoAdListener == null) {
+            return;
+        }
+        switch (adEvent.getType()) {
+            case TAPPED:
+                mExoAdListener.onAdTapped();
+                break;
+            case CLICKED:
+                mExoAdListener.onAdClicked();
+                break;
         }
     }
 
-    @Override
-    public void onAdClicked() {
-        onAdUserClicked();
-        if (mExoAdListener != null) {
-            mExoAdListener.onAdClicked();
-        }
-    }
-
-    @Override
-    public void onAdTapped() {
-        if (mExoAdListener != null) {
-            mExoAdListener.onAdTapped();
-        }
-    }*/
 }

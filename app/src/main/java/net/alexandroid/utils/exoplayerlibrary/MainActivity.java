@@ -299,11 +299,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onAdLoadError() {
-        MyLog.d("onAdLoadError");
-    }
-
-    @Override
     public void onAdClicked() {
         MyLog.d("onAdClicked");
     }

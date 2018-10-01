@@ -508,11 +508,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         @Override
-        public void onAdLoadError() {
-            MyLog.d("Position: " + mPosition + " - onAdLoadError");
-        }
-
-        @Override
         public void onAdClicked() {
             MyLog.d("Position: " + mPosition + " - onAdClicked");
         }
