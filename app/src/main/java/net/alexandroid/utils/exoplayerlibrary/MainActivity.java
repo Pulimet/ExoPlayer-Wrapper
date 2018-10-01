@@ -16,6 +16,9 @@ import net.alexandroid.utils.exoplayerhelper.ExoThumbListener;
 import net.alexandroid.utils.exoplayerlibrary.list.ListActivity;
 import net.alexandroid.utils.mylog.MyLog;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class MainActivity extends AppCompatActivity
         implements ExoPlayerListener, ExoAdListener, ExoThumbListener, View.OnClickListener {
 
@@ -26,6 +29,8 @@ public class MainActivity extends AppCompatActivity
     public static final String SAMPLE_5 = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
     public static final String SAMPLE_6 = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
     public static final String SAMPLE_7 = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
+
+    public static final String SUBTITLE = "http://www.storiesinflight.com/js_videosub/jellies.srt";
 
     public static final String TEST_TAG_URL = "https://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/single_ad_samples&ciu_szs=300x250&impl=s&gdfp_req=1&env=vp&output=vast&unviewed_position_start=1&cust_params=deployment%3Ddevsite%26sample_ct%3Dskippablelinear&correlator=";
 
@@ -56,6 +61,7 @@ public class MainActivity extends AppCompatActivity
                 .setRepeatModeOn(true)
                 .setAutoPlayOn(false)
                 .setVideoUrls(SAMPLE_1)
+                .setSubTitlesUrls(new ArrayList<>(Arrays.asList(SUBTITLE)))
                 .setTagUrl(TEST_TAG_URL)
                 .setExoPlayerEventsListener(this)
                 .setExoAdEventsListener(this)

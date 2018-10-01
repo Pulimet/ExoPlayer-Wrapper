@@ -37,5 +37,7 @@ dependencies {
 
     implementation 'net.alexandroid.utils:mylog:1.2'
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    //implementation 'net.alexandroid.utils:exoplayerhelper:2.16'
     implementation project(':exoplayerhelper')
 }

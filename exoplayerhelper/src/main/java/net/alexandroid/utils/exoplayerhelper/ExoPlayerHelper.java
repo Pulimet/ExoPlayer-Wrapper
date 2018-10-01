@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -33,6 +34,8 @@ import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MergingMediaSource;
+import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
@@ -54,10 +57,12 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 @SuppressWarnings("WeakerAccess")
@@ -99,6 +104,7 @@ public class ExoPlayerHelper implements
     private ImageView mThumbImage;
 
     private Uri[] mVideosUris;
+    private ArrayList<String> mSubTitlesUrls;
     private String mTagUrl;
     private long mResumePosition = C.TIME_UNSET;
     private int mResumeWindow = C.INDEX_UNSET;
@@ -205,6 +211,10 @@ public class ExoPlayerHelper implements
         }
     }
 
+    private void setSubtitlesUrls(ArrayList<String> list) {
+        mSubTitlesUrls = list;
+    }
+
     private void createMediaSource() {
         // A MediaSource defines the media to be played, loads the media, and from which the loaded media can be read.
         // A MediaSource is injected via ExoPlayer.prepare at the start of playback.
@@ -213,13 +223,25 @@ public class ExoPlayerHelper implements
         }
         MediaSource[] mediaSources = new MediaSource[mVideosUris.length];
         for (int i = 0; i < mVideosUris.length; i++) {
-            //mediaSources[i] = new HlsMediaSource(mVideosUris[i], mDataSourceFactory, null, null);
             mediaSources[i] = buildMediaSource(mVideosUris[i]);
+
+            if (mSubTitlesUrls != null && i < mSubTitlesUrls.size() & mSubTitlesUrls.get(i) != null) {
+                mediaSources[i]  = addSubTitlesToMediaSource(mediaSources[i], mSubTitlesUrls.get(i));
+            }
         }
 
         mMediaSource = mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
 
         addAdsToMediaSource();
+    }
+
+    private MediaSource addSubTitlesToMediaSource(MediaSource mediaSource, String subTitlesUrl) {
+        Format textFormat = Format.createTextSampleFormat(null, MimeTypes.APPLICATION_SUBRIP,
+                null, Format.NO_VALUE, Format.NO_VALUE, "en", Format.NO_VALUE, null);
+        Uri uri = Uri.parse(subTitlesUrl);
+        MediaSource subtitleSource = new SingleSampleMediaSource.Factory(mDataSourceFactory)
+                .createMediaSource(uri, textFormat, C.TIME_UNSET);
+        return new MergingMediaSource(mediaSource, subtitleSource);
     }
 
     private MediaSource buildMediaSource(Uri uri) {
@@ -528,6 +550,11 @@ public class ExoPlayerHelper implements
 
         public Builder setVideoUrls(String... urls) {
             mExoPlayerHelper.setVideoUrls(urls);
+            return this;
+        }
+
+        public Builder setSubTitlesUrls(ArrayList<String> list) {
+            mExoPlayerHelper.setSubtitlesUrls(list);
             return this;
         }
 
