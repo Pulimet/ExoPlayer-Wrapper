@@ -56,21 +56,25 @@ public class MainActivity extends AppCompatActivity
         PlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
-                .addMuteButton(false, false)
-                .setUiControllersVisibility(true)
-                .setRepeatModeOn(true)
-                .setAutoPlayOn(false)
                 .setVideoUrls(SAMPLE_1)
                 .setSubTitlesUrls(new ArrayList<>(Arrays.asList(SUBTITLE)))
                 .setTagUrl(TEST_TAG_URL)
-                .setExoPlayerEventsListener(this)
-                .setExoAdEventsListener(this)
-                .addSavedInstanceState(savedInstanceState)
-                .setThumbImageViewEnabled(this)
+
+                .setRepeatModeOn(true)
+                .setAutoPlayOn(false)
                 .enableLiveStreamSupport()
+
+                .addSavedInstanceState(savedInstanceState)
+
+                .setUiControllersVisibility(true)
                 .addProgressBarWithColor(getResources().getColor(R.color.colorAccent))
                 .setFullScreenBtnVisible()
+                .addMuteButton(false, false)
                 .setMuteBtnVisible()
+
+                .setExoPlayerEventsListener(this)
+                .setExoAdEventsListener(this)
+                .setThumbImageViewEnabled(this)
                 .createAndPrepare();
     }
 
