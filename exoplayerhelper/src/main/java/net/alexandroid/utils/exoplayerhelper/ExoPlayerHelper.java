@@ -32,9 +32,9 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
@@ -141,6 +141,9 @@ public class ExoPlayerHelper implements
 
     private void addProgressBar(int color) {
         FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+        if (frameLayout == null) {
+            return;
+        }
         mProgressBar = frameLayout.findViewById(R.id.progressBar);
         if (mProgressBar != null) {
             return;
@@ -179,7 +182,8 @@ public class ExoPlayerHelper implements
 
     private void init() {
         // Measures bandwidth during playback. Can be null if not required.
-        DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+        DefaultBandwidthMeter bandwidthMeter =
+                new DefaultBandwidthMeter.Builder(mContext).build();
 
         // Produces DataSource instances through which media data is loaded.
         mDataSourceFactory = new DefaultDataSourceFactory(mContext,
@@ -247,7 +251,7 @@ public class ExoPlayerHelper implements
             case C.TYPE_HLS:
                 return new HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
             case C.TYPE_OTHER:
-                return new ExtractorMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
+                return new ProgressiveMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
             default: {
                 throw new IllegalStateException("Unsupported type: " + type);
             }
@@ -268,15 +272,17 @@ public class ExoPlayerHelper implements
                     .buildForAdTag(Uri.parse(mTagUrl));
             //mImaAdsLoader = new ImaAdsLoader(mContext, Uri.parse(mTagUrl));
             mImaAdsLoader.addCallback(this);
+            mImaAdsLoader.setPlayer(mPlayer);
         }
 
-        //mMediaSource = new AdsMediaSource(mMediaSource, mDataSourceFactory, mImaAdsLoader, mExoPlayerView);
+        //Set player using adsLoader.setPlayer before preparing the player.
+        mMediaSource = new AdsMediaSource(mMediaSource, mDataSourceFactory, mImaAdsLoader, mExoPlayerView);
         //mMediaSource.addEventListener(null, null);
-        mMediaSource = new AdsMediaSource(
+/*        mMediaSource = new AdsMediaSource(
                 mMediaSource,
                 this,
                 mImaAdsLoader,
-                mExoPlayerView.getOverlayFrameLayout());
+                mExoPlayerView.getOverlayFrameLayout());*/
     }
 
     private void setProgressVisible(boolean visible) {
@@ -427,7 +433,8 @@ public class ExoPlayerHelper implements
         }
 
         // Player block
-        return view.getId() == mExoPlayerView.getOverlayFrameLayout().getId();
+        FrameLayout layout = mExoPlayerView.getOverlayFrameLayout();
+        return layout != null && view.getId() == layout.getId();
 
     }
 
@@ -734,7 +741,10 @@ public class ExoPlayerHelper implements
         if (mImaAdsLoader != null) {
             mImaAdsLoader.release();
             mImaAdsLoader = null;
-            mExoPlayerView.getOverlayFrameLayout().removeAllViews();
+            FrameLayout layout = mExoPlayerView.getOverlayFrameLayout();
+            if (layout != null) {
+                layout.removeAllViews();
+            }
         }
     }
 
@@ -786,7 +796,7 @@ public class ExoPlayerHelper implements
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void playerBlock() {
-        if (mExoPlayerView != null) {
+        if (mExoPlayerView != null && mExoPlayerView.getOverlayFrameLayout() != null) {
             mExoPlayerView.getOverlayFrameLayout().setOnTouchListener(this);
         }
     }
@@ -794,7 +804,7 @@ public class ExoPlayerHelper implements
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void playerUnBlock() {
-        if (mExoPlayerView != null) {
+        if (mExoPlayerView != null && mExoPlayerView.getOverlayFrameLayout() != null) {
             mExoPlayerView.getOverlayFrameLayout().setOnTouchListener(null);
         }
     }
@@ -949,13 +959,18 @@ public class ExoPlayerHelper implements
         switch (e.type) {
             case ExoPlaybackException.TYPE_SOURCE:
                 //https://github.com/google/ExoPlayer/issues/2702
-                IOException ioException = e.getSourceException();
-                Log.e("ExoPlayerHelper", ioException.getMessage());
-                errorString = ioException.getMessage();
+                IOException ex = e.getSourceException();
+                String msg = ex.getMessage();
+                if (msg != null) {
+                    Log.e("ExoPlayerHelper", msg);
+                    errorString = msg;
+                }
                 break;
             case ExoPlaybackException.TYPE_RENDERER:
                 Exception exception = e.getRendererException();
-                Log.e("ExoPlayerHelper", exception.getMessage());
+                if (exception.getMessage() != null) {
+                    Log.e("ExoPlayerHelper", exception.getMessage());
+                }
                 break;
             case ExoPlaybackException.TYPE_UNEXPECTED:
                 RuntimeException runtimeException = e.getUnexpectedException();
@@ -964,6 +979,10 @@ public class ExoPlayerHelper implements
                     runtimeException.printStackTrace();
                 }
                 errorString = runtimeException.getMessage();
+                break;
+            case ExoPlaybackException.TYPE_OUT_OF_MEMORY:
+                break;
+            case ExoPlaybackException.TYPE_REMOTE:
                 break;
         }
 

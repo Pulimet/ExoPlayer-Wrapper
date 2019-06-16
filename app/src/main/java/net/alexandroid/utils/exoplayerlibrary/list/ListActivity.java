@@ -1,10 +1,10 @@
 package net.alexandroid.utils.exoplayerlibrary.list;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 
 import net.alexandroid.utils.exoplayerlibrary.MainActivity;
 import net.alexandroid.utils.exoplayerlibrary.R;
