@@ -46,13 +46,15 @@ android {
 
 }
 
+ext.exoPlayerVersion = '2.9.5'
+
 dependencies {
-    api 'com.google.android.exoplayer:exoplayer-core:2.9.0'
-    api 'com.google.android.exoplayer:exoplayer-ui:2.9.0'
-    api 'com.google.android.exoplayer:exoplayer-hls:2.9.0'
-    api 'com.google.android.exoplayer:exoplayer-dash:2.9.0'
-    api 'com.google.android.exoplayer:exoplayer-smoothstreaming:2.9.0'
-    api 'com.google.android.exoplayer:extension-ima:2.9.0'
+    api "com.google.android.exoplayer:exoplayer-core:$exoPlayerVersion"
+    api "com.google.android.exoplayer:exoplayer-ui:$exoPlayerVersion"
+    api "com.google.android.exoplayer:exoplayer-hls:$exoPlayerVersion"
+    api "com.google.android.exoplayer:exoplayer-dash:$exoPlayerVersion"
+    api "com.google.android.exoplayer:exoplayer-smoothstreaming:$exoPlayerVersion"
+    api "com.google.android.exoplayer:extension-ima:$exoPlayerVersion"
 }
 
 apply from: 'installv1.gradle'

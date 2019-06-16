@@ -270,6 +270,8 @@ public class ExoPlayerHelper implements
             mImaAdsLoader.addCallback(this);
         }
 
+        //mMediaSource = new AdsMediaSource(mMediaSource, mDataSourceFactory, mImaAdsLoader, mExoPlayerView);
+        //mMediaSource.addEventListener(null, null);
         mMediaSource = new AdsMediaSource(
                 mMediaSource,
                 this,
@@ -1100,6 +1102,12 @@ public class ExoPlayerHelper implements
         }
     }
 
+    @Override
+    public void onBuffering() {
+        if (mExoAdListener != null) {
+            mExoAdListener.onBuffering();
+        }
+    }
 
     /**
      * AdsMediaSource.MediaSourceFactory

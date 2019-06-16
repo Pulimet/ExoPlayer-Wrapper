@@ -516,6 +516,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public void onAdTapped() {
             MyLog.d("Position: " + mPosition + " - onAdTapped");
         }
+
+        @Override
+        public void onBuffering() {
+            MyLog.d("Position: " + mPosition + " - onBuffering");
+        }
     }
 
 

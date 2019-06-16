@@ -16,4 +16,6 @@ public interface ExoAdListener {
     void onAdClicked();
 
     void onAdTapped();
+
+    void onBuffering();
 }

@@ -318,4 +318,9 @@ public class MainActivity extends AppCompatActivity
     public void onAdTapped() {
         MyLog.d("onAdTapped");
     }
+
+    @Override
+    public void onBuffering() {
+        MyLog.d("onBuffering");
+    }
 }
