@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity
     public static final String SAMPLE_5 = "http://www.streambox.fr/playlists/test_001/stream.m3u8";
     public static final String SAMPLE_6 = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
     public static final String SAMPLE_7 = "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8";
+    public static final String SAMPLE_8 = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8";
 
     public static final String SUBTITLE = "http://www.storiesinflight.com/js_videosub/jellies.srt";
 
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity
         PlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
-                .setVideoUrls(SAMPLE_1)
+                .setVideoUrls(SAMPLE_8)
                 .setSubTitlesUrls(new ArrayList<>(Arrays.asList(SUBTITLE)))
                 .setTagUrl(TEST_TAG_URL)
 
