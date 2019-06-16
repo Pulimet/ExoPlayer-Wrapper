@@ -5,7 +5,7 @@
 
 # ExoPlayer-Wrapper
 
-Simple ExoPlayer v. 2.9.0 wrapper
+Simple ExoPlayer
 
 # Installation
 
