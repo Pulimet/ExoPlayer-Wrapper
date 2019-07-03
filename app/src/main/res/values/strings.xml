@@ -14,4 +14,5 @@
     <string name="release">Release</string>
     <string name="open_video_action">Open video action</string>
     <string name="simple_demo">Simple Demo</string>
+    <string name="hide_full_screen">Hide full screen</string>
 </resources>

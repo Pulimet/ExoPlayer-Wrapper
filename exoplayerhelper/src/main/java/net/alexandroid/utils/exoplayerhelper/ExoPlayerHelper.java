@@ -595,7 +595,7 @@ public class ExoPlayerHelper implements
         }
 
         public Builder setFullScreenBtnVisible() {
-            mExoPlayerHelper.mBtnFullScreen.setVisibility(View.VISIBLE);
+            mExoPlayerHelper.setFullScreenBtnVisibility(true);
             return this;
         }
 
@@ -807,6 +807,11 @@ public class ExoPlayerHelper implements
         if (mExoPlayerView != null && mExoPlayerView.getOverlayFrameLayout() != null) {
             mExoPlayerView.getOverlayFrameLayout().setOnTouchListener(null);
         }
+    }
+
+    @Override
+    public void setFullScreenBtnVisibility(boolean isVisible) {
+        mBtnFullScreen.setVisibility(isVisible? View.VISIBLE : View.GONE);
     }
 
     @Override

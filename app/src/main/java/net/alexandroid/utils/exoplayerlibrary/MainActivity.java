@@ -2,9 +2,10 @@ package net.alexandroid.utils.exoplayerlibrary;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.squareup.picasso.Picasso;
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.btnCreate).setOnClickListener(this);
         findViewById(R.id.btnRelease).setOnClickListener(this);
         findViewById(R.id.btnOpenSimple).setOnClickListener(this);
+        findViewById(R.id.btnHideFullScreen).setOnClickListener(this);
     }
 
     @Override
@@ -136,6 +138,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.btnOpenSimple:
                 startActivity(new Intent(MainActivity.this, SimplePlayerActivity.class));
+                break;
+            case R.id.btnHideFullScreen:
+                mExoPlayerHelper.setFullScreenBtnVisibility(false);
                 break;
         }
     }

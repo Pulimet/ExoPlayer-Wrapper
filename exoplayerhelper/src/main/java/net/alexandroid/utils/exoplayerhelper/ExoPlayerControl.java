@@ -47,4 +47,6 @@ public interface ExoPlayerControl {
     void playerBlock();
 
     void playerUnBlock();
+
+    void setFullScreenBtnVisibility(boolean isVisible);
 }
