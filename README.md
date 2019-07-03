@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    compile 'net.alexandroid.utils:exoplayerhelper:2.20'
+    implementation 'net.alexandroid.utils:exoplayerhelper:2.20'
 }
 ```
 
