@@ -1,8 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <ImageButton
         android:id="@id/exo_play"
@@ -10,7 +10,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
-        android:src="@drawable/play_btn_big"/>
+        android:src="@drawable/play_btn_big" />
 
     <ImageButton
         android:id="@id/exo_pause"
@@ -18,7 +18,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_gravity="center"
-        android:src="@drawable/pause_btn"/>
+        android:src="@drawable/pause_btn" />
 
     <LinearLayout
         android:id="@+id/bottom_progress"
@@ -37,11 +37,11 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
+            android:paddingEnd="4dp"
             android:paddingRight="4dp"
             android:src="@drawable/ic_action_volume_up"
             android:visibility="gone"
-            android:paddingEnd="4dp"
-            tools:ignore="ContentDescription,RtlSymmetry"/>
+            tools:ignore="ContentDescription,RtlSymmetry" />
 
         <TextView
             android:id="@id/exo_position"
@@ -52,7 +52,7 @@
             android:paddingRight="4dp"
             android:textColor="#FFFFFFFF"
             android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <com.google.android.exoplayer2.ui.DefaultTimeBar
             android:id="@id/exo_progress"
@@ -62,7 +62,7 @@
             app:buffered_color="@color/bufferedColor"
             app:played_color="@color/playedColor"
             app:scrubber_color="@color/scrubberColor"
-            app:unplayed_color="@color/unplayedColor"/>
+            app:unplayed_color="@color/unplayedColor" />
 
         <TextView
             android:id="@id/exo_duration"
@@ -73,7 +73,7 @@
             android:paddingRight="4dp"
             android:textColor="#FFFFFFFF"
             android:textSize="14sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/btnFullScreen"
@@ -85,7 +85,7 @@
             android:paddingLeft="4dp"
             android:src="@drawable/ic_action_fullscreen"
             android:visibility="gone"
-            tools:ignore="ContentDescription,RtlSymmetry"/>
+            tools:ignore="ContentDescription,RtlSymmetry" />
 
     </LinearLayout>
 

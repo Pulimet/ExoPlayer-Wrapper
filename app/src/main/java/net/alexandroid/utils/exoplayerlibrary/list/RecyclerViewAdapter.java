@@ -1,23 +1,26 @@
 package net.alexandroid.utils.exoplayerlibrary.list;
 
+import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+
 import android.app.Activity;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.exoplayer2.ui.PlayerView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.squareup.picasso.Picasso;
 
 import net.alexandroid.utils.exoplayerhelper.ExoAdListener;
@@ -28,8 +31,6 @@ import net.alexandroid.utils.exoplayerlibrary.R;
 import net.alexandroid.utils.mylog.MyLog;
 
 import java.util.ArrayList;
-
-import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>
@@ -60,7 +61,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         mLayoutManager = ((SliderLayoutManager) mRecyclerView.getLayoutManager());
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
@@ -150,7 +151,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
         MyLog.e("onDetachedFromRecyclerView");
     }
@@ -179,7 +180,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return list;
     }
 
-
+    @NonNull
     @Override
     public RecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -197,11 +198,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         setClickListenerAndPositionAsTag(position, holder.mBtnFullScreen);
 
-        if (!mIsFirstItemSelected) {
+        if (mIsFirstItemSelected) {
+            holder.mView.setAlpha(0.2f);
+        } else {
             mIsFirstItemSelected = true;
             holder.mView.setAlpha(1.0f);
-        } else {
-            holder.mView.setAlpha(0.2f);
         }
     }
 
@@ -239,12 +240,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     @Override
-    public void onViewAttachedToWindow(ViewHolder holder) {
+    public void onViewAttachedToWindow(@NonNull ViewHolder holder) {
         super.onViewAttachedToWindow(holder);
         MyLog.i("Position: " + holder.mPosition + " - onViewAttachedToWindow");
         holder.createPlayer();
 
-        if (!isFirstItemPlayed && holder.getAdapterPosition() == 0) {
+        if (!isFirstItemPlayed && holder.getAbsoluteAdapterPosition() == 0) {
             isFirstItemPlayed = true;
             holder.mExoPlayerHelper.preparePlayer();
             holder.mExoPlayerHelper.playerPlay();
@@ -253,7 +254,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     @Override
-    public void onViewDetachedFromWindow(ViewHolder holder) {
+    public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
         super.onViewDetachedFromWindow(holder);
         MyLog.i("Position: " + holder.mPosition + " - onViewDetachedFromWindow");
         holder.mExoPlayerHelper.releasePlayer();
@@ -261,7 +262,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     @Override
-    public void onViewRecycled(ViewHolder holder) {
+    public void onViewRecycled(@NonNull ViewHolder holder) {
         super.onViewRecycled(holder);
     }
 
@@ -276,7 +277,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         public final View mView;
         public final TextView mTextView;
-        public final PlayerView mExoPlayerView;
+        public final StyledPlayerView mExoPlayerView;
         public final ImageView mBtnFullScreen;
         public ExoPlayerHelper mExoPlayerHelper;
         public String mThumbUrl;

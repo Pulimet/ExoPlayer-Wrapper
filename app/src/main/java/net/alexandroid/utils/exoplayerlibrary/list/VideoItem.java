@@ -1,8 +1,8 @@
 package net.alexandroid.utils.exoplayerlibrary.list;
 
 public class VideoItem {
-    String videoUrl;
-    String thumbUrl;
+    private final String videoUrl;
+    private final String thumbUrl;
 
     public VideoItem(String videoUrl, String thumbUrl) {
         this.videoUrl = videoUrl;
@@ -13,16 +13,8 @@ public class VideoItem {
         return videoUrl;
     }
 
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
-    }
-
     public String getThumbUrl() {
         return thumbUrl;
-    }
-
-    public void setThumbUrl(String thumbUrl) {
-        this.thumbUrl = thumbUrl;
     }
 }
 

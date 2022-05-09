@@ -22,15 +22,15 @@ ext {
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
     allLicenses = ["Apache-2.0"]
+
+    exoPlayerVersion = '2.17.1'
 }
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion project.ver_compile
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion project.ver_min
+        targetSdkVersion project.ver_target
     }
 
     buildTypes {
@@ -46,8 +46,6 @@ android {
 
 }
 
-ext.exoPlayerVersion = '2.10.1'
-
 dependencies {
     api "com.google.android.exoplayer:exoplayer-core:$exoPlayerVersion"
     api "com.google.android.exoplayer:exoplayer-ui:$exoPlayerVersion"
@@ -59,4 +57,4 @@ dependencies {
 
 apply from: 'installv1.gradle'
 apply from: 'bintrayv1.gradle'
-//apply from: 'publish.gradle'
+// apply from: 'publish.gradle'
