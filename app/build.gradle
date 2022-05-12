@@ -1,13 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion project.ver_compile
     defaultConfig {
+        minSdkVersion project.ver_min
+        targetSdkVersion project.ver_target
         applicationId "net.alexandroid.utils.exoplayerlibrary"
-        minSdkVersion 16
-        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -23,20 +24,22 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
 
     //Prevent support version mixing
-    implementation 'androidx.vectordrawable:vectordrawable-animated:1.0.0'
-    implementation 'androidx.browser:browser:1.0.0'
-    implementation 'androidx.exifinterface:exifinterface:1.0.0'
-    implementation 'androidx.media:media:1.0.1'
+    implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
+    implementation 'androidx.browser:browser:1.4.0'
+    implementation 'androidx.exifinterface:exifinterface:1.3.3'
+    implementation 'androidx.media:media:1.6.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     implementation 'net.alexandroid.utils:mylog:1.2'
     implementation 'com.squareup.picasso:picasso:2.71828'
 
-    //implementation 'net.alexandroid.utils:exoplayerhelper:2.16'
+    // implementation 'net.alexandroid.utils:exoplayerhelper:2.16'
     implementation project(':exoplayerhelper')
 }

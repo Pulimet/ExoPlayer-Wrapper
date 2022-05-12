@@ -1,6 +1,5 @@
 package net.alexandroid.utils.exoplayerhelper;
 
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -11,48 +10,60 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.ads.interactivemedia.v3.api.AdEvent;
+import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
+import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
+import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.TracksInfo;
+import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.SingleSampleMediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.ui.AdOverlayInfo;
+import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSinkFactory;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.FileDataSource;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSink;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -61,7 +72,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
+import java.util.List;
+import java.util.UUID;
 
 @SuppressWarnings("WeakerAccess")
 public class ExoPlayerHelper implements
@@ -69,9 +81,8 @@ public class ExoPlayerHelper implements
         View.OnTouchListener,
         ExoPlayerControl,
         ExoPlayerStatus,
-        Player.EventListener,
-        ImaAdsLoader.VideoAdPlayerCallback,
-        AdsMediaSource.MediaSourceFactory,
+        Player.Listener,
+        VideoAdPlayer.VideoAdPlayerCallback,
         AdEvent.AdEventListener {
 
     public static final String PARAM_AUTO_PLAY = "PARAM_AUTO_PLAY";
@@ -79,10 +90,10 @@ public class ExoPlayerHelper implements
     public static final String PARAM_POSITION = "PARAM_POSITION";
     public static final String PARAM_IS_AD_WAS_SHOWN = "PARAM_IS_AD_WAS_SHOWN";
 
-    private Context mContext;
+    private final Context mContext;
 
-    private PlayerView mExoPlayerView;
-    private SimpleExoPlayer mPlayer;
+    private final StyledPlayerView mExoPlayerView;
+    private ExoPlayer mPlayer;
     private ImaAdsLoader mImaAdsLoader;
     private DataSource.Factory mDataSourceFactory;
     private DefaultLoadControl mLoadControl;
@@ -113,10 +124,11 @@ public class ExoPlayerHelper implements
     private boolean isToPrepareOnResume = true;
     private boolean isThumbImageViewEnabled;
     private boolean isLiveStreamSupportEnabled;
-    private LinearLayout mBottomProgress;
+    private final LinearLayout mBottomProgress;
+    private UUID adIdentifier;
 
 
-    private ExoPlayerHelper(Context context, PlayerView exoPlayerView) {
+    private ExoPlayerHelper(Context context, StyledPlayerView exoPlayerView) {
         if (context == null) {
             throw new IllegalArgumentException("ExoPlayerHelper constructor - Context can't be null");
         }
@@ -140,7 +152,7 @@ public class ExoPlayerHelper implements
     }
 
     private void addProgressBar(int color) {
-        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+        final FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
         if (frameLayout == null) {
             return;
         }
@@ -152,7 +164,8 @@ public class ExoPlayerHelper implements
         mProgressBar.setId(R.id.progressBar);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT);
+                FrameLayout.LayoutParams.WRAP_CONTENT
+        );
         params.gravity = Gravity.CENTER;
         mProgressBar.setLayoutParams(params);
         mProgressBar.setIndeterminate(true);
@@ -182,12 +195,16 @@ public class ExoPlayerHelper implements
 
     private void init() {
         // Measures bandwidth during playback. Can be null if not required.
-        DefaultBandwidthMeter bandwidthMeter =
-                new DefaultBandwidthMeter.Builder(mContext).build();
+        final DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter.Builder(
+                mContext
+        ).build();
 
         // Produces DataSource instances through which media data is loaded.
-        mDataSourceFactory = new DefaultDataSourceFactory(mContext,
-                Util.getUserAgent(mContext, mContext.getString(R.string.app_name)), bandwidthMeter);
+        mDataSourceFactory = new DefaultDataSource.Factory(
+                mContext, new DefaultHttpDataSource.Factory()
+                .setUserAgent(Util.getUserAgent(mContext, mContext.getString(R.string.app_name)))
+                .setTransferListener(bandwidthMeter)
+        );
 
 
         // LoadControl that controls when the MediaSource buffers more media, and how much media is buffered.
@@ -197,11 +214,12 @@ public class ExoPlayerHelper implements
         builder.setAllocator(new DefaultAllocator(true, 2 * 1024 * 1024));
         builder.setBufferDurationsMs(5000, 5000, 5000, 5000);
         builder.setPrioritizeTimeOverSizeThresholds(true);
-        mLoadControl = builder.createDefaultLoadControl();
+        mLoadControl = builder.build();
     }
 
     // Player creation and release
     private void setVideoUrls(String[] urls) {
+        adIdentifier = UUID.randomUUID();
         mVideosUris = new Uri[urls.length];
         for (int i = 0; i < urls.length; i++) {
             mVideosUris[i] = Uri.parse(urls[i]);
@@ -220,7 +238,7 @@ public class ExoPlayerHelper implements
         }
         MediaSource[] mediaSources = new MediaSource[mVideosUris.length];
         for (int i = 0; i < mVideosUris.length; i++) {
-            mediaSources[i] = buildMediaSource(mVideosUris[i]);
+            mediaSources[i] = buildMediaSource(MediaItem.fromUri(mVideosUris[i]));
 
             if (mSubTitlesUrls != null && i < mSubTitlesUrls.size() & mSubTitlesUrls.get(i) != null) {
                 mediaSources[i] = addSubTitlesToMediaSource(mediaSources[i], mSubTitlesUrls.get(i));
@@ -233,25 +251,30 @@ public class ExoPlayerHelper implements
     }
 
     private MediaSource addSubTitlesToMediaSource(MediaSource mediaSource, String subTitlesUrl) {
-        Format textFormat = Format.createTextSampleFormat(null, MimeTypes.APPLICATION_SUBRIP,
-                null, Format.NO_VALUE, Format.NO_VALUE, "en", Format.NO_VALUE, null);
-        Uri uri = Uri.parse(subTitlesUrl);
-        MediaSource subtitleSource = new SingleSampleMediaSource.Factory(mDataSourceFactory)
-                .createMediaSource(uri, textFormat, C.TIME_UNSET);
+        final Uri uri = Uri.parse(subTitlesUrl);
+        final MediaSource subtitleSource = new SingleSampleMediaSource.Factory(mDataSourceFactory)
+                .createMediaSource(
+                        new MediaItem.SubtitleConfiguration.Builder(uri)
+                                .setMimeType(MimeTypes.APPLICATION_SUBRIP)
+                                .setLanguage("en")
+                                .setSelectionFlags(Format.NO_VALUE)
+                                .build(), C.TIME_UNSET
+                );
         return new MergingMediaSource(mediaSource, subtitleSource);
     }
 
-    private MediaSource buildMediaSource(Uri uri) {
-        int type = Util.inferContentType(uri);
+    private MediaSource buildMediaSource(MediaItem mediaItem) {
+        int type = Util.inferContentType(mediaItem.localConfiguration.uri);
         switch (type) {
             case C.TYPE_SS:
-                return new SsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
+                return new SsMediaSource.Factory(mDataSourceFactory).createMediaSource(mediaItem);
             case C.TYPE_DASH:
-                return new DashMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
+                return new DashMediaSource.Factory(mDataSourceFactory).createMediaSource(mediaItem);
             case C.TYPE_HLS:
-                return new HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
+                return new HlsMediaSource.Factory(mDataSourceFactory).createMediaSource(mediaItem);
             case C.TYPE_OTHER:
-                return new ProgressiveMediaSource.Factory(mDataSourceFactory).createMediaSource(uri);
+                return new ProgressiveMediaSource.Factory(mDataSourceFactory).createMediaSource(mediaItem);
+            case C.TYPE_RTSP:
             default: {
                 throw new IllegalStateException("Unsupported type: " + type);
             }
@@ -269,20 +292,38 @@ public class ExoPlayerHelper implements
         if (mImaAdsLoader == null) {
             mImaAdsLoader = new ImaAdsLoader.Builder(mContext)
                     .setAdEventListener(this)
-                    .buildForAdTag(Uri.parse(mTagUrl));
-            //mImaAdsLoader = new ImaAdsLoader(mContext, Uri.parse(mTagUrl));
-            mImaAdsLoader.addCallback(this);
+                    .setVideoAdPlayerCallback(this)
+                    .build();
             mImaAdsLoader.setPlayer(mPlayer);
         }
+        // Set player using adsLoader.setPlayer before preparing the player.
+        mMediaSource = new AdsMediaSource(
+                mMediaSource,
+                new DataSpec.Builder().setUri(Uri.parse(mTagUrl)).build(),
+                adIdentifier,
+                new DefaultMediaSourceFactory(mDataSourceFactory),
+                mImaAdsLoader, new AdViewProvider() {
 
-        //Set player using adsLoader.setPlayer before preparing the player.
-        mMediaSource = new AdsMediaSource(mMediaSource, mDataSourceFactory, mImaAdsLoader, mExoPlayerView);
-        //mMediaSource.addEventListener(null, null);
-/*        mMediaSource = new AdsMediaSource(
+            @Nullable
+            @Override
+            public ViewGroup getAdViewGroup() {
+                return mExoPlayerView;
+            }
+
+            @NonNull
+            @Override
+            public List<AdOverlayInfo> getAdOverlayInfos() {
+                return mExoPlayerView.getAdOverlayInfos();
+            }
+        });
+        /*
+        mMediaSource.addEventListener(null, null);
+        mMediaSource = new AdsMediaSource(
                 mMediaSource,
                 this,
                 mImaAdsLoader,
-                mExoPlayerView.getOverlayFrameLayout());*/
+                mExoPlayerView.getOverlayFrameLayout());
+       */
     }
 
     private void setProgressVisible(boolean visible) {
@@ -333,7 +374,8 @@ public class ExoPlayerHelper implements
         this.isAdMuted = isAdMuted;
         mBtnMute.setImageResource(this.isVideoMuted ? R.drawable.ic_action_mute : R.drawable.ic_action_volume_up);
 
- /*     FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
+         /*
+        FrameLayout frameLayout = mExoPlayerView.getOverlayFrameLayout();
         mBtnMute = new ImageView(mContext);
         mBtnMute.setId(R.id.muteBtn);
         mBtnMute.setImageResource(this.isVideoMuted ? R.drawable.ic_action_mute : R.drawable.ic_action_volume_up);
@@ -346,7 +388,8 @@ public class ExoPlayerHelper implements
 
         mBtnMute.setOnClickListener(this);
 
-        frameLayout.addView(mBtnMute);*/
+        frameLayout.addView(mBtnMute);
+        */
     }
 
     private void updateMutedStatus() {
@@ -362,17 +405,21 @@ public class ExoPlayerHelper implements
     }
 
     private void enableCache(int maxCacheSizeMb) {
-        LeastRecentlyUsedCacheEvictor evictor = new LeastRecentlyUsedCacheEvictor(maxCacheSizeMb * 1024 * 1024);
-        File file = new File(mContext.getCacheDir(), "media");
+        final LeastRecentlyUsedCacheEvictor evictor = new LeastRecentlyUsedCacheEvictor(maxCacheSizeMb * 1024 * 1024L);
+        final File file = new File(mContext.getCacheDir(), "media");
         Log.d("ZAQ", "enableCache (" + maxCacheSizeMb + " MB), file: " + file.getAbsolutePath());
-        SimpleCache simpleCache = new SimpleCache(file, evictor);
-        mDataSourceFactory = new CacheDataSourceFactory(
-                simpleCache,
-                mDataSourceFactory,
-                new FileDataSourceFactory(),
-                new CacheDataSinkFactory(simpleCache, 2 * 1024 * 1024),
-                CacheDataSource.FLAG_BLOCK_ON_CACHE | CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR,
-                new CacheDataSource.EventListener() {
+        final SimpleCache simpleCache = new SimpleCache(file, evictor, (DatabaseProvider) null);
+
+        mDataSourceFactory = new CacheDataSource.Factory()
+                .setCache(simpleCache)
+                .setFlags(CacheDataSource.FLAG_BLOCK_ON_CACHE | CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR)
+                .setUpstreamDataSourceFactory(mDataSourceFactory)
+                .setCacheReadDataSourceFactory(new FileDataSource.Factory())
+                .setCacheWriteDataSinkFactory(new CacheDataSink.Factory()
+                        .setCache(simpleCache)
+                        .setFragmentSize(2 * 1024 * 1024L)
+                )
+                .setEventListener(new CacheDataSource.EventListener() {
                     @Override
                     public void onCacheIgnored(int reason) {
                         Log.d("ZAQ", "onCacheIgnored");
@@ -450,7 +497,7 @@ public class ExoPlayerHelper implements
 
     private void updateResumePosition() {
         isResumePlayWhenReady = mPlayer.getPlayWhenReady();
-        mResumeWindow = mPlayer.getCurrentWindowIndex();
+        mResumeWindow = mPlayer.getCurrentMediaItemIndex();
         mResumePosition = Math.max(0, mPlayer.getContentPosition());
     }
 
@@ -461,11 +508,11 @@ public class ExoPlayerHelper implements
     }
 
     private int getNextWindowIndex() {
-        return mPlayer.getCurrentTimeline().getNextWindowIndex(mPlayer.getCurrentWindowIndex(), mPlayer.getRepeatMode(), false);
+        return mPlayer.getCurrentTimeline().getNextWindowIndex(mPlayer.getCurrentMediaItemIndex(), mPlayer.getRepeatMode(), false);
     }
 
     private int getPreviousWindowIndex() {
-        return mPlayer.getCurrentTimeline().getPreviousWindowIndex(mPlayer.getCurrentWindowIndex(), mPlayer.getRepeatMode(), false);
+        return mPlayer.getCurrentTimeline().getPreviousWindowIndex(mPlayer.getCurrentMediaItemIndex(), mPlayer.getRepeatMode(), false);
     }
 
     // Player events, internal handle
@@ -487,10 +534,12 @@ public class ExoPlayerHelper implements
 
     private void liveStreamCheck() {
         if (isLiveStreamSupportEnabled) {
-            boolean isLiveStream = mPlayer.isCurrentWindowDynamic() || !mPlayer.isCurrentWindowSeekable();
-/*            Log.e("ZAQ", "isCurrentWindowDynamic: " + mPlayer.isCurrentWindowDynamic());
+            final boolean isLiveStream = mPlayer.isCurrentMediaItemDynamic() || !mPlayer.isCurrentMediaItemSeekable();
+            /*
+            Log.e("ZAQ", "isCurrentWindowDynamic: " + mPlayer.isCurrentWindowDynamic());
             Log.e("ZAQ", "isCurrentWindowSeekable: " + mPlayer.isCurrentWindowDynamic());
-            Log.e("ZAQ", "isLiveStream: " + isLiveStream);*/
+            Log.e("ZAQ", "isLiveStream: " + isLiveStream);
+            */
             mBottomProgress.setVisibility(isLiveStream ? View.GONE : View.VISIBLE);
         }
     }
@@ -507,9 +556,9 @@ public class ExoPlayerHelper implements
     @SuppressWarnings("SameParameterValue")
     public static class Builder {
 
-        private ExoPlayerHelper mExoPlayerHelper;
+        private final ExoPlayerHelper mExoPlayerHelper;
 
-        public Builder(Context context, PlayerView exoPlayerView) {
+        public Builder(Context context, StyledPlayerView exoPlayerView) {
             mExoPlayerHelper = new ExoPlayerHelper(context, exoPlayerView);
         }
 
@@ -660,12 +709,10 @@ public class ExoPlayerHelper implements
         if (isThumbImageViewEnabled) {
             addThumbImageView();
         }
-
-        mPlayer = ExoPlayerFactory.newSimpleInstance(
-                mContext,
-                new DefaultRenderersFactory(mContext),
-                new DefaultTrackSelector(),
-                mLoadControl);
+        mPlayer = new ExoPlayer.Builder(mContext, new DefaultRenderersFactory(mContext))
+                .setTrackSelector(new DefaultTrackSelector(mContext))
+                .setLoadControl(mLoadControl)
+                .build();
 
         mExoPlayerView.setPlayer(mPlayer);
         mExoPlayerView.setControllerShowTimeoutMs(1500);
@@ -691,7 +738,8 @@ public class ExoPlayerHelper implements
         }
         isPlayerPrepared = true;
 
-        mPlayer.prepare(mMediaSource);
+        mPlayer.setMediaSource(mMediaSource);
+        mPlayer.prepare();
 
         if (mResumeWindow != C.INDEX_UNSET && !mPlayer.isPlayingAd()) {
             mPlayer.setPlayWhenReady(isResumePlayWhenReady);
@@ -699,12 +747,12 @@ public class ExoPlayerHelper implements
             if (mExoPlayerListener != null) {
                 mExoPlayerListener.onVideoResumeDataLoaded(mResumeWindow, mResumePosition, isResumePlayWhenReady);
             }
-            //mExoPlayerView.postDelayed(checkFreeze, 1000);
+            // mExoPlayerView.postDelayed(checkFreeze, 1000);
         }
     }
 
     // It looks like the issue was solved and no need for this Runnable
-    private Runnable checkFreeze = new Runnable() {
+    private final Runnable checkFreeze = new Runnable() {
         @Override
         public void run() {
             if (mPlayer != null && mPlayer.getPlaybackState() == Player.STATE_BUFFERING && mPlayer.getPlayWhenReady()) {
@@ -741,7 +789,7 @@ public class ExoPlayerHelper implements
         if (mImaAdsLoader != null) {
             mImaAdsLoader.release();
             mImaAdsLoader = null;
-            FrameLayout layout = mExoPlayerView.getOverlayFrameLayout();
+            final FrameLayout layout = mExoPlayerView.getOverlayFrameLayout();
             if (layout != null) {
                 layout.removeAllViews();
             }
@@ -750,11 +798,11 @@ public class ExoPlayerHelper implements
 
     @Override
     public void updateVideoUrls(String... urls) {
-        if (!isPlayerPrepared) {
+        if (isPlayerPrepared) {
+            throw new IllegalStateException("Can't update url's when player is prepared");
+        } else {
             setVideoUrls(urls);
             createMediaSource();
-        } else {
-            throw new IllegalStateException("Can't update url's when player is prepared");
         }
     }
 
@@ -811,14 +859,14 @@ public class ExoPlayerHelper implements
 
     @Override
     public void setFullScreenBtnVisibility(boolean isVisible) {
-        mBtnFullScreen.setVisibility(isVisible? View.VISIBLE : View.GONE);
+        mBtnFullScreen.setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putBoolean(PARAM_IS_AD_WAS_SHOWN, !mPlayer.isPlayingAd());
         outState.putBoolean(PARAM_AUTO_PLAY, mPlayer.getPlayWhenReady());
-        outState.putInt(PARAM_WINDOW, mPlayer.getCurrentWindowIndex());
+        outState.putInt(PARAM_WINDOW, mPlayer.getCurrentMediaItemIndex());
         outState.putLong(PARAM_POSITION, mPlayer.getContentPosition());
     }
 
@@ -875,28 +923,28 @@ public class ExoPlayerHelper implements
 
     @Override
     public int getCurrentWindowIndex() {
-        if (mPlayer != null) {
-            return mPlayer.getCurrentWindowIndex();
-        } else {
+        if (mPlayer == null) {
             return 0;
+        } else {
+            return mPlayer.getCurrentMediaItemIndex();
         }
     }
 
     @Override
     public long getCurrentPosition() {
-        if (mPlayer != null) {
-            return mPlayer.getCurrentPosition();
-        } else {
+        if (mPlayer == null) {
             return 0;
+        } else {
+            return mPlayer.getCurrentPosition();
         }
     }
 
     @Override
     public long getDuration() {
-        if (mPlayer != null) {
-            return mPlayer.getDuration();
-        } else {
+        if (mPlayer == null) {
             return 0;
+        } else {
+            return mPlayer.getDuration();
         }
     }
 
@@ -909,17 +957,17 @@ public class ExoPlayerHelper implements
      * ExoPlayer Player.EventListener methods
      */
     @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+    public void onTracksInfoChanged(@NonNull TracksInfo tracksInfo) {
         if (mExoPlayerListener != null) {
             mExoPlayerListener.onTracksChanged(
-                    mPlayer.getCurrentWindowIndex(),
-                    getNextWindowIndex(),
-                    mPlayer.getPlaybackState() == Player.STATE_READY);
+                    mPlayer.getCurrentMediaItemIndex(),
+                    getNextWindowIndex(), mPlayer.getPlaybackState() == Player.STATE_READY
+            );
         }
     }
 
     @Override
-    public void onLoadingChanged(boolean isLoading) {
+    public void onIsLoadingChanged(boolean isLoading) {
         onPlayerLoadingChanged();
         if (mExoPlayerListener != null) {
             mExoPlayerListener.onLoadingStatusChanged(isLoading, mPlayer.getBufferedPosition(), mPlayer.getBufferedPercentage());
@@ -927,105 +975,120 @@ public class ExoPlayerHelper implements
     }
 
     @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    public void onPlaybackStateChanged(@Player.State int state) {
+        playerStateChanged();
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged(
+            boolean playWhenReady, @Player.PlayWhenReadyChangeReason int reason
+    ) {
+        playerStateChanged();
+    }
+
+    private void playerStateChanged() {
         if (mExoPlayerListener == null || mPlayer == null) {
             return;
         }
-        switch (playbackState) {
+        final int state = mPlayer.getPlaybackState();
+        switch (state) {
             case Player.STATE_READY:
-                if (playWhenReady) {
+                if (mPlayer.getPlayWhenReady()) {
                     onPlayerPlaying();
-                    mExoPlayerListener.onPlayerPlaying(mPlayer.getCurrentWindowIndex());
+                    mExoPlayerListener.onPlayerPlaying(mPlayer.getCurrentMediaItemIndex());
                 } else {
                     onPlayerPaused();
-                    mExoPlayerListener.onPlayerPaused(mPlayer.getCurrentWindowIndex());
+                    mExoPlayerListener.onPlayerPaused(mPlayer.getCurrentMediaItemIndex());
                 }
                 break;
             case Player.STATE_BUFFERING:
                 onPlayerBuffering();
-                mExoPlayerListener.onPlayerBuffering(mPlayer.getCurrentWindowIndex());
+                mExoPlayerListener.onPlayerBuffering(mPlayer.getCurrentMediaItemIndex());
                 break;
             case Player.STATE_ENDED:
-                mExoPlayerListener.onPlayerStateEnded(mPlayer.getCurrentWindowIndex());
+                mExoPlayerListener.onPlayerStateEnded(mPlayer.getCurrentMediaItemIndex());
                 break;
             case Player.STATE_IDLE:
-                mExoPlayerListener.onPlayerStateIdle(mPlayer.getCurrentWindowIndex());
+                mExoPlayerListener.onPlayerStateIdle(mPlayer.getCurrentMediaItemIndex());
                 break;
             default:
-                Log.e("ExoPlayerHelper-zaq", "onPlayerStateChanged unknown: " + playbackState);
+                Log.e("ExoPlayerHelper-zaq", "onPlayerStateChanged unknown: " + state);
 
         }
     }
 
     @Override
-    public void onPlayerError(ExoPlaybackException e) {
+    public void onPlayerError(@NonNull PlaybackException error) {
         String errorString = null;
-
-        switch (e.type) {
-            case ExoPlaybackException.TYPE_SOURCE:
-                //https://github.com/google/ExoPlayer/issues/2702
-                IOException ex = e.getSourceException();
-                String msg = ex.getMessage();
-                if (msg != null) {
-                    Log.e("ExoPlayerHelper", msg);
-                    errorString = msg;
-                }
-                break;
-            case ExoPlaybackException.TYPE_RENDERER:
-                Exception exception = e.getRendererException();
-                if (exception.getMessage() != null) {
-                    Log.e("ExoPlayerHelper", exception.getMessage());
-                }
-                break;
-            case ExoPlaybackException.TYPE_UNEXPECTED:
-                RuntimeException runtimeException = e.getUnexpectedException();
-                Log.e("ExoPlayerHelper", runtimeException.getMessage() == null ? "Message is null" : runtimeException.getMessage());
-                if (runtimeException.getMessage() == null) {
-                    runtimeException.printStackTrace();
-                }
-                errorString = runtimeException.getMessage();
-                break;
-            case ExoPlaybackException.TYPE_OUT_OF_MEMORY:
-                break;
-            case ExoPlaybackException.TYPE_REMOTE:
-                break;
-        }
-
-
-        if (e.type == ExoPlaybackException.TYPE_RENDERER) {
-            Exception cause = e.getRendererException();
-            if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
-                // Special case for decoder initialization failures.
-                MediaCodecRenderer.DecoderInitializationException decoderInitializationException =
-                        (MediaCodecRenderer.DecoderInitializationException) cause;
-                if (decoderInitializationException.decoderName == null) {
-                    if (decoderInitializationException.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
-                        errorString = mContext.getString(R.string.error_querying_decoders);
-                    } else if (decoderInitializationException.secureDecoderRequired) {
-                        errorString = mContext.getString(R.string.error_no_secure_decoder,
-                                decoderInitializationException.mimeType);
-                    } else {
-                        errorString = mContext.getString(R.string.error_no_decoder,
-                                decoderInitializationException.mimeType);
+        if (error instanceof ExoPlaybackException) {
+            ExoPlaybackException e = (ExoPlaybackException) error;
+            switch (e.type) {
+                case ExoPlaybackException.TYPE_SOURCE:
+                    // https://github.com/google/ExoPlayer/issues/2702
+                    final IOException ex = e.getSourceException();
+                    final String msg = ex.getMessage();
+                    if (msg != null) {
+                        Log.e("ExoPlayerHelper", msg);
+                        errorString = msg;
                     }
-                } else {
-                    errorString = mContext.getString(R.string.error_instantiating_decoder,
-                            decoderInitializationException.decoderName);
+                    break;
+                case ExoPlaybackException.TYPE_RENDERER:
+                    final Exception exception = e.getRendererException();
+                    if (exception.getMessage() != null) {
+                        Log.e("ExoPlayerHelper", exception.getMessage());
+                    }
+                    break;
+                case ExoPlaybackException.TYPE_UNEXPECTED:
+                    final RuntimeException runtimeException = e.getUnexpectedException();
+                    Log.e("ExoPlayerHelper", runtimeException.getMessage() == null ? "Message is null" : runtimeException.getMessage());
+                    if (runtimeException.getMessage() == null) {
+                        runtimeException.printStackTrace();
+                    }
+                    errorString = runtimeException.getMessage();
+                    break;
+                case ExoPlaybackException.TYPE_REMOTE:
+                    break;
+            }
+
+            if (e.type == ExoPlaybackException.TYPE_RENDERER) {
+                final Exception cause = e.getRendererException();
+                if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
+                    // Special case for decoder initialization failures.
+                    final MediaCodecRenderer.DecoderInitializationException decoderInitException =
+                            (MediaCodecRenderer.DecoderInitializationException) cause;
+                    if (decoderInitException.codecInfo == null) {
+                        if (decoderInitException.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
+                            errorString = mContext.getString(R.string.error_querying_decoders);
+                        } else if (decoderInitException.secureDecoderRequired) {
+                            errorString = mContext.getString(
+                                    R.string.error_no_secure_decoder, decoderInitException.mimeType
+                            );
+                        } else {
+                            errorString = mContext.getString(
+                                    R.string.error_no_decoder, decoderInitException.mimeType
+                            );
+                        }
+                    } else {
+                        errorString = mContext.getString(
+                                R.string.error_instantiating_decoder, decoderInitException.codecInfo.name
+                        );
+                    }
                 }
             }
-        }
-        if (errorString != null) {
-            Log.e("ExoPlayerHelper", "errorString: " + errorString);
-        }
+            if (errorString != null) {
+                Log.e("ExoPlayerHelper", "errorString: " + errorString);
+            }
 
-        if (isBehindLiveWindow(e)) {
-            createPlayer(true);
-            Log.e("ExoPlayerHelper", "isBehindLiveWindow is true");
-        }
+            if (isBehindLiveWindow(e)) {
+                createPlayer(true);
+                Log.e("ExoPlayerHelper", "isBehindLiveWindow is true");
+            }
 
-
-        if (mExoPlayerListener != null) {
-            mExoPlayerListener.onPlayerError(errorString);
+            if (mExoPlayerListener != null) {
+                mExoPlayerListener.onPlayerError(errorString);
+            }
+        } else {
+            // TODO: impl!!
         }
     }
 
@@ -1054,48 +1117,42 @@ public class ExoPlayerHelper implements
     }
 
     @Override
-    public void onPositionDiscontinuity(int reason) {
+    public void onPositionDiscontinuity(
+            @NonNull Player.PositionInfo oldPosition, @NonNull Player.PositionInfo newPosition,
+            @Player.DiscontinuityReason int reason
+    ) {
+        // if (Player.DISCONTINUITY_REASON_SEEK == reason) {
+        // onSeekProceeded
+        // }
+    }
+
+    @Override
+    public void onPlaybackParametersChanged(@NonNull PlaybackParameters playbackParameters) {
 
     }
 
     @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-    }
-
-    @Override
-    public void onSeekProcessed() {
-
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+    public void onTimelineChanged(@NonNull Timeline timeline, @Player.TimelineChangeReason int reason) {
 
     }
 
     /**
      * ImaAdsLoader.VideoAdPlayerCallback
      */
-
     @Override
-    public void onPlay() {
+    public void onPlay(AdMediaInfo adMediaInfo) {
         if (mExoAdListener != null) {
             mExoAdListener.onAdPlay();
         }
     }
 
     @Override
-    public void onVolumeChanged(int pI) {
+    public void onVolumeChanged(AdMediaInfo adMediaInfo, int i) {
 
     }
 
     @Override
-    public void onLoaded() {
-
-    }
-
-    @Override
-    public void onPause() {
+    public void onPause(AdMediaInfo adMediaInfo) {
         if (mExoAdListener != null) {
             mExoAdListener.onAdPause();
         }
@@ -1105,14 +1162,24 @@ public class ExoPlayerHelper implements
     }
 
     @Override
-    public void onResume() {
+    public void onAdProgress(AdMediaInfo adMediaInfo, VideoProgressUpdate videoProgressUpdate) {
+
+    }
+
+    @Override
+    public void onLoaded(AdMediaInfo adMediaInfo) {
+
+    }
+
+    @Override
+    public void onResume(AdMediaInfo adMediaInfo) {
         if (mExoAdListener != null) {
             mExoAdListener.onAdResume();
         }
     }
 
     @Override
-    public void onEnded() {
+    public void onEnded(AdMediaInfo adMediaInfo) {
         onAdEnded();
         if (mExoAdListener != null) {
             mExoAdListener.onAdEnded();
@@ -1120,30 +1187,22 @@ public class ExoPlayerHelper implements
     }
 
     @Override
-    public void onError() {
+    public void onContentComplete() {
+
+    }
+
+    @Override
+    public void onError(AdMediaInfo adMediaInfo) {
         if (mExoAdListener != null) {
             mExoAdListener.onAdError();
         }
     }
 
     @Override
-    public void onBuffering() {
+    public void onBuffering(AdMediaInfo adMediaInfo) {
         if (mExoAdListener != null) {
             mExoAdListener.onBuffering();
         }
-    }
-
-    /**
-     * AdsMediaSource.MediaSourceFactory
-     */
-    @Override
-    public MediaSource createMediaSource(Uri uri) {
-        return buildMediaSource(uri);
-    }
-
-    @Override
-    public int[] getSupportedTypes() {
-        return new int[]{C.TYPE_DASH, C.TYPE_HLS, C.TYPE_OTHER};
     }
 
     /**
@@ -1163,5 +1222,4 @@ public class ExoPlayerHelper implements
                 break;
         }
     }
-
 }

@@ -1,9 +1,11 @@
 package net.alexandroid.utils.exoplayerlibrary;
 
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 
 import net.alexandroid.utils.exoplayerhelper.ExoPlayerHelper;
 import net.alexandroid.utils.mylog.MyLog;
@@ -19,7 +21,7 @@ public class SimplePlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_player);
 
-        PlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
+        StyledPlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
                 .setUiControllersVisibility(true)
@@ -31,7 +33,7 @@ public class SimplePlayerActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         mExoPlayerHelper.onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
@@ -70,5 +72,4 @@ public class SimplePlayerActivity extends AppCompatActivity {
         MyLog.e("onActivityDestroy");
         mExoPlayerHelper.onActivityDestroy();
     }
-
 }

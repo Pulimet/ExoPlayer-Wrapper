@@ -1,15 +1,14 @@
 package net.alexandroid.utils.exoplayerlibrary;
 
-import android.app.Application;
+import androidx.multidex.MultiDexApplication;
 
 import net.alexandroid.utils.mylog.MyLog;
 
-public class MyApplication extends Application {
+public class MyApplication extends MultiDexApplication {
 
     @Override
     public void onCreate() {
         super.onCreate();
         MyLog.init(this, "ZAQ");
     }
-
 }

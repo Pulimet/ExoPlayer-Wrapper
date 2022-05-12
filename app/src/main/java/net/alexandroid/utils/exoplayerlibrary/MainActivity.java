@@ -7,7 +7,7 @@ import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.squareup.picasso.Picasso;
 
 import net.alexandroid.utils.exoplayerhelper.ExoAdListener;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity
 
         setButtons();
 
-        PlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
+        StyledPlayerView exoPlayerView = findViewById(R.id.exoPlayerView);
 
         mExoPlayerHelper = new ExoPlayerHelper.Builder(this, exoPlayerView)
                 .setVideoUrls(SAMPLE_8)
